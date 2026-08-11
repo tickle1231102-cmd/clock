@@ -52,6 +52,15 @@ function isSessionMode(settings: ClockSettings): boolean {
 export function createClockView(root: HTMLElement) {
   root.innerHTML = `
     <div class="clock-root" data-mode="digital" data-app-mode="clock" data-pomodoro-visual="false">
+      <div class="sky-window" hidden aria-hidden="true">
+        <div class="sky-gradient"></div>
+        <div class="sky-stars"></div>
+        <div class="sky-haze"></div>
+        <div class="sky-sun"></div>
+        <div class="sky-moon"></div>
+        <div class="sky-glass"></div>
+      </div>
+      <div class="date-label" hidden></div>
       <div class="clock-stage">
         <div class="mode-label" hidden></div>
         <div class="analog-host"></div>
@@ -66,7 +75,6 @@ export function createClockView(root: HTMLElement) {
           </div>
           <span class="day-progress-value">0%</span>
         </div>
-        <div class="date-label" hidden></div>
         <div class="session-status session-status-outer" hidden></div>
       </div>
       <div class="session-controls" hidden>
@@ -86,6 +94,7 @@ export function createClockView(root: HTMLElement) {
   `
 
   const clockRoot = root.querySelector('.clock-root') as HTMLElement
+  const skyWindowEl = root.querySelector('.sky-window') as HTMLElement
   const digitalEl = root.querySelector('.digital-clock') as HTMLElement
   const dateEl = root.querySelector('.date-label') as HTMLElement
   const dayProgressEl = root.querySelector('.day-progress') as HTMLElement
@@ -181,22 +190,23 @@ export function createClockView(root: HTMLElement) {
     dayProgressEl.setAttribute('aria-valuenow', String(Math.round(progress.ratio * 100)))
   }
 
-  function applyTheme(settings: ClockSettings) {
-    const theme = resolveTheme(settings)
+  function applyTheme(settings: ClockSettings, now: Date = new Date()) {
+    const theme = resolveTheme(settings, now)
     applyThemeVars(theme, document.documentElement)
     applyThemeVars(theme, clockRoot)
     document.documentElement.dataset.digitalStyle = settings.digitalStyle
     document.documentElement.dataset.analogStyle = settings.analogStyle
+    const isSkylight = theme.id === 'skylight' && Boolean(theme.sky)
+    skyWindowEl.hidden = !isSkylight
   }
 
   function placeDigitalInStage() {
-    if (digitalEl.parentElement !== clockRoot.querySelector('.clock-stage')) {
-      const stage = clockRoot.querySelector('.clock-stage') as HTMLElement
-      const dateNode = stage.querySelector('.date-label')
-      stage.insertBefore(digitalEl, dateNode)
+    const stage = clockRoot.querySelector('.clock-stage') as HTMLElement
+    if (digitalEl.parentElement !== stage) {
+      const progressNode = stage.querySelector('.day-progress')
+      stage.insertBefore(digitalEl, progressNode)
     }
-    if (statusEl.parentElement !== clockRoot.querySelector('.clock-stage')) {
-      const stage = clockRoot.querySelector('.clock-stage') as HTMLElement
+    if (statusEl.parentElement !== stage) {
       stage.appendChild(statusEl)
     }
     center.hidden = true
@@ -266,9 +276,9 @@ export function createClockView(root: HTMLElement) {
     }, 1600)
   }
 
-  function applySettingsChrome(settings: ClockSettings) {
+  function applySettingsChrome(settings: ClockSettings, now: Date = new Date()) {
     latestSettings = settings
-    applyTheme(settings)
+    applyTheme(settings, now)
     clockRoot.dataset.mode = settings.mode
     clockRoot.dataset.appMode = settings.appMode
     const visual = usesDialVisual(settings)
@@ -454,7 +464,7 @@ export function createClockView(root: HTMLElement) {
     date: Date = new Date(),
     session?: SessionSnapshot | null,
   ) {
-    applySettingsChrome(settings)
+    applySettingsChrome(settings, date)
     if (settings.appMode === 'calendar') {
       renderCalendar(settings, date)
       return
@@ -525,7 +535,7 @@ export function createClockView(root: HTMLElement) {
         next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
         const d = digitalStyleMeta(next.digitalStyle)
         const a = analogStyleMeta(next.analogStyle)
-        label = `${d.label} · ${a.label}`
+        label = `${a.label} · ${d.label}`
       }
     } else if (usesDialVisual(settings)) {
       next.pomodoroDialStyle = cyclePomodoroDialStyle(settings.pomodoroDialStyle, dir)

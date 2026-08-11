@@ -1,5 +1,6 @@
 import './styles/base.css'
 import './styles/themes.css'
+import './styles/skylight.css'
 import './styles/digital.css'
 import './styles/analog.css'
 import './styles/settings.css'
@@ -27,6 +28,7 @@ import {
 import { notifySessionComplete } from './platform/notify'
 import { createTicker } from './platform/ticker'
 import { setKeepScreenOn } from './platform/wakeLock'
+import { requestSolarLocation, SKYLIGHT_THEME_ID } from './domain/solarSky'
 import { createClockView } from './ui/clockView'
 import { createSettingsView } from './ui/settingsView'
 
@@ -35,7 +37,37 @@ if (!app) {
   throw new Error('#app not found')
 }
 
+/** `?sky=12` freezes Skylight at that local hour (0–24). Useful for previews. */
+function readSkyPreviewHour(): number | null {
+  const raw = new URLSearchParams(window.location.search).get('sky')
+  if (raw == null || raw === '') return null
+  const hour = Number(raw)
+  if (!Number.isFinite(hour) || hour < 0 || hour > 24) return null
+  return hour
+}
+
+const skyPreviewHour = readSkyPreviewHour()
+
+function withSkyPreview(date: Date): Date {
+  if (skyPreviewHour == null) return date
+  const next = new Date(date)
+  const whole = Math.floor(skyPreviewHour)
+  const minutes = Math.round((skyPreviewHour - whole) * 60)
+  next.setHours(whole, minutes, 0, 0)
+  return next
+}
+
 let settings: ClockSettings = loadSettings()
+if (skyPreviewHour != null) {
+  document.documentElement.dataset.skyPreview = '1'
+  settings = {
+    ...settings,
+    themeId: 'skylight',
+    appMode: 'clock',
+    showDate: true,
+    showDayProgress: false,
+  }
+}
 let session: SessionState =
   settings.appMode === 'stopwatch'
     ? createSessionState('stopwatch')
@@ -53,12 +85,13 @@ function currentSessionSnapshot() {
 }
 
 function paint(now = new Date()) {
+  const at = withSkyPreview(now)
   if (isTimerMode(settings.appMode)) {
-    const result = tickSession(session, now.getTime())
+    const result = tickSession(session, at.getTime())
     session = result.state
     if (result.justCompleted) notifySessionComplete()
   }
-  clockView.render(settings, now, currentSessionSnapshot())
+  clockView.render(settings, at, currentSessionSnapshot())
 }
 
 function syncSessionToAppMode(next: ClockSettings, prev: ClockSettings) {
@@ -87,6 +120,9 @@ const settingsView = createSettingsView({
     settings = next
     saveSettings(settings)
     syncSessionToAppMode(settings, prev)
+    if (settings.themeId === SKYLIGHT_THEME_ID) {
+      requestSolarLocation(() => paint())
+    }
     paint()
     ticker.reschedule()
     void setKeepScreenOn(settings.keepScreenOn)
@@ -234,6 +270,10 @@ paint()
 ticker.start()
 void setKeepScreenOn(settings.keepScreenOn)
 clockView.showHintBriefly()
+
+if (settings.themeId === SKYLIGHT_THEME_ID || skyPreviewHour != null) {
+  requestSolarLocation(() => paint())
+}
 
 if ('serviceWorker' in navigator) {
   void import('virtual:pwa-register').then(({ registerSW }) => {

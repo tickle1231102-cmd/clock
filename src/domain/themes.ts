@@ -1,4 +1,10 @@
 import type { FontFamilyId } from './settings'
+import {
+  getSolarSkyState,
+  SKYLIGHT_THEME_ID,
+  solarSkyFlatBg,
+  type SolarSkyState,
+} from './solarSky'
 
 export type ThemeTokens = {
   id: string
@@ -7,6 +13,10 @@ export type ThemeTokens = {
   fg: string
   accent: string
   fontFamily: FontFamilyId
+  /** Optional settings swatch override (CSS background). */
+  swatch?: string
+  /** Theme updates continuously with clock time. */
+  dynamic?: boolean
 }
 
 /** Softer, more atmospheric presets (warm neutrals, muted accents, achromatic). */
@@ -36,14 +46,6 @@ export const THEME_PRESETS: ThemeTokens[] = [
     fontFamily: 'serif',
   },
   {
-    id: 'ocean',
-    name: 'Harbor',
-    bg: '#102026',
-    fg: '#dde9ec',
-    accent: '#7eafb6',
-    fontFamily: 'rounded',
-  },
-  {
     id: 'ember',
     name: 'Ember',
     bg: '#1c110f',
@@ -66,14 +68,6 @@ export const THEME_PRESETS: ThemeTokens[] = [
     fg: '#ececec',
     accent: '#9a9a9a',
     fontFamily: 'system',
-  },
-  {
-    id: 'graphite',
-    name: 'Graphite',
-    bg: '#1c1c1e',
-    fg: '#f2f2f2',
-    accent: '#8e8e93',
-    fontFamily: 'rounded',
   },
   {
     id: 'ash',
@@ -99,7 +93,29 @@ export const THEME_PRESETS: ThemeTokens[] = [
     accent: '#7a7a7a',
     fontFamily: 'display',
   },
+  {
+    id: SKYLIGHT_THEME_ID,
+    name: 'Skylight',
+    bg: '#6eb0e4',
+    fg: '#132a40',
+    accent: '#f0b45a',
+    fontFamily: 'system',
+    dynamic: true,
+    swatch:
+      'linear-gradient(160deg, #3b8fd0 0%, #f0a060 48%, #10182c 100%)',
+  },
 ]
+
+/** Removed presets remapped on load. */
+const THEME_ALIASES: Record<string, string> = {
+  ocean: 'slate',
+  graphite: 'charcoal',
+  harbor: 'slate',
+}
+
+export function migrateThemeId(id: string): string {
+  return THEME_ALIASES[id] ?? id
+}
 
 export const FONT_OPTIONS: { id: FontFamilyId; label: string; css: string }[] = [
   {
@@ -143,18 +159,22 @@ export type ResolvedTheme = {
   fg: string
   accent: string
   fontFamily: FontFamilyId
+  sky?: SolarSkyState
 }
 
 /** Single source of truth for colors/fonts applied to the DOM. */
-export function resolveTheme(settings: {
-  themeId: string
-  custom: {
-    bg: string
-    fg: string
-    accent: string
-    fontFamily: FontFamilyId
-  }
-}): ResolvedTheme {
+export function resolveTheme(
+  settings: {
+    themeId: string
+    custom: {
+      bg: string
+      fg: string
+      accent: string
+      fontFamily: FontFamilyId
+    }
+  },
+  now: Date = new Date(),
+): ResolvedTheme {
   if (settings.themeId === 'custom') {
     return {
       id: 'custom',
@@ -165,7 +185,22 @@ export function resolveTheme(settings: {
     }
   }
 
-  const preset = getThemeById(settings.themeId)
+  const themeId = migrateThemeId(settings.themeId)
+
+  if (themeId === SKYLIGHT_THEME_ID) {
+    const sky = getSolarSkyState(now)
+    const preset = getThemeById(SKYLIGHT_THEME_ID)!
+    return {
+      id: SKYLIGHT_THEME_ID,
+      bg: solarSkyFlatBg(sky),
+      fg: sky.fg,
+      accent: sky.accent,
+      fontFamily: preset.fontFamily,
+      sky,
+    }
+  }
+
+  const preset = getThemeById(themeId)
   if (preset) {
     return {
       id: preset.id,
@@ -246,6 +281,43 @@ export function dialTokens(theme: ResolvedTheme): {
   }
 }
 
+export function applySkyVars(sky: SolarSkyState | undefined, root: HTMLElement) {
+  if (!sky) {
+    root.style.removeProperty('--sky-top')
+    root.style.removeProperty('--sky-mid')
+    root.style.removeProperty('--sky-bottom')
+    root.style.removeProperty('--sky-haze')
+    root.style.removeProperty('--sun-x')
+    root.style.removeProperty('--sun-y')
+    root.style.removeProperty('--sun-opacity')
+    root.style.removeProperty('--sun-scale')
+    root.style.removeProperty('--sun-glow')
+    root.style.removeProperty('--moon-x')
+    root.style.removeProperty('--moon-y')
+    root.style.removeProperty('--moon-opacity')
+    root.style.removeProperty('--moon-scale')
+    root.style.removeProperty('--moon-glow')
+    root.style.removeProperty('--stars-opacity')
+    return
+  }
+
+  root.style.setProperty('--sky-top', sky.bgTop)
+  root.style.setProperty('--sky-mid', sky.bgMid)
+  root.style.setProperty('--sky-bottom', sky.bgBottom)
+  root.style.setProperty('--sky-haze', sky.haze)
+  root.style.setProperty('--sun-x', `${sky.sun.x}%`)
+  root.style.setProperty('--sun-y', `${sky.sun.y}%`)
+  root.style.setProperty('--sun-opacity', String(sky.sun.opacity))
+  root.style.setProperty('--sun-scale', String(sky.sun.scale))
+  root.style.setProperty('--sun-glow', String(sky.sun.glow))
+  root.style.setProperty('--moon-x', `${sky.moon.x}%`)
+  root.style.setProperty('--moon-y', `${sky.moon.y}%`)
+  root.style.setProperty('--moon-opacity', String(sky.moon.opacity))
+  root.style.setProperty('--moon-scale', String(sky.moon.scale))
+  root.style.setProperty('--moon-glow', String(sky.moon.glow))
+  root.style.setProperty('--stars-opacity', String(sky.starsOpacity))
+}
+
 export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = document.documentElement) {
   const dial = dialTokens(theme)
 
@@ -262,7 +334,6 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
   root.style.setProperty('--sheet-border', withAlpha(theme.fg, 0.16))
   root.style.setProperty('--control-bg', withAlpha(theme.fg, 0.09))
 
-  // Pomodoro analog dial synced to theme
   root.style.setProperty('--dial-plate', dial.plate)
   root.style.setProperty('--dial-stroke', dial.stroke)
   root.style.setProperty('--dial-ink', dial.ink)
@@ -272,10 +343,13 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
   root.style.setProperty('--dial-edge', withAlpha(dial.ink, 0.4))
   root.style.setProperty('--dial-shadow', withAlpha(theme.bg, 0.35))
 
+  applySkyVars(theme.sky, root)
   root.dataset.theme = theme.id
 
   if (root === document.documentElement) {
-    document.body.style.background = theme.bg
+    document.body.style.background = theme.sky
+      ? `linear-gradient(180deg, ${theme.sky.bgTop}, ${theme.sky.bgBottom})`
+      : theme.bg
     document.body.style.color = theme.fg
     document.body.style.fontFamily = fontCss(theme.fontFamily)
     const meta = document.querySelector('meta[name="theme-color"]')

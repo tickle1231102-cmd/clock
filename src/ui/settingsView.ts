@@ -211,7 +211,7 @@ export function createSettingsView({
                 data-theme-id="${t.id}"
                 aria-label="${t.name}"
                 aria-pressed="${s.themeId === t.id}"
-                style="background: linear-gradient(135deg, ${t.bg} 50%, ${t.fg} 50%);"
+                style="background: ${t.swatch ?? `linear-gradient(135deg, ${t.bg} 50%, ${t.fg} 50%)`};"
               ></button>
             `,
             ).join('')}

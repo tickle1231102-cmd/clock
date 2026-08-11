@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skylight preview board</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 1rem 1rem 2rem;
+        background: #0e0e10;
+        color: #eee;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.15rem;
+        font-weight: 600;
+      }
+      .lead {
+        margin: 0 0 1rem;
+        opacity: 0.65;
+        font-size: 0.85rem;
+        line-height: 1.45;
+      }
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 420px;
+        margin: 0 auto;
+      }
+      .card {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        border-radius: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+        background: #111;
+      }
+      .card iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        pointer-events: none;
+      }
+      .label {
+        position: absolute;
+        left: 0.75rem;
+        bottom: 0.75rem;
+        z-index: 2;
+        padding: 0.4rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+      .links {
+        max-width: 420px;
+        margin: 1.25rem auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .links a {
+        color: #9ec4ff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.55rem 0.8rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      code {
+        font-size: 0.8em;
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Skylight 시간대 미리보기</h1>
+    <p class="lead">
+      아래는 실제 앱을 고정 시각으로 띄운 화면입니다.<br />
+      직접 볼 때: <code>/?sky=12</code> · <code>17</code> · <code>19</code> · <code>23</code> · <code>6</code>
+    </p>
+    <div class="stack" id="stack"></div>
+    <div class="links" id="links"></div>
+    <script>
+      const slots = [
+        { hour: 12, label: '오후 12시' },
+        { hour: 17, label: '오후 5시' },
+        { hour: 19, label: '오후 7시' },
+        { hour: 23, label: '오후 11시' },
+        { hour: 6, label: '오전 6시' },
+      ]
+      const stack = document.getElementById('stack')
+      const links = document.getElementById('links')
+      for (const slot of slots) {
+        const card = document.createElement('div')
+        card.className = 'card'
+        const iframe = document.createElement('iframe')
+        iframe.src = `/?sky=${slot.hour}`
+        iframe.title = slot.label
+        iframe.loading = 'eager'
+        const label = document.createElement('div')
+        label.className = 'label'
+        label.textContent = slot.label
+        card.append(iframe, label)
+        stack.appendChild(card)
+
+        const a = document.createElement('a')
+        a.href = `/?sky=${slot.hour}`
+        a.target = '_blank'
+        a.rel = 'noopener'
+        a.textContent = `${slot.label} 전체 화면 →`
+        links.appendChild(a)
+      }
+    </script>
+  </body>
+</html>

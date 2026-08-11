@@ -138,7 +138,12 @@ function migrate(raw: unknown): ClockSettings {
       : raw.pomodoroDialStyle === 'notch'
         ? 'retro'
         : DEFAULT_SETTINGS.pomodoroDialStyle,
-    themeId: typeof raw.themeId === 'string' ? raw.themeId : DEFAULT_SETTINGS.themeId,
+    themeId: (() => {
+      const id = typeof raw.themeId === 'string' ? raw.themeId : DEFAULT_SETTINGS.themeId
+      if (id === 'ocean' || id === 'harbor') return 'slate'
+      if (id === 'graphite') return 'charcoal'
+      return id
+    })(),
     custom,
     digitalStyle: isDigitalStyle(raw.digitalStyle)
       ? raw.digitalStyle
@@ -168,5 +173,6 @@ export function saveSettings(settings: ClockSettings): void {
 /** True when ticker should fire every second. */
 export function needsSecondTicks(settings: ClockSettings): boolean {
   if (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') return true
+  if (settings.themeId === 'skylight') return true
   return settings.showSeconds
 }
