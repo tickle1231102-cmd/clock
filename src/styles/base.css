@@ -100,9 +100,8 @@ body {
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
+  justify-content: center;
   padding: 0.55rem 1rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg) 72%, transparent);
@@ -127,11 +126,58 @@ body {
   color: var(--fg);
 }
 
-.style-toast-mood {
-  font-size: clamp(0.65rem, 2.1vmin, 0.78rem);
-  letter-spacing: 0.06em;
-  color: var(--accent);
-  opacity: 0.85;
+.style-nav {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.style-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.92);
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  background: transparent;
+  font-size: clamp(2rem, 8vmin, 3.2rem);
+  line-height: 1;
+  font-weight: 300;
+  font-family: inherit;
+  color: var(--fg);
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+  text-shadow: 0 2px 16px color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.style-nav-prev {
+  left: max(0.35rem, env(safe-area-inset-left));
+}
+
+.style-nav-next {
+  right: max(0.35rem, env(safe-area-inset-right));
+}
+
+.style-nav.is-visible .style-nav-arrow {
+  opacity: 0.42;
+  transform: translateY(-50%) scale(1);
+  pointer-events: auto;
+}
+
+.style-nav.is-visible .style-nav-arrow:active {
+  opacity: 0.7;
+  transform: translateY(-50%) scale(0.96);
+}
+
+.clock-root[data-app-mode='pomodoro'] .style-nav,
+.clock-root[data-app-mode='stopwatch'] .style-nav {
+  display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

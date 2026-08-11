@@ -63,7 +63,10 @@ export function createClockView(root: HTMLElement) {
       </div>
       <div class="style-toast" hidden>
         <span class="style-toast-label"></span>
-        <span class="style-toast-mood"></span>
+      </div>
+      <div class="style-nav">
+        <button type="button" class="style-nav-arrow style-nav-prev" aria-label="이전 디자인">‹</button>
+        <button type="button" class="style-nav-arrow style-nav-next" aria-label="다음 디자인">›</button>
       </div>
       <div class="hint">탭 · ← → 디자인</div>
       <div class="settings-host"></div>
@@ -84,7 +87,9 @@ export function createClockView(root: HTMLElement) {
   const hintEl = root.querySelector('.hint') as HTMLElement
   const toastEl = root.querySelector('.style-toast') as HTMLElement
   const toastLabel = root.querySelector('.style-toast-label') as HTMLElement
-  const toastMood = root.querySelector('.style-toast-mood') as HTMLElement
+  const styleNavEl = root.querySelector('.style-nav') as HTMLElement
+  const styleNavPrev = root.querySelector('.style-nav-prev') as HTMLButtonElement
+  const styleNavNext = root.querySelector('.style-nav-next') as HTMLButtonElement
 
   const analog: AnalogView = createAnalogView(analogHost)
   const digital = createDigitalView(digitalEl)
@@ -99,6 +104,7 @@ export function createClockView(root: HTMLElement) {
   let onStyleSwipe: StyleSwipeHandler | null = null
   let latestSettings: ClockSettings | null = null
   let toastTimer: number | null = null
+  let styleNavTimer: number | null = null
   let suppressClick = false
 
   const minuteScroll = attachMinuteScroll(digitalEl, {
@@ -159,11 +165,24 @@ export function createClockView(root: HTMLElement) {
     }
   }
 
-  function showStyleToast(label: string, mood: string) {
+  function showStyleNavBriefly(durationMs = 2800) {
+    if (latestSettings && latestSettings.appMode !== 'clock') {
+      styleNavEl.classList.remove('is-visible')
+      return
+    }
+    styleNavEl.classList.add('is-visible')
+    if (styleNavTimer !== null) window.clearTimeout(styleNavTimer)
+    styleNavTimer = window.setTimeout(() => {
+      styleNavEl.classList.remove('is-visible')
+      styleNavTimer = null
+    }, durationMs)
+  }
+
+  function showStyleToast(label: string) {
     toastLabel.textContent = label
-    toastMood.textContent = mood
     toastEl.hidden = false
     toastEl.classList.add('is-visible')
+    showStyleNavBriefly(2200)
     if (toastTimer !== null) window.clearTimeout(toastTimer)
     toastTimer = window.setTimeout(() => {
       toastEl.classList.remove('is-visible')
@@ -330,6 +349,7 @@ export function createClockView(root: HTMLElement) {
 
   function showHintBriefly() {
     clockRoot.classList.add('show-hint')
+    showStyleNavBriefly(3200)
     window.setTimeout(() => clockRoot.classList.remove('show-hint'), 3200)
   }
 
@@ -353,30 +373,37 @@ export function createClockView(root: HTMLElement) {
 
     let next = { ...settings }
     let label = ''
-    let mood = ''
 
     if (settings.mode === 'digital') {
       next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
-      const meta = digitalStyleMeta(next.digitalStyle)
-      label = meta.label
-      mood = meta.mood
+      label = digitalStyleMeta(next.digitalStyle).label
     } else if (settings.mode === 'analog') {
       next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
-      const meta = analogStyleMeta(next.analogStyle)
-      label = meta.label
-      mood = meta.mood
+      label = analogStyleMeta(next.analogStyle).label
     } else {
       next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
       next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
       const d = digitalStyleMeta(next.digitalStyle)
       const a = analogStyleMeta(next.analogStyle)
       label = `${d.label} · ${a.label}`
-      mood = `${d.mood} / ${a.mood}`
     }
 
-    showStyleToast(label, mood)
+    showStyleToast(label)
     onStyleSwipe(next, label)
   }
+
+  styleNavPrev.addEventListener('pointerdown', (e) => e.stopPropagation())
+  styleNavNext.addEventListener('pointerdown', (e) => e.stopPropagation())
+  styleNavPrev.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    cycleStyle(-1)
+  })
+  styleNavNext.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    cycleStyle(1)
+  })
 
   // Horizontal swipe → next/prev design (clock mode only).
   {
@@ -392,7 +419,8 @@ export function createClockView(root: HTMLElement) {
         t.closest('.settings-sheet') ||
         t.closest('.session-controls') ||
         t.closest('.pomodoro-timer-wrap') ||
-        t.closest('.is-minute-scroll')
+        t.closest('.is-minute-scroll') ||
+        t.closest('.style-nav-arrow')
       ) {
         return
       }

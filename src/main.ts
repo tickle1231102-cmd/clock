@@ -146,7 +146,17 @@ clockView.clockRoot.addEventListener('click', (e) => {
   const fromMinuteScroll = path.some(
     (node) => node instanceof HTMLElement && node.classList.contains('is-minute-scroll'),
   )
-  if (fromSettings || fromControls || fromTimerDial || fromMinuteScroll || settingsView.isOpen()) {
+  const fromStyleNav = path.some(
+    (node) => node instanceof HTMLElement && node.classList.contains('style-nav-arrow'),
+  )
+  if (
+    fromSettings ||
+    fromControls ||
+    fromTimerDial ||
+    fromMinuteScroll ||
+    fromStyleNav ||
+    settingsView.isOpen()
+  ) {
     return
   }
   settingsView.toggle()
