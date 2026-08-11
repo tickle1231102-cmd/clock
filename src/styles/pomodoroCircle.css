@@ -77,6 +77,108 @@
   pointer-events: none;
 }
 
+.pomodoro-timer[data-face='120'] .minute-label {
+  font-size: 3.4px;
+}
+
+.pomodoro-timer[data-dial-style='halo'] .halo-ring {
+  fill: none;
+  stroke: var(--dial-stroke, #d5c9b8);
+  stroke-width: 0.7;
+  pointer-events: none;
+}
+
+.pomodoro-timer[data-dial-style='halo'] .halo-ring.inner {
+  stroke-dasharray: 1.4 2.2;
+  opacity: 0.55;
+}
+
+.pomodoro-timer[data-dial-style='halo'] .halo-dot {
+  fill: var(--pomodoro-wedge, var(--accent));
+  pointer-events: none;
+}
+
+.pomodoro-timer[data-dial-style='halo'] .dial-plate {
+  fill: color-mix(in srgb, var(--dial-plate, #f3ebe3) 88%, var(--accent));
+}
+
+.pomodoro-timer[data-dial-style='halo'] .wedge {
+  opacity: 0.88;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .dial-plate {
+  fill: color-mix(in srgb, var(--dial-plate, #f3ebe3) 82%, #c4a574);
+  stroke: color-mix(in srgb, var(--dial-stroke, #d5c9b8) 55%, #5a4632);
+  stroke-width: 1.8;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-bezel {
+  fill: none;
+  stroke: color-mix(in srgb, var(--dial-ink, #2a2420) 55%, transparent);
+  stroke-width: 0.55;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--dial-ink, #2a2420) 35%, transparent);
+  stroke-width: 0.35;
+  stroke-dasharray: 0.9 1.7;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-pip {
+  fill: var(--pomodoro-wedge, var(--accent));
+  pointer-events: none;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-quarter {
+  stroke-width: 1.85;
+  stroke: var(--dial-ink, #2a2420);
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-major {
+  stroke-width: 1.25;
+  opacity: 0.88;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-minor {
+  stroke-width: 0.7;
+  opacity: 0.42;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .retro-label {
+  font-size: 3.8px;
+  font-weight: 700;
+  font-family: 'Courier New', ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+  fill: color-mix(in srgb, var(--dial-ink, #2a2420) 88%, #6b4f2e);
+}
+
+.pomodoro-timer[data-dial-style='retro'] .wedge {
+  opacity: 0.9;
+}
+
+.pomodoro-timer[data-dial-style='retro'] .knob-outer {
+  fill: color-mix(in srgb, var(--dial-knob, #ece4d8) 70%, #b8956a);
+  stroke-width: 1;
+}
+
+.pomodoro-timer-wrap[data-face='120']::after {
+  content: '120';
+  position: absolute;
+  left: 50%;
+  bottom: 11%;
+  transform: translateX(-50%);
+  font-size: clamp(0.55rem, 1.8vmin, 0.72rem);
+  letter-spacing: 0.14em;
+  color: var(--dial-ink, #2a2420);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .pomodoro-timer .knob-hit {
   fill: transparent;
   pointer-events: auto;

@@ -1,0 +1,335 @@
+.calendar-root {
+  width: min(94vw, 680px);
+  height: min(86dvh, 860px);
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.35rem, 1.2vmin, 0.75rem);
+  pointer-events: auto;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.calendar-root[hidden] {
+  display: none !important;
+}
+
+.calendar-header {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.calendar-heading {
+  text-align: center;
+  min-width: 0;
+}
+
+.calendar-year {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  margin: 0;
+  padding: 0.1rem 0.35rem;
+  font: inherit;
+  font-size: clamp(0.72rem, 2.1vmin, 0.9rem);
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  opacity: 0.8;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.calendar-year:active {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.calendar-year[hidden] {
+  display: none !important;
+}
+
+.calendar-title {
+  margin: 0.1rem 0 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.45rem, 5.5vmin, 2.35rem);
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  line-height: 1.05;
+}
+
+.calendar-root[data-scope='year'] .calendar-title {
+  font-size: clamp(1.7rem, 6.5vmin, 2.7rem);
+}
+
+.calendar-nav-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-size: clamp(1.6rem, 5vmin, 2.2rem);
+  line-height: 1;
+  padding: 0.25rem 0.45rem;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.calendar-nav-btn:active {
+  opacity: 0.85;
+  transform: scale(0.96);
+}
+
+.calendar-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.calendar-settings-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.calendar-settings-btn:active {
+  opacity: 0.95;
+  transform: scale(0.94);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.calendar-settings-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
+/* —— Month —— */
+
+.cal-month-board {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.2rem, 1vmin, 0.45rem);
+  padding: 0.15rem 0.1rem;
+  height: 100%;
+}
+
+.cal-dow-row {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.1rem;
+}
+
+.cal-weeks {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  gap: 0.1rem;
+}
+
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.1rem;
+  min-height: 0;
+}
+
+.cal-dow {
+  text-align: center;
+  font-size: clamp(0.58rem, 1.7vmin, 0.75rem);
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--fg) 45%, transparent);
+  padding-bottom: 0.1rem;
+}
+
+.cal-dow.is-weekend {
+  color: color-mix(in srgb, var(--accent) 70%, var(--fg));
+}
+
+.cal-day {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.cal-day-num {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(0.75rem, 2.6vmin, 1.05rem);
+  font-weight: 400;
+  color: var(--fg);
+}
+
+.cal-day.out-month .cal-day-num {
+  opacity: 0.22;
+}
+
+.cal-day.is-weekend.in-month .cal-day-num {
+  color: color-mix(in srgb, var(--accent) 55%, var(--fg));
+}
+
+.cal-day.is-today {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 6px 18px color-mix(in srgb, var(--accent) 16%, transparent);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.cal-day.is-today .cal-day-num {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.cal-day.is-today:active {
+  transform: scale(0.94);
+}
+
+/* —— Year —— */
+
+.cal-year-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.28rem, 1vmin, 0.55rem);
+  padding: 0.1rem 0;
+}
+
+.cal-year-card {
+  min-height: 0;
+  padding: clamp(0.25rem, 0.8vmin, 0.4rem) clamp(0.2rem, 0.7vmin, 0.35rem);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--fg) 4.5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fg) 7%, transparent);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.cal-year-card:active {
+  transform: scale(0.98);
+}
+
+.cal-year-card.is-current {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.cal-year-card-head {
+  flex: 0 0 auto;
+  margin-bottom: 0.15rem;
+  text-align: center;
+}
+
+.cal-year-month {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(0.62rem, 1.7vmin, 0.82rem);
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  opacity: 0.88;
+}
+
+.cal-year-card.is-current .cal-year-month {
+  color: var(--accent);
+}
+
+.cal-year-days {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(0, 1fr);
+  align-content: start;
+  gap: 0;
+}
+
+.cal-year-day {
+  text-align: center;
+  font-size: clamp(0.34rem, 1.05vmin, 0.5rem);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--fg) 55%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-year-day.is-pad {
+  visibility: hidden;
+}
+
+.cal-year-day.is-weekend {
+  color: color-mix(in srgb, var(--accent) 50%, var(--fg));
+}
+
+.cal-year-day.is-today {
+  color: var(--fg);
+  font-weight: 700;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.clock-root[data-app-mode='calendar'] .clock-stage {
+  width: min(96vw, 720px);
+  height: 100%;
+  max-height: 100%;
+  pointer-events: auto;
+  justify-content: center;
+}
+
+.clock-root[data-app-mode='calendar'] .hint {
+  display: none !important;
+}
+
+.clock-root[data-app-mode='calendar'] .style-nav {
+  display: none !important;
+}
+
+.calendar-host {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal-year-card,
+  .calendar-nav-btn,
+  .calendar-settings-btn {
+    transition: none;
+  }
+}

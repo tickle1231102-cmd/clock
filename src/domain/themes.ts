@@ -9,7 +9,7 @@ export type ThemeTokens = {
   fontFamily: FontFamilyId
 }
 
-/** Softer, more atmospheric presets (warm neutrals, muted accents). */
+/** Softer, more atmospheric presets (warm neutrals, muted accents, achromatic). */
 export const THEME_PRESETS: ThemeTokens[] = [
   {
     id: 'midnight',
@@ -58,6 +58,46 @@ export const THEME_PRESETS: ThemeTokens[] = [
     fg: '#e5ece4',
     accent: '#8fa882',
     fontFamily: 'system',
+  },
+  {
+    id: 'charcoal',
+    name: 'Charcoal',
+    bg: '#121212',
+    fg: '#ececec',
+    accent: '#9a9a9a',
+    fontFamily: 'system',
+  },
+  {
+    id: 'graphite',
+    name: 'Graphite',
+    bg: '#1c1c1e',
+    fg: '#f2f2f2',
+    accent: '#8e8e93',
+    fontFamily: 'rounded',
+  },
+  {
+    id: 'ash',
+    name: 'Ash',
+    bg: '#2a2a2a',
+    fg: '#d8d8d8',
+    accent: '#a8a8a8',
+    fontFamily: 'system',
+  },
+  {
+    id: 'chalk',
+    name: 'Chalk',
+    bg: '#ececec',
+    fg: '#2a2a2a',
+    accent: '#6e6e6e',
+    fontFamily: 'serif',
+  },
+  {
+    id: 'bone',
+    name: 'Bone',
+    bg: '#f4f4f1',
+    fg: '#242424',
+    accent: '#7a7a7a',
+    fontFamily: 'display',
   },
 ]
 

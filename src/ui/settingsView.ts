@@ -1,11 +1,13 @@
 import type {
   AnalogStyle,
   AppMode,
+  CalendarScope,
   ClockMode,
   ClockSettings,
   DigitalStyle,
   FontFamilyId,
   HourFormat,
+  PomodoroDialStyle,
 } from '../domain/settings'
 import {
   clampPomodoroMinutes,
@@ -13,6 +15,7 @@ import {
   MIN_POMODORO_MINUTES,
 } from '../domain/settings'
 import { ANALOG_STYLES, DIGITAL_STYLES } from '../domain/clockStyles'
+import { POMODORO_DIAL_STYLES } from '../domain/pomodoroDial'
 import { FONT_OPTIONS, THEME_PRESETS } from '../domain/themes'
 import { isWakeLockSupported } from '../platform/wakeLock'
 
@@ -23,7 +26,7 @@ type SettingsViewOptions = {
   onOpenChange: (open: boolean) => void
 }
 
-const POMODORO_PRESETS = [15, 25, 45, 60]
+const POMODORO_PRESETS = [15, 25, 45, 60, 90, 120]
 
 function toggleRow(id: string, label: string, checked: boolean): string {
   return `
@@ -98,6 +101,7 @@ export function createSettingsView({
     const s = getSettings()
     const wakeSupported = isWakeLockSupported()
     const isPomodoro = s.appMode === 'pomodoro'
+    const isCalendar = s.appMode === 'calendar'
 
     sheet.innerHTML = `
       <div class="settings-panel">
@@ -106,13 +110,21 @@ export function createSettingsView({
 
         <section class="settings-section">
           <h3>기능</h3>
-          <div class="row">
-            <label for="app-mode">모드</label>
-            <select id="app-mode">
-              <option value="clock" ${s.appMode === 'clock' ? 'selected' : ''}>시계</option>
-              <option value="pomodoro" ${s.appMode === 'pomodoro' ? 'selected' : ''}>뽀모도로</option>
-              <option value="stopwatch" ${s.appMode === 'stopwatch' ? 'selected' : ''}>스톱워치</option>
-            </select>
+          <div class="display-btns">
+            <button type="button" class="display-btn" data-app-mode="clock" aria-pressed="${s.appMode === 'clock'}">시계</button>
+            <button type="button" class="display-btn" data-app-mode="pomodoro" aria-pressed="${s.appMode === 'pomodoro'}">뽀모도로</button>
+            <button type="button" class="display-btn" data-app-mode="stopwatch" aria-pressed="${s.appMode === 'stopwatch'}">스톱워치</button>
+            <button type="button" class="display-btn" data-app-mode="calendar" aria-pressed="${s.appMode === 'calendar'}">캘린더</button>
+          </div>
+          <div class="calendar-settings"${isCalendar ? '' : ' hidden'}>
+            <div class="display-group" style="margin-top: 0.65rem;">
+              <p class="display-group-label">보기</p>
+              <div class="display-btns">
+                <button type="button" class="display-btn" data-calendar-scope="month" aria-pressed="${s.calendarScope === 'month'}">월간</button>
+                <button type="button" class="display-btn" data-calendar-scope="year" aria-pressed="${s.calendarScope === 'year'}">연간</button>
+              </div>
+            </div>
+            <p class="note">좌우로 밀거나 화살표로 달·해를 넘깁니다. 연간에서 달을 탭하면 월간으로 들어갑니다.</p>
           </div>
           <div class="pomodoro-settings"${isPomodoro ? '' : ' hidden'}>
             <div class="row">
@@ -141,30 +153,51 @@ export function createSettingsView({
               `,
               ).join('')}
             </div>
-            <p class="note">기본 25분. 시계 모드를 아날로그(또는 둘 다)로 하면 원형 타이머로 표시됩니다.</p>
+            <div class="display-group" style="margin-top: 0.65rem;">
+              <p class="display-group-label">아날로그 다이얼</p>
+              <div class="display-btns">
+                ${POMODORO_DIAL_STYLES.map(
+                  (d) => `
+                  <button
+                    type="button"
+                    class="display-btn"
+                    data-pomodoro-dial="${d.id}"
+                    aria-pressed="${s.pomodoroDialStyle === d.id}"
+                  >${d.label}</button>
+                `,
+                ).join('')}
+              </div>
+            </div>
+            <p class="note">60분 초과 입력 시 120분 다이얼로 바뀝니다. 아날로그/둘 다 모드에서 원형 타이머가 표시됩니다.</p>
           </div>
         </section>
 
         <section class="settings-section">
           <h3>표시</h3>
-          ${toggleRow('show-seconds', '초 표시', s.showSeconds)}
-          ${toggleRow('show-date', '날짜 표시', s.showDate)}
-          <div class="row">
-            <label for="hour-format">시간제</label>
-            <select id="hour-format">
-              <option value="24h" ${s.hourFormat === '24h' ? 'selected' : ''}>24시간제</option>
-              <option value="12h" ${s.hourFormat === '12h' ? 'selected' : ''}>12시간제</option>
-            </select>
+          <div class="display-group">
+            <p class="display-group-label">시계</p>
+            <div class="display-btns">
+              <button type="button" class="display-btn" data-display-mode="digital" aria-pressed="${s.mode === 'digital' || s.mode === 'both'}">디지털</button>
+              <button type="button" class="display-btn" data-display-mode="analog" aria-pressed="${s.mode === 'analog' || s.mode === 'both'}">아날로그</button>
+            </div>
           </div>
-          <div class="row">
-            <label for="mode">시계 모드</label>
-            <select id="mode">
-              <option value="digital" ${s.mode === 'digital' ? 'selected' : ''}>디지털</option>
-              <option value="analog" ${s.mode === 'analog' ? 'selected' : ''}>아날로그</option>
-              <option value="both" ${s.mode === 'both' ? 'selected' : ''}>둘 다</option>
-            </select>
+          <div class="display-group">
+            <p class="display-group-label">시간제</p>
+            <div class="display-btns">
+              <button type="button" class="display-btn" data-hour-format="24h" aria-pressed="${s.hourFormat === '24h'}">24시간</button>
+              <button type="button" class="display-btn" data-hour-format="12h" aria-pressed="${s.hourFormat === '12h'}">12시간</button>
+            </div>
           </div>
-          <p class="note">뽀모도로에서 아날로그/둘 다를 고르면 60분 다이얼 원형 타이머가 표시됩니다.</p>
+          <div class="display-group">
+            <p class="display-group-label">부가</p>
+            <div class="display-btns">
+              <button type="button" class="display-btn" data-display-toggle="showSeconds" aria-pressed="${s.showSeconds}">초</button>
+              <button type="button" class="display-btn" data-display-toggle="showDate" aria-pressed="${s.showDate}">날짜</button>
+              <button type="button" class="display-btn" data-display-toggle="showDayProgress" aria-pressed="${s.showDayProgress}">하루 진행률</button>
+              <button type="button" class="display-btn" data-display-toggle="showDayProgressPercent" aria-pressed="${s.showDayProgressPercent}">%</button>
+            </div>
+          </div>
+          <p class="note">눌러 켠 항목만 표시됩니다. 디지털·아날로그는 둘 다 켤 수 있습니다.</p>
         </section>
 
         <section class="settings-section">
@@ -286,11 +319,32 @@ export function createSettingsView({
       scheduleAutoHide()
     })
 
-    sheet.querySelector('#app-mode')?.addEventListener('change', (e) => {
-      const appMode = (e.target as HTMLSelectElement).value as AppMode
-      patch({ appMode })
-      const block = sheet.querySelector('.pomodoro-settings') as HTMLElement | null
-      if (block) block.hidden = appMode !== 'pomodoro'
+    sheet.querySelectorAll<HTMLElement>('[data-app-mode]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const appMode = el.dataset.appMode as AppMode
+        patch({ appMode })
+        sheet.querySelectorAll<HTMLElement>('[data-app-mode]').forEach((btn) => {
+          btn.setAttribute('aria-pressed', String(btn.dataset.appMode === appMode))
+        })
+        const pomo = sheet.querySelector('.pomodoro-settings') as HTMLElement | null
+        const cal = sheet.querySelector('.calendar-settings') as HTMLElement | null
+        if (pomo) pomo.hidden = appMode !== 'pomodoro'
+        if (cal) cal.hidden = appMode !== 'calendar'
+      })
+    })
+    sheet.querySelectorAll<HTMLElement>('[data-calendar-scope]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const calendarScope = el.dataset.calendarScope as CalendarScope
+        patch({ calendarScope })
+        sheet.querySelectorAll<HTMLElement>('[data-calendar-scope]').forEach((btn) => {
+          btn.setAttribute(
+            'aria-pressed',
+            String(btn.dataset.calendarScope === calendarScope),
+          )
+        })
+      })
     })
 
     sheet.querySelector('#pomodoro-dec')?.addEventListener('click', (e) => {
@@ -310,19 +364,72 @@ export function createSettingsView({
         setPomodoroMinutes(Number(el.dataset.pomodoroMin))
       })
     })
+    sheet.querySelectorAll<HTMLElement>('[data-pomodoro-dial]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const pomodoroDialStyle = el.dataset.pomodoroDial as PomodoroDialStyle
+        patch({ pomodoroDialStyle })
+        sheet.querySelectorAll<HTMLElement>('[data-pomodoro-dial]').forEach((btn) => {
+          btn.setAttribute(
+            'aria-pressed',
+            String(btn.dataset.pomodoroDial === pomodoroDialStyle),
+          )
+        })
+      })
+    })
 
-    sheet.querySelector('#show-seconds')?.addEventListener('change', (e) => {
-      patch({ showSeconds: (e.target as HTMLInputElement).checked })
+    sheet.querySelectorAll<HTMLElement>('[data-display-mode]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const kind = el.dataset.displayMode as 'digital' | 'analog'
+        const cur = getSettings().mode
+        const digitalOn = cur === 'digital' || cur === 'both'
+        const analogOn = cur === 'analog' || cur === 'both'
+        let nextDigital = digitalOn
+        let nextAnalog = analogOn
+        if (kind === 'digital') nextDigital = !digitalOn
+        else nextAnalog = !analogOn
+        // Keep at least one clock face.
+        if (!nextDigital && !nextAnalog) return
+        const mode: ClockMode =
+          nextDigital && nextAnalog ? 'both' : nextDigital ? 'digital' : 'analog'
+        patch({ mode })
+        sheet.querySelectorAll<HTMLElement>('[data-display-mode]').forEach((btn) => {
+          const on =
+            btn.dataset.displayMode === 'digital'
+              ? mode === 'digital' || mode === 'both'
+              : mode === 'analog' || mode === 'both'
+          btn.setAttribute('aria-pressed', String(on))
+        })
+      })
     })
-    sheet.querySelector('#show-date')?.addEventListener('change', (e) => {
-      patch({ showDate: (e.target as HTMLInputElement).checked })
+
+    sheet.querySelectorAll<HTMLElement>('[data-hour-format]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const hourFormat = el.dataset.hourFormat as HourFormat
+        patch({ hourFormat })
+        sheet.querySelectorAll<HTMLElement>('[data-hour-format]').forEach((btn) => {
+          btn.setAttribute('aria-pressed', String(btn.dataset.hourFormat === hourFormat))
+        })
+      })
     })
-    sheet.querySelector('#hour-format')?.addEventListener('change', (e) => {
-      patch({ hourFormat: (e.target as HTMLSelectElement).value as HourFormat })
+
+    sheet.querySelectorAll<HTMLElement>('[data-display-toggle]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const key = el.dataset.displayToggle as
+          | 'showSeconds'
+          | 'showDate'
+          | 'showDayProgress'
+          | 'showDayProgressPercent'
+        const cur = getSettings()
+        const next = !cur[key]
+        patch({ [key]: next })
+        el.setAttribute('aria-pressed', String(next))
+      })
     })
-    sheet.querySelector('#mode')?.addEventListener('change', (e) => {
-      patch({ mode: (e.target as HTMLSelectElement).value as ClockMode })
-    })
+
     sheet.querySelector('#digital-style')?.addEventListener('change', (e) => {
       patch({ digitalStyle: (e.target as HTMLSelectElement).value as DigitalStyle })
     })

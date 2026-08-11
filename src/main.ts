@@ -5,6 +5,8 @@ import './styles/analog.css'
 import './styles/settings.css'
 import './styles/session.css'
 import './styles/pomodoroCircle.css'
+import './styles/calendar.css'
+import './styles/minutePicker.css'
 
 import {
   createSessionState,
@@ -19,6 +21,7 @@ import {
   loadSettings,
   needsSecondTicks,
   saveSettings,
+  type CalendarScope,
   type ClockSettings,
 } from './domain/settings'
 import { notifySessionComplete } from './platform/notify'
@@ -40,13 +43,17 @@ let session: SessionState =
 
 const clockView = createClockView(app as HTMLElement)
 
+function isTimerMode(mode: ClockSettings['appMode']) {
+  return mode === 'pomodoro' || mode === 'stopwatch'
+}
+
 function currentSessionSnapshot() {
-  if (settings.appMode === 'clock') return null
+  if (!isTimerMode(settings.appMode)) return null
   return getSessionSnapshot(session)
 }
 
 function paint(now = new Date()) {
-  if (settings.appMode !== 'clock') {
+  if (isTimerMode(settings.appMode)) {
     const result = tickSession(session, now.getTime())
     session = result.state
     if (result.justCompleted) notifySessionComplete()
@@ -56,10 +63,11 @@ function paint(now = new Date()) {
 
 function syncSessionToAppMode(next: ClockSettings, prev: ClockSettings) {
   if (next.appMode !== prev.appMode) {
-    session =
-      next.appMode === 'stopwatch'
-        ? createSessionState('stopwatch')
-        : createSessionState('pomodoro', next.pomodoroMinutes)
+    if (next.appMode === 'stopwatch') {
+      session = createSessionState('stopwatch')
+    } else if (next.appMode === 'pomodoro') {
+      session = createSessionState('pomodoro', next.pomodoroMinutes)
+    }
     return
   }
 
@@ -95,13 +103,13 @@ const ticker = createTicker({
 
 clockView.setSessionHandlers({
   onToggle: () => {
-    if (settings.appMode === 'clock') return
+    if (!isTimerMode(settings.appMode)) return
     session = toggleSession(session)
     paint()
     ticker.reschedule()
   },
   onReset: () => {
-    if (settings.appMode === 'clock') return
+    if (!isTimerMode(settings.appMode)) return
     session =
       settings.appMode === 'stopwatch'
         ? resetSession(session)
@@ -144,10 +152,24 @@ clockView.clockRoot.addEventListener('click', (e) => {
         node.classList.contains('dial-hit')),
   )
   const fromMinuteScroll = path.some(
-    (node) => node instanceof HTMLElement && node.classList.contains('is-minute-scroll'),
+    (node) =>
+      node instanceof HTMLElement &&
+      (node.classList.contains('is-minute-scroll') ||
+        node.classList.contains('is-pomodoro-digital') ||
+        node.classList.contains('minute-picker')),
   )
   const fromStyleNav = path.some(
     (node) => node instanceof HTMLElement && node.classList.contains('style-nav-arrow'),
+  )
+  const fromCalendar = path.some(
+    (node) =>
+      node instanceof HTMLElement &&
+      (node.classList.contains('calendar-root') ||
+        node.classList.contains('calendar-nav-btn') ||
+        node.classList.contains('calendar-settings-btn') ||
+        node.classList.contains('calendar-year') ||
+        node.classList.contains('cal-year-card') ||
+        node.classList.contains('cal-day')),
   )
   if (
     fromSettings ||
@@ -155,8 +177,14 @@ clockView.clockRoot.addEventListener('click', (e) => {
     fromTimerDial ||
     fromMinuteScroll ||
     fromStyleNav ||
+    fromCalendar ||
     settingsView.isOpen()
   ) {
+    return
+  }
+  // Close minute picker first if open, instead of opening settings.
+  if (clockView.isMinutePickerOpen()) {
+    clockView.closeMinutePicker()
     return
   }
   settingsView.toggle()
@@ -169,6 +197,21 @@ clockView.setStyleSwipeHandler((next) => {
   settingsView.refresh()
 })
 
+clockView.setCalendarScopeHandler((scope: CalendarScope) => {
+  settings = { ...settings, appMode: 'calendar', calendarScope: scope }
+  saveSettings(settings)
+  paint()
+  settingsView.refresh()
+})
+
+clockView.setOpenClockHandler(() => {
+  settings = { ...settings, appMode: 'clock' }
+  saveSettings(settings)
+  paint()
+  ticker.reschedule()
+  settingsView.refresh()
+})
+
 document.addEventListener(
   'touchmove',
   (e) => {
@@ -176,7 +219,9 @@ document.addEventListener(
     if (
       target.closest('.settings-panel') ||
       target.closest('.pomodoro-timer-wrap') ||
-      target.closest('.is-minute-scroll')
+      target.closest('.is-minute-scroll') ||
+      target.closest('.minute-picker') ||
+      target.closest('.calendar-body')
     ) {
       return
     }

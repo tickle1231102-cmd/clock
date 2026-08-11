@@ -5,12 +5,18 @@ import {
   cycleDigitalStyle,
   digitalStyleMeta,
 } from '../domain/clockStyles'
-import type { ClockSettings } from '../domain/settings'
+import {
+  cyclePomodoroDialStyle,
+  pomodoroDialStyleMeta,
+} from '../domain/pomodoroDial'
+import { getDayProgress } from '../domain/dayProgress'
+import type { CalendarScope, ClockSettings } from '../domain/settings'
 import type { SessionSnapshot } from '../domain/sessionModel'
 import { applyThemeVars, resolveTheme } from '../domain/themes'
 import { createAnalogView, type AnalogView } from './analogView'
+import { createCalendarView } from './calendarView'
 import { createDigitalView } from './digitalView'
-import { attachMinuteScroll } from './minuteScroll'
+import { createMinutePicker } from './minutePicker'
 import {
   createPomodoroCircleView,
   type PomodoroCircleView,
@@ -24,12 +30,10 @@ export type SessionControlsHandlers = {
   getPomodoroMinutes: () => number
 }
 
-export type StyleSwipeHandler = (
-  next: ClockSettings,
-  label: string,
-) => void
+export type StyleSwipeHandler = (next: ClockSettings, label: string) => void
+export type CalendarScopeHandler = (scope: CalendarScope) => void
+export type OpenClockHandler = () => void
 
-/** Analog Time Timer dial for pomodoro (shrinks) or stopwatch (grows). */
 function usesDialVisual(settings: ClockSettings): boolean {
   return (
     (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') &&
@@ -37,11 +41,12 @@ function usesDialVisual(settings: ClockSettings): boolean {
   )
 }
 
-function usesDigitalMinuteScroll(settings: ClockSettings): boolean {
-  return (
-    settings.appMode === 'pomodoro' &&
-    (settings.mode === 'digital' || settings.mode === 'both')
-  )
+function usesMinutePicker(settings: ClockSettings): boolean {
+  return settings.appMode === 'pomodoro' && settings.mode === 'digital'
+}
+
+function isSessionMode(settings: ClockSettings): boolean {
+  return settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch'
 }
 
 export function createClockView(root: HTMLElement) {
@@ -51,8 +56,15 @@ export function createClockView(root: HTMLElement) {
         <div class="mode-label" hidden></div>
         <div class="analog-host"></div>
         <div class="pomodoro-host"></div>
+        <div class="calendar-host"></div>
         <div class="digital-clock" aria-live="polite">
           <span class="time">00:00</span>
+        </div>
+        <div class="day-progress" hidden>
+          <div class="day-progress-track" aria-hidden="true">
+            <div class="day-progress-fill"></div>
+          </div>
+          <span class="day-progress-value">0%</span>
         </div>
         <div class="date-label" hidden></div>
         <div class="session-status session-status-outer" hidden></div>
@@ -76,6 +88,9 @@ export function createClockView(root: HTMLElement) {
   const clockRoot = root.querySelector('.clock-root') as HTMLElement
   const digitalEl = root.querySelector('.digital-clock') as HTMLElement
   const dateEl = root.querySelector('.date-label') as HTMLElement
+  const dayProgressEl = root.querySelector('.day-progress') as HTMLElement
+  const dayProgressFill = root.querySelector('.day-progress-fill') as HTMLElement
+  const dayProgressValue = root.querySelector('.day-progress-value') as HTMLElement
   const modeLabelEl = root.querySelector('.mode-label') as HTMLElement
   const statusEl = root.querySelector('.session-status') as HTMLElement
   const controlsEl = root.querySelector('.session-controls') as HTMLElement
@@ -83,6 +98,7 @@ export function createClockView(root: HTMLElement) {
   const resetBtn = root.querySelector('[data-action="reset"]') as HTMLButtonElement
   const analogHost = root.querySelector('.analog-host') as HTMLElement
   const pomodoroHost = root.querySelector('.pomodoro-host') as HTMLElement
+  const calendarHost = root.querySelector('.calendar-host') as HTMLElement
   const settingsHost = root.querySelector('.settings-host') as HTMLElement
   const hintEl = root.querySelector('.hint') as HTMLElement
   const toastEl = root.querySelector('.style-toast') as HTMLElement
@@ -94,6 +110,7 @@ export function createClockView(root: HTMLElement) {
   const analog: AnalogView = createAnalogView(analogHost)
   const digital = createDigitalView(digitalEl)
   const pomodoroCircle: PomodoroCircleView = createPomodoroCircleView(pomodoroHost)
+  const calendar = createCalendarView(calendarHost)
 
   const center = document.createElement('div')
   center.className = 'pomodoro-center'
@@ -102,12 +119,15 @@ export function createClockView(root: HTMLElement) {
 
   let handlers: SessionControlsHandlers | null = null
   let onStyleSwipe: StyleSwipeHandler | null = null
+  let onCalendarScope: CalendarScopeHandler | null = null
+  let onOpenClock: OpenClockHandler | null = null
   let latestSettings: ClockSettings | null = null
   let toastTimer: number | null = null
   let styleNavTimer: number | null = null
   let suppressClick = false
 
-  const minuteScroll = attachMinuteScroll(digitalEl, {
+  const minutePicker = createMinutePicker({
+    host: clockRoot,
     getMinutes: () => handlers?.getPomodoroMinutes() ?? 25,
     onChange: (minutes, phase) => handlers?.onScrubMinutes(minutes, phase),
   })
@@ -121,6 +141,45 @@ export function createClockView(root: HTMLElement) {
     if (action === 'reset') handlers.onReset()
   })
   controlsEl.addEventListener('pointerdown', (e) => e.stopPropagation())
+
+  digitalEl.addEventListener('click', (e) => {
+    if (!latestSettings || !usesMinutePicker(latestSettings)) return
+    e.stopPropagation()
+    minutePicker.toggle(digitalEl)
+  })
+  digitalEl.addEventListener('pointerdown', (e) => {
+    if (!latestSettings || !usesMinutePicker(latestSettings)) return
+    e.stopPropagation()
+  })
+
+  calendar.el.addEventListener('calendar:open-month', ((e: CustomEvent) => {
+    const { year, month } = e.detail as { year: number; month: number }
+    calendar.setCursor(new Date(year, month, 1))
+    onCalendarScope?.('month')
+  }) as EventListener)
+
+  calendar.el.addEventListener('calendar:open-year', (() => {
+    onCalendarScope?.('year')
+  }) as EventListener)
+
+  calendar.el.addEventListener('calendar:open-clock', (() => {
+    onOpenClock?.()
+  }) as EventListener)
+
+  function updateDayProgress(
+    date: Date,
+    visible: boolean,
+    showPercent: boolean,
+  ) {
+    dayProgressEl.hidden = !visible
+    dayProgressEl.classList.toggle('no-percent', !showPercent)
+    dayProgressValue.hidden = !showPercent
+    if (!visible) return
+    const progress = getDayProgress(date)
+    dayProgressFill.style.transform = `scaleX(${progress.ratio})`
+    if (showPercent) dayProgressValue.textContent = progress.label
+    dayProgressEl.setAttribute('aria-valuenow', String(Math.round(progress.ratio * 100)))
+  }
 
   function applyTheme(settings: ClockSettings) {
     const theme = resolveTheme(settings)
@@ -154,19 +213,33 @@ export function createClockView(root: HTMLElement) {
   }
 
   function updateHint(settings: ClockSettings) {
-    if (usesDialVisual(settings)) {
-      hintEl.textContent = '설정'
-    } else if (usesDigitalMinuteScroll(settings)) {
-      hintEl.textContent = '숫자 스크롤 · 화면 탭 설정'
+    if (settings.appMode === 'calendar') {
+      hintEl.textContent = ''
+      hintEl.hidden = true
+    } else if (usesDialVisual(settings)) {
+      hintEl.hidden = false
+      hintEl.textContent = '중앙 설정 · ← → 디자인'
+    } else if (usesMinutePicker(settings)) {
+      hintEl.hidden = false
+      hintEl.textContent = '숫자 탭 · ← → 디자인'
     } else if (settings.appMode === 'clock') {
+      hintEl.hidden = false
+      hintEl.textContent = '탭 설정 · ← → 디자인'
+    } else if (isSessionMode(settings)) {
+      hintEl.hidden = false
       hintEl.textContent = '탭 설정 · ← → 디자인'
     } else {
+      hintEl.hidden = false
       hintEl.textContent = '탭하여 설정'
     }
   }
 
   function showStyleNavBriefly(durationMs = 2800) {
-    if (latestSettings && latestSettings.appMode !== 'clock') {
+    if (
+      latestSettings &&
+      latestSettings.appMode !== 'clock' &&
+      !isSessionMode(latestSettings)
+    ) {
       styleNavEl.classList.remove('is-visible')
       return
     }
@@ -203,16 +276,32 @@ export function createClockView(root: HTMLElement) {
     updateHint(settings)
 
     const isClock = settings.appMode === 'clock'
+    const isCalendar = settings.appMode === 'calendar'
     const showAnalog = isClock && (settings.mode === 'analog' || settings.mode === 'both')
     const showSessionDigital =
-      (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') &&
-      (settings.mode === 'digital' || settings.mode === 'both')
+      isSessionMode(settings) && (settings.mode === 'digital' || settings.mode === 'both')
     const showDigital = isClock
       ? settings.mode === 'digital' || settings.mode === 'both'
       : showSessionDigital || visual
 
-    analog.setVisible(showAnalog)
-    pomodoroCircle.setVisible(visual)
+    analog.setVisible(showAnalog && !isCalendar)
+    pomodoroCircle.setVisible(visual && !isCalendar)
+    calendar.setVisible(isCalendar)
+
+    if (isCalendar) {
+      placeDigitalInStage()
+      digitalEl.hidden = true
+      dateEl.hidden = true
+      dayProgressEl.hidden = true
+      modeLabelEl.hidden = true
+      statusEl.hidden = true
+      controlsEl.hidden = true
+      digitalEl.classList.remove('is-pomodoro-digital')
+      if (minutePicker.isOpen()) minutePicker.close()
+      return
+    }
+
+    dayProgressEl.hidden = !isClock || !settings.showDayProgress
 
     if (visual) {
       placeDigitalInCircle()
@@ -225,23 +314,27 @@ export function createClockView(root: HTMLElement) {
     }
 
     digitalEl.classList.toggle('is-secondary', isClock && settings.mode === 'both')
-    digitalEl.classList.toggle('is-session', settings.appMode !== 'clock')
+    digitalEl.classList.toggle('is-session', isSessionMode(settings))
     digitalEl.classList.toggle('is-12h', isClock && settings.hourFormat === '12h')
+    digitalEl.classList.toggle('is-pomodoro-digital', usesMinutePicker(settings))
     dateEl.hidden = !isClock || !settings.showDate
     modeLabelEl.hidden = isClock
-    controlsEl.hidden = isClock
+    controlsEl.hidden = !isSessionMode(settings)
     if (!visual) {
-      statusEl.hidden = isClock
+      statusEl.hidden = !isSessionMode(settings)
     }
 
-    const scrollOk = usesDigitalMinuteScroll(settings) && !digitalEl.hidden
-    minuteScroll.setEnabled(scrollOk)
+    if (!usesMinutePicker(settings) && minutePicker.isOpen()) {
+      minutePicker.close()
+    }
   }
 
   function renderClock(settings: ClockSettings, date: Date) {
+    calendar.setVisible(false)
     pomodoroCircle.setVisible(false)
     placeDigitalInStage()
-    minuteScroll.setEnabled(false)
+    if (minutePicker.isOpen()) minutePicker.close()
+    digitalEl.classList.remove('is-pomodoro-digital')
 
     const snapshot: ClockSnapshot = getClockSnapshot(date, {
       showSeconds: settings.showSeconds,
@@ -263,6 +356,7 @@ export function createClockView(root: HTMLElement) {
     statusEl.textContent = ''
     digitalEl.classList.remove('is-session', 'is-complete')
     digitalEl.classList.toggle('is-12h', settings.hourFormat === '12h')
+    updateDayProgress(date, settings.showDayProgress, settings.showDayProgressPercent)
 
     if (settings.mode === 'analog' || settings.mode === 'both') {
       analog.update(snapshot, {
@@ -272,7 +366,24 @@ export function createClockView(root: HTMLElement) {
     }
   }
 
+  function renderCalendar(settings: ClockSettings, date: Date) {
+    analog.setVisible(false)
+    pomodoroCircle.setVisible(false)
+    digitalEl.hidden = true
+    dateEl.hidden = true
+    dayProgressEl.hidden = true
+    modeLabelEl.hidden = true
+    statusEl.hidden = true
+    controlsEl.hidden = true
+    if (minutePicker.isOpen()) minutePicker.close()
+    digitalEl.classList.remove('is-pomodoro-digital')
+    calendar.setVisible(true)
+    calendar.update({ scope: settings.calendarScope, today: date })
+  }
+
   function renderSession(settings: ClockSettings, session: SessionSnapshot) {
+    calendar.setVisible(false)
+    dayProgressEl.hidden = true
     const visual = usesDialVisual(settings)
 
     modeLabelEl.hidden = false
@@ -288,7 +399,7 @@ export function createClockView(root: HTMLElement) {
     if (visual) {
       placeDigitalInCircle()
       pomodoroCircle.setVisible(true)
-      pomodoroCircle.update(session)
+      pomodoroCircle.update(session, { dialStyle: settings.pomodoroDialStyle })
       digitalEl.hidden = settings.mode === 'analog'
       statusEl.hidden = false
     } else {
@@ -298,12 +409,19 @@ export function createClockView(root: HTMLElement) {
       statusEl.hidden = false
     }
 
-    const scrollOk = usesDigitalMinuteScroll(settings) && !digitalEl.hidden
-    minuteScroll.setEnabled(scrollOk)
+    const pickerOk = usesMinutePicker(settings) && !digitalEl.hidden
+    digitalEl.classList.toggle('is-pomodoro-digital', pickerOk)
+    if (!pickerOk && minutePicker.isOpen()) minutePicker.close()
+    else if (pickerOk) minutePicker.setMinutes(Math.round(session.durationMs / 60_000))
 
     modeLabelEl.textContent = session.label
 
-    // Sessions keep a plain readout so minute scrubbing stays reliable.
+    // Idle digital pomodoro shows set duration; picker edits this value.
+    const digitalTime =
+      pickerOk && !session.running && !session.completed && session.elapsedMs === 0
+        ? `${String(Math.round(session.durationMs / 60_000)).padStart(2, '0')}:00`
+        : session.primaryText
+
     const plain: ClockSnapshot = {
       hours: 0,
       minutes: 0,
@@ -313,10 +431,7 @@ export function createClockView(root: HTMLElement) {
       padMinutes: '00',
       padSeconds: '00',
       period: '',
-      digitalTime:
-        scrollOk && !session.running && !session.completed && session.elapsedMs === 0
-          ? `${String(Math.round(session.durationMs / 60_000)).padStart(2, '0')}:00`
-          : session.primaryText,
+      digitalTime,
       dateLabel: '',
       hourAngle: 0,
       minuteAngle: 0,
@@ -340,6 +455,10 @@ export function createClockView(root: HTMLElement) {
     session?: SessionSnapshot | null,
   ) {
     applySettingsChrome(settings)
+    if (settings.appMode === 'calendar') {
+      renderCalendar(settings, date)
+      return
+    }
     if (settings.appMode === 'clock' || !session) {
       renderClock(settings, date)
       return
@@ -349,7 +468,12 @@ export function createClockView(root: HTMLElement) {
 
   function showHintBriefly() {
     clockRoot.classList.add('show-hint')
-    showStyleNavBriefly(3200)
+    if (
+      latestSettings &&
+      (latestSettings.appMode === 'clock' || isSessionMode(latestSettings))
+    ) {
+      showStyleNavBriefly(3200)
+    }
     window.setTimeout(() => clockRoot.classList.remove('show-hint'), 3200)
   }
 
@@ -361,31 +485,54 @@ export function createClockView(root: HTMLElement) {
     pomodoroCircle.setOnKnobTap(() => {
       handlers?.onOpenSettings()
     })
+    pomodoroCircle.setOnStyleSwipe((dir) => {
+      cycleStyle(dir)
+    })
+    calendar.setHandlers({
+      onOpenSettings: () => handlers?.onOpenSettings(),
+    })
   }
 
   function setStyleSwipeHandler(handler: StyleSwipeHandler | null) {
     onStyleSwipe = handler
   }
 
+  function setCalendarScopeHandler(handler: CalendarScopeHandler | null) {
+    onCalendarScope = handler
+  }
+
+  function setOpenClockHandler(handler: OpenClockHandler | null) {
+    onOpenClock = handler
+  }
+
   function cycleStyle(dir: 1 | -1) {
     const settings = latestSettings
-    if (!settings || settings.appMode !== 'clock' || !onStyleSwipe) return
+    if (!settings || !onStyleSwipe) return
+    if (settings.appMode === 'calendar') return
 
     let next = { ...settings }
     let label = ''
 
-    if (settings.mode === 'digital') {
-      next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
-      label = digitalStyleMeta(next.digitalStyle).label
-    } else if (settings.mode === 'analog') {
-      next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
-      label = analogStyleMeta(next.analogStyle).label
+    if (settings.appMode === 'clock') {
+      if (settings.mode === 'digital') {
+        next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
+        label = digitalStyleMeta(next.digitalStyle).label
+      } else if (settings.mode === 'analog') {
+        next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
+        label = analogStyleMeta(next.analogStyle).label
+      } else {
+        next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
+        next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
+        const d = digitalStyleMeta(next.digitalStyle)
+        const a = analogStyleMeta(next.analogStyle)
+        label = `${d.label} · ${a.label}`
+      }
+    } else if (usesDialVisual(settings)) {
+      next.pomodoroDialStyle = cyclePomodoroDialStyle(settings.pomodoroDialStyle, dir)
+      label = pomodoroDialStyleMeta(next.pomodoroDialStyle).label
     } else {
       next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
-      next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
-      const d = digitalStyleMeta(next.digitalStyle)
-      const a = analogStyleMeta(next.analogStyle)
-      label = `${d.label} · ${a.label}`
+      label = digitalStyleMeta(next.digitalStyle).label
     }
 
     showStyleToast(label)
@@ -405,7 +552,6 @@ export function createClockView(root: HTMLElement) {
     cycleStyle(1)
   })
 
-  // Horizontal swipe → next/prev design (clock mode only).
   {
     let startX = 0
     let startY = 0
@@ -420,7 +566,9 @@ export function createClockView(root: HTMLElement) {
         t.closest('.session-controls') ||
         t.closest('.pomodoro-timer-wrap') ||
         t.closest('.is-minute-scroll') ||
-        t.closest('.style-nav-arrow')
+        t.closest('.style-nav-arrow') ||
+        t.closest('.calendar-root') ||
+        t.closest('.minute-picker')
       ) {
         return
       }
@@ -450,7 +598,6 @@ export function createClockView(root: HTMLElement) {
     })
 
     window.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       const target = e.target as HTMLElement | null
       if (
         target?.closest('input, select, textarea, [contenteditable="true"]') ||
@@ -458,7 +605,20 @@ export function createClockView(root: HTMLElement) {
       ) {
         return
       }
+
+      if (e.key === ' ' || e.code === 'Space') {
+        if (!latestSettings || !isSessionMode(latestSettings)) return
+        e.preventDefault()
+        handlers?.onToggle()
+        return
+      }
+
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
+      if (latestSettings?.appMode === 'calendar') {
+        calendar.step(e.key === 'ArrowRight' ? 1 : -1)
+        return
+      }
       cycleStyle(e.key === 'ArrowRight' ? 1 : -1)
     })
   }
@@ -481,7 +641,13 @@ export function createClockView(root: HTMLElement) {
     showHintBriefly,
     setSessionHandlers,
     setStyleSwipeHandler,
+    setCalendarScopeHandler,
+    setOpenClockHandler,
     consumeSwipeClick,
+    closeMinutePicker: () => {
+      if (minutePicker.isOpen()) minutePicker.close()
+    },
+    isMinutePickerOpen: () => minutePicker.isOpen(),
   }
 }
 

@@ -4,10 +4,15 @@ import {
   type AnalogStyle,
   type DigitalStyle,
 } from './clockStyles'
+import { isCalendarScope, type CalendarScope } from './calendarModel'
+import {
+  isPomodoroDialStyle,
+  type PomodoroDialStyle,
+} from './pomodoroDial'
 
-export type AppMode = 'clock' | 'pomodoro' | 'stopwatch'
+export type AppMode = 'clock' | 'pomodoro' | 'stopwatch' | 'calendar'
 export type ClockMode = 'digital' | 'analog' | 'both'
-export type { AnalogStyle, DigitalStyle }
+export type { AnalogStyle, DigitalStyle, CalendarScope, PomodoroDialStyle }
 export type DateFormat = 'short'
 export type HourFormat = '24h' | '12h'
 export type FontFamilyId =
@@ -28,10 +33,14 @@ export type ClockSettings = {
   version: 1
   showSeconds: boolean
   showDate: boolean
+  showDayProgress: boolean
+  showDayProgressPercent: boolean
   hourFormat: HourFormat
   mode: ClockMode
   appMode: AppMode
+  calendarScope: CalendarScope
   pomodoroMinutes: number
+  pomodoroDialStyle: PomodoroDialStyle
   themeId: string
   custom: CustomTheme
   digitalStyle: DigitalStyle
@@ -50,10 +59,14 @@ export const DEFAULT_SETTINGS: ClockSettings = {
   version: 1,
   showSeconds: false,
   showDate: false,
+  showDayProgress: true,
+  showDayProgressPercent: true,
   hourFormat: '24h',
   mode: 'digital',
   appMode: 'clock',
+  calendarScope: 'month',
   pomodoroMinutes: DEFAULT_POMODORO_MINUTES,
+  pomodoroDialStyle: 'classic',
   themeId: 'midnight',
   custom: {
     bg: '#141218',
@@ -92,7 +105,10 @@ function migrate(raw: unknown): ClockSettings {
   }
 
   const appMode =
-    raw.appMode === 'pomodoro' || raw.appMode === 'stopwatch' || raw.appMode === 'clock'
+    raw.appMode === 'pomodoro' ||
+    raw.appMode === 'stopwatch' ||
+    raw.appMode === 'clock' ||
+    raw.appMode === 'calendar'
       ? raw.appMode
       : DEFAULT_SETTINGS.appMode
 
@@ -100,16 +116,28 @@ function migrate(raw: unknown): ClockSettings {
     version: 1,
     showSeconds: Boolean(raw.showSeconds ?? DEFAULT_SETTINGS.showSeconds),
     showDate: Boolean(raw.showDate ?? DEFAULT_SETTINGS.showDate),
+    showDayProgress: Boolean(raw.showDayProgress ?? DEFAULT_SETTINGS.showDayProgress),
+    showDayProgressPercent: Boolean(
+      raw.showDayProgressPercent ?? DEFAULT_SETTINGS.showDayProgressPercent,
+    ),
     hourFormat: raw.hourFormat === '12h' || raw.hourFormat === '24h'
       ? raw.hourFormat
       : DEFAULT_SETTINGS.hourFormat,
     mode: (raw.mode as ClockMode) ?? DEFAULT_SETTINGS.mode,
     appMode,
+    calendarScope: isCalendarScope(raw.calendarScope)
+      ? raw.calendarScope
+      : DEFAULT_SETTINGS.calendarScope,
     pomodoroMinutes: clampPomodoroMinutes(
       typeof raw.pomodoroMinutes === 'number'
         ? raw.pomodoroMinutes
         : DEFAULT_SETTINGS.pomodoroMinutes,
     ),
+    pomodoroDialStyle: isPomodoroDialStyle(raw.pomodoroDialStyle)
+      ? raw.pomodoroDialStyle
+      : raw.pomodoroDialStyle === 'notch'
+        ? 'retro'
+        : DEFAULT_SETTINGS.pomodoroDialStyle,
     themeId: typeof raw.themeId === 'string' ? raw.themeId : DEFAULT_SETTINGS.themeId,
     custom,
     digitalStyle: isDigitalStyle(raw.digitalStyle)

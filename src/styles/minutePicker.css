@@ -1,0 +1,110 @@
+.minute-picker {
+  position: absolute;
+  left: 50%;
+  top: var(--picker-top, 58%);
+  transform: translate(-50%, 0) scale(0.96);
+  z-index: 8;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.minute-picker.is-open {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
+}
+
+.minute-picker[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
+
+.minute-picker.is-open[hidden] {
+  visibility: visible;
+}
+
+.minute-picker-card {
+  position: relative;
+  width: min(42vw, 7.5rem);
+  height: calc(36px * 5);
+  border-radius: 1.1rem;
+  background: color-mix(in srgb, var(--bg) 78%, var(--fg) 6%);
+  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  box-shadow:
+    0 14px 36px color-mix(in srgb, #000 28%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.minute-picker-highlight {
+  position: absolute;
+  left: 0.45rem;
+  right: 0.45rem;
+  top: 50%;
+  height: 36px;
+  transform: translateY(-50%);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.minute-picker-wheel {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  touch-action: none;
+  scrollbar-width: none;
+}
+
+.minute-picker-wheel::-webkit-scrollbar {
+  display: none;
+}
+
+.minute-picker-item {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--fg) 42%, transparent);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.minute-picker-item.is-pad {
+  visibility: hidden;
+}
+
+.minute-picker-item.is-active {
+  color: var(--fg);
+  font-weight: 700;
+  transform: scale(1.08);
+}
+
+.digital-clock.is-pomodoro-digital {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.digital-clock.is-pomodoro-digital .time {
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .minute-picker,
+  .minute-picker-item {
+    transition: none;
+  }
+}

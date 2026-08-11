@@ -83,7 +83,8 @@
   bottom: max(1.25rem, env(safe-area-inset-bottom));
 }
 
-.pomodoro-settings[hidden] {
+.pomodoro-settings[hidden],
+.calendar-settings[hidden] {
   display: none !important;
 }
 
