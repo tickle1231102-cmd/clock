@@ -1,0 +1,24 @@
+/* Defaults only. Runtime theme colors are applied via inline CSS variables
+   from resolveTheme/applyThemeVars so preset vs custom always wins. */
+:root {
+  --bg: #141218;
+  --fg: #f0e8e0;
+  --accent: #c6a58a;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --hand-hour: var(--fg);
+  --hand-minute: var(--fg);
+  --hand-second: var(--accent);
+  --face-border: rgba(240, 232, 224, 0.32);
+  --face-tick: rgba(240, 232, 224, 0.5);
+  --sheet-bg: #1a171d;
+  --sheet-border: rgba(240, 232, 224, 0.16);
+  --control-bg: rgba(240, 232, 224, 0.09);
+  --dial-plate: #f3ebe3;
+  --dial-stroke: #d5c9b8;
+  --dial-ink: #2a2420;
+  --pomodoro-wedge: #c6a58a;
+  --dial-knob: #ece4d8;
+  --dial-knob-inner: #d9d0c2;
+  --dial-edge: rgba(42, 36, 32, 0.4);
+  --dial-shadow: rgba(20, 18, 24, 0.35);
+}

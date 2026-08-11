@@ -1,0 +1,134 @@
+.mode-label,
+.session-status {
+  font-size: clamp(0.85rem, 2.8vmin, 1.15rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.session-status {
+  letter-spacing: 0.08em;
+  text-transform: none;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.digital-clock.is-session .time {
+  font-variant-numeric: tabular-nums;
+}
+
+.digital-clock .time.is-minute-scroll {
+  pointer-events: auto;
+  cursor: ns-resize;
+  touch-action: none;
+  border-radius: 0.2em;
+}
+
+.digital-clock .time.is-minute-scroll.is-scrolling {
+  color: var(--accent);
+}
+
+.digital-clock.is-complete .time {
+  color: var(--accent);
+}
+
+.session-controls {
+  position: absolute;
+  left: 50%;
+  bottom: max(4.5rem, calc(env(safe-area-inset-bottom) + 3.5rem));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.session-controls[hidden] {
+  display: none !important;
+}
+
+.session-btn {
+  appearance: none;
+  border: 1px solid var(--sheet-border);
+  background: var(--control-bg);
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 0.85rem 1.35rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  min-width: 7.5rem;
+}
+
+.session-btn.primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.session-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.session-btn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.clock-root[data-app-mode='pomodoro'] .hint,
+.clock-root[data-app-mode='stopwatch'] .hint {
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+.pomodoro-settings[hidden] {
+  display: none !important;
+}
+
+.duration-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.duration-stepper input {
+  width: 4.5rem;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  border: 1px solid var(--sheet-border);
+  background: var(--bg);
+  color: var(--fg);
+  border-radius: 10px;
+  padding: 0.4rem 0.35rem;
+  font: inherit;
+}
+
+.duration-stepper input::-webkit-outer-spin-button,
+.duration-stepper input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.duration-stepper button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--sheet-border);
+  background: var(--control-bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.preset-mins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+}
+

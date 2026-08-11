@@ -1,0 +1,177 @@
+.pomodoro-host {
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.pomodoro-timer-wrap {
+  position: relative;
+  width: min(78vmin, 440px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  filter: drop-shadow(0 12px 30px var(--dial-shadow, rgba(0, 0, 0, 0.28)));
+  touch-action: none;
+  cursor: grab;
+  pointer-events: auto;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pomodoro-timer-wrap.is-dragging {
+  cursor: grabbing;
+}
+
+.pomodoro-timer-wrap[hidden] {
+  display: none !important;
+}
+
+.pomodoro-timer {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+.pomodoro-timer .dial-hit {
+  fill: transparent;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.pomodoro-timer .dial-plate {
+  fill: var(--dial-plate, #f3ebe3);
+  stroke: var(--dial-stroke, #d5c9b8);
+  stroke-width: 1.2;
+  pointer-events: none;
+}
+
+.pomodoro-timer .wedge {
+  fill: var(--pomodoro-wedge, var(--accent, #8fa882));
+  stroke: none;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.pomodoro-timer .tick {
+  stroke: var(--dial-ink, #2a2420);
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.pomodoro-timer .tick-major {
+  stroke-width: 1.5;
+}
+
+.pomodoro-timer .tick-minor {
+  stroke-width: 0.9;
+  opacity: 0.72;
+}
+
+.pomodoro-timer .minute-label {
+  fill: var(--dial-ink, #2a2420);
+  font-size: 4px;
+  font-weight: 600;
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  pointer-events: none;
+}
+
+.pomodoro-timer .knob-hit {
+  fill: transparent;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.pomodoro-timer .knob-outer {
+  fill: var(--dial-knob, #ece4d8);
+  stroke: var(--dial-stroke, #d5c9b8);
+  stroke-width: 0.8;
+  pointer-events: none;
+}
+
+.pomodoro-timer .knob-inner {
+  fill: var(--dial-knob-inner, #d9d0c2);
+  stroke: var(--dial-stroke, #cfc3b2);
+  stroke-width: 0.5;
+  pointer-events: none;
+}
+
+.pomodoro-timer .leading-edge {
+  stroke: var(--dial-edge, rgba(42, 36, 32, 0.4));
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.pomodoro-timer .scrub-hit {
+  fill: transparent;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.pomodoro-timer .scrub-handle {
+  fill: var(--pomodoro-wedge, var(--accent));
+  stroke: var(--dial-plate, #f3ebe3);
+  stroke-width: 0.9;
+  pointer-events: none;
+}
+
+.pomodoro-timer.is-dragging .scrub-handle {
+  filter: drop-shadow(0 0 1.5px var(--accent));
+}
+
+.pomodoro-timer-wrap.is-complete .wedge {
+  opacity: 0;
+}
+
+.pomodoro-center {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  text-align: center;
+  pointer-events: none;
+  width: 46%;
+}
+
+.pomodoro-center .digital-clock .time {
+  font-size: clamp(1.15rem, 4.8vmin, 1.85rem);
+  color: var(--dial-ink, #2a2420);
+  letter-spacing: 0.02em;
+}
+
+.pomodoro-center .session-status {
+  color: var(--dial-ink, #5c534c);
+  opacity: 0.72;
+  font-size: clamp(0.7rem, 2.4vmin, 0.9rem);
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .clock-stage {
+  gap: clamp(0.55rem, 1.5vmin, 1rem);
+}
+
+.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .session-status-outer {
+  display: none;
+}
+
+.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .mode-label {
+  color: var(--accent);
+}
+
+.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .hint {
+  opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pomodoro-timer .wedge {
+    transition: none;
+  }
+}

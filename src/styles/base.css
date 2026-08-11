@@ -1,0 +1,103 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg, #000);
+  color: var(--fg, #f5f5f5);
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+.clock-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--fg);
+  padding:
+    max(1.5rem, env(safe-area-inset-top))
+    max(1.5rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(1.5rem, env(safe-area-inset-left));
+  cursor: pointer;
+}
+
+.clock-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vmin, 1.5rem);
+  width: min(92vw, 920px);
+  text-align: center;
+  pointer-events: none;
+}
+
+.date-label {
+  font-size: clamp(0.95rem, 3.2vmin, 1.6rem);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.date-label[hidden],
+.digital-clock[hidden],
+.analog-wrap[hidden] {
+  display: none !important;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.clock-root.show-hint .hint {
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

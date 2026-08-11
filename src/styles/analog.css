@@ -1,0 +1,87 @@
+.analog-wrap {
+  width: min(72vmin, 420px);
+  aspect-ratio: 1;
+}
+
+.analog-face {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.analog-face .face-ring {
+  fill: none;
+  stroke: var(--face-border);
+  stroke-width: 2.5;
+}
+
+.analog-face .tick {
+  stroke: var(--face-tick);
+  stroke-linecap: round;
+}
+
+.analog-face .tick-hour {
+  stroke-width: 2.4;
+}
+
+.analog-face .tick-minute {
+  stroke-width: 1.2;
+  opacity: 0.55;
+}
+
+.analog-face .hand {
+  stroke-linecap: round;
+  transform-origin: 50px 50px;
+  transition: transform 0.12s linear;
+}
+
+.analog-face .hand-hour {
+  stroke: var(--hand-hour);
+  stroke-width: 3.2;
+}
+
+.analog-face .hand-minute {
+  stroke: var(--hand-minute);
+  stroke-width: 2.4;
+}
+
+.analog-face .hand-second {
+  stroke: var(--hand-second);
+  stroke-width: 1.2;
+}
+
+.analog-face .pivot {
+  fill: var(--accent);
+}
+
+html[data-analog-style='minimal'] .analog-face .tick-minute {
+  display: none;
+}
+
+html[data-analog-style='minimal'] .analog-face .face-ring {
+  stroke-width: 1.5;
+  opacity: 0.5;
+}
+
+html[data-analog-style='minimal'] .analog-face .hand-hour {
+  stroke-width: 2.6;
+}
+
+html[data-analog-style='ticks'] .analog-face .face-ring {
+  opacity: 0.25;
+}
+
+html[data-analog-style='ticks'] .analog-face .tick-hour {
+  stroke-width: 3;
+}
+
+html[data-analog-style='classic'] .analog-face .face-ring {
+  stroke-width: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analog-face .hand {
+    transition: none;
+  }
+}

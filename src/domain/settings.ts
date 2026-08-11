@@ -1,0 +1,134 @@
+export type AppMode = 'clock' | 'pomodoro' | 'stopwatch'
+export type ClockMode = 'digital' | 'analog' | 'both'
+export type DigitalStyle = 'minimal' | 'bold' | 'rounded' | 'monospace'
+export type AnalogStyle = 'classic' | 'minimal' | 'ticks'
+export type DateFormat = 'short'
+export type HourFormat = '24h' | '12h'
+export type FontFamilyId =
+  | 'system'
+  | 'serif'
+  | 'rounded'
+  | 'monospace'
+  | 'display'
+
+export type CustomTheme = {
+  bg: string
+  fg: string
+  accent: string
+  fontFamily: FontFamilyId
+}
+
+export type ClockSettings = {
+  version: 1
+  showSeconds: boolean
+  showDate: boolean
+  hourFormat: HourFormat
+  mode: ClockMode
+  appMode: AppMode
+  pomodoroMinutes: number
+  themeId: string
+  custom: CustomTheme
+  digitalStyle: DigitalStyle
+  analogStyle: AnalogStyle
+  keepScreenOn: boolean
+  dateFormat: DateFormat
+}
+
+export const STORAGE_KEY = 'clock.settings.v1'
+
+export const DEFAULT_POMODORO_MINUTES = 25
+export const MIN_POMODORO_MINUTES = 1
+export const MAX_POMODORO_MINUTES = 180
+
+export const DEFAULT_SETTINGS: ClockSettings = {
+  version: 1,
+  showSeconds: false,
+  showDate: false,
+  hourFormat: '24h',
+  mode: 'digital',
+  appMode: 'clock',
+  pomodoroMinutes: DEFAULT_POMODORO_MINUTES,
+  themeId: 'midnight',
+  custom: {
+    bg: '#141218',
+    fg: '#f0e8e0',
+    accent: '#c6a58a',
+    fontFamily: 'system',
+  },
+  digitalStyle: 'minimal',
+  analogStyle: 'classic',
+  keepScreenOn: false,
+  dateFormat: 'short',
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+export function clampPomodoroMinutes(value: number): number {
+  if (!Number.isFinite(value)) return DEFAULT_POMODORO_MINUTES
+  return Math.min(MAX_POMODORO_MINUTES, Math.max(MIN_POMODORO_MINUTES, Math.round(value)))
+}
+
+function migrate(raw: unknown): ClockSettings {
+  if (!isObject(raw)) return { ...DEFAULT_SETTINGS, custom: { ...DEFAULT_SETTINGS.custom } }
+
+  const customRaw = isObject(raw.custom) ? raw.custom : {}
+  const custom: CustomTheme = {
+    bg: typeof customRaw.bg === 'string' ? customRaw.bg : DEFAULT_SETTINGS.custom.bg,
+    fg: typeof customRaw.fg === 'string' ? customRaw.fg : DEFAULT_SETTINGS.custom.fg,
+    accent:
+      typeof customRaw.accent === 'string' ? customRaw.accent : DEFAULT_SETTINGS.custom.accent,
+    fontFamily:
+      typeof customRaw.fontFamily === 'string'
+        ? (customRaw.fontFamily as FontFamilyId)
+        : DEFAULT_SETTINGS.custom.fontFamily,
+  }
+
+  const appMode =
+    raw.appMode === 'pomodoro' || raw.appMode === 'stopwatch' || raw.appMode === 'clock'
+      ? raw.appMode
+      : DEFAULT_SETTINGS.appMode
+
+  return {
+    version: 1,
+    showSeconds: Boolean(raw.showSeconds ?? DEFAULT_SETTINGS.showSeconds),
+    showDate: Boolean(raw.showDate ?? DEFAULT_SETTINGS.showDate),
+    hourFormat: raw.hourFormat === '12h' || raw.hourFormat === '24h'
+      ? raw.hourFormat
+      : DEFAULT_SETTINGS.hourFormat,
+    mode: (raw.mode as ClockMode) ?? DEFAULT_SETTINGS.mode,
+    appMode,
+    pomodoroMinutes: clampPomodoroMinutes(
+      typeof raw.pomodoroMinutes === 'number'
+        ? raw.pomodoroMinutes
+        : DEFAULT_SETTINGS.pomodoroMinutes,
+    ),
+    themeId: typeof raw.themeId === 'string' ? raw.themeId : DEFAULT_SETTINGS.themeId,
+    custom,
+    digitalStyle: (raw.digitalStyle as DigitalStyle) ?? DEFAULT_SETTINGS.digitalStyle,
+    analogStyle: (raw.analogStyle as AnalogStyle) ?? DEFAULT_SETTINGS.analogStyle,
+    keepScreenOn: Boolean(raw.keepScreenOn ?? DEFAULT_SETTINGS.keepScreenOn),
+    dateFormat: (raw.dateFormat as DateFormat) ?? DEFAULT_SETTINGS.dateFormat,
+  }
+}
+
+export function loadSettings(): ClockSettings {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return { ...DEFAULT_SETTINGS, custom: { ...DEFAULT_SETTINGS.custom } }
+    return migrate(JSON.parse(raw) as unknown)
+  } catch {
+    return { ...DEFAULT_SETTINGS, custom: { ...DEFAULT_SETTINGS.custom } }
+  }
+}
+
+export function saveSettings(settings: ClockSettings): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+}
+
+/** True when ticker should fire every second. */
+export function needsSecondTicks(settings: ClockSettings): boolean {
+  if (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') return true
+  return settings.showSeconds
+}

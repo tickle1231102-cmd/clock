@@ -1,0 +1,193 @@
+.settings-sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: color-mix(in srgb, #000 35%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  cursor: default;
+}
+
+.settings-sheet.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settings-panel {
+  width: min(100%, 520px);
+  max-height: min(78dvh, 720px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--sheet-bg);
+  color: var(--fg);
+  border: 1px solid var(--sheet-border);
+  border-radius: 20px 20px 0 0;
+  padding:
+    0.75rem
+    max(1rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  transform: translateY(12px);
+  transition: transform 0.22s ease;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.settings-sheet.open .settings-panel {
+  transform: translateY(0);
+}
+
+.settings-handle {
+  width: 42px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 28%, transparent);
+  margin: 0.25rem auto 0.85rem;
+}
+
+.settings-panel h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.settings-section {
+  margin-bottom: 1.1rem;
+}
+
+.settings-section h3 {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  background: var(--control-bg);
+  border-radius: 12px;
+  margin-bottom: 0.45rem;
+}
+
+.row label {
+  font-size: 0.95rem;
+}
+
+.row select,
+.row input[type='color'] {
+  appearance: none;
+  border: 1px solid var(--sheet-border);
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  color: var(--fg);
+  border-radius: 10px;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+}
+
+.row input[type='color'] {
+  width: 44px;
+  height: 34px;
+  padding: 0.2rem;
+  cursor: pointer;
+}
+
+.switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 18%, transparent);
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.switch span::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: transform 0.15s ease;
+}
+
+.switch input:checked + span {
+  background: var(--accent);
+}
+
+.switch input:checked + span::after {
+  transform: translateX(20px);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chip {
+  border: 1px solid var(--sheet-border);
+  background: var(--control-bg);
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.theme-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 20%, transparent);
+}
+
+.theme-swatch[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+
+.custom-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+}
+
+.note {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--accent);
+  line-height: 1.4;
+}
