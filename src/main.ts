@@ -127,6 +127,7 @@ clockView.setSessionHandlers({
 })
 
 clockView.clockRoot.addEventListener('click', (e) => {
+  if (clockView.consumeSwipeClick()) return
   const path = e.composedPath()
   const fromSettings = path.some(
     (node) => node instanceof HTMLElement && node.classList.contains('settings-sheet'),
@@ -145,12 +146,17 @@ clockView.clockRoot.addEventListener('click', (e) => {
   const fromMinuteScroll = path.some(
     (node) => node instanceof HTMLElement && node.classList.contains('is-minute-scroll'),
   )
-  // Analog dial (except knob, handled separately) should not open settings on click.
-  // Digital: empty area opens settings; number scroll is stopped on the time element.
   if (fromSettings || fromControls || fromTimerDial || fromMinuteScroll || settingsView.isOpen()) {
     return
   }
   settingsView.toggle()
+})
+
+clockView.setStyleSwipeHandler((next) => {
+  settings = next
+  saveSettings(settings)
+  paint()
+  settingsView.refresh()
 })
 
 document.addEventListener(

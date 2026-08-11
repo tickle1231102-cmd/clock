@@ -125,6 +125,21 @@
   opacity: 0;
 }
 
+.pomodoro-timer-wrap.scrub-disabled {
+  cursor: default;
+}
+
+.pomodoro-timer-wrap.scrub-disabled .dial-hit,
+.pomodoro-timer-wrap.scrub-disabled .scrub-hit {
+  cursor: pointer;
+}
+
+.pomodoro-timer-wrap.is-stopwatch .scrub-handle,
+.pomodoro-timer-wrap.is-stopwatch .scrub-hit {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .pomodoro-center {
   position: absolute;
   left: 50%;
@@ -154,19 +169,19 @@
   letter-spacing: 0.04em;
 }
 
-.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .clock-stage {
+.clock-root[data-pomodoro-visual='true'] .clock-stage {
   gap: clamp(0.55rem, 1.5vmin, 1rem);
 }
 
-.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .session-status-outer {
+.clock-root[data-pomodoro-visual='true'] .session-status-outer {
   display: none;
 }
 
-.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .mode-label {
+.clock-root[data-pomodoro-visual='true'] .mode-label {
   color: var(--accent);
 }
 
-.clock-root[data-app-mode='pomodoro'][data-pomodoro-visual='true'] .hint {
+.clock-root[data-pomodoro-visual='true'] .hint {
   opacity: 0.4;
 }
 

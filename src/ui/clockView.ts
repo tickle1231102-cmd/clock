@@ -1,8 +1,15 @@
 import { getClockSnapshot, type ClockSnapshot } from '../domain/clockModel'
+import {
+  analogStyleMeta,
+  cycleAnalogStyle,
+  cycleDigitalStyle,
+  digitalStyleMeta,
+} from '../domain/clockStyles'
 import type { ClockSettings } from '../domain/settings'
 import type { SessionSnapshot } from '../domain/sessionModel'
 import { applyThemeVars, resolveTheme } from '../domain/themes'
 import { createAnalogView, type AnalogView } from './analogView'
+import { createDigitalView } from './digitalView'
 import { attachMinuteScroll } from './minuteScroll'
 import {
   createPomodoroCircleView,
@@ -17,9 +24,15 @@ export type SessionControlsHandlers = {
   getPomodoroMinutes: () => number
 }
 
-function usesPomodoroVisual(settings: ClockSettings): boolean {
+export type StyleSwipeHandler = (
+  next: ClockSettings,
+  label: string,
+) => void
+
+/** Analog Time Timer dial for pomodoro (shrinks) or stopwatch (grows). */
+function usesDialVisual(settings: ClockSettings): boolean {
   return (
-    settings.appMode === 'pomodoro' &&
+    (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') &&
     (settings.mode === 'analog' || settings.mode === 'both')
   )
 }
@@ -48,14 +61,17 @@ export function createClockView(root: HTMLElement) {
         <button type="button" class="session-btn primary" data-action="toggle">시작</button>
         <button type="button" class="session-btn" data-action="reset">리셋</button>
       </div>
-      <div class="hint">탭하여 설정</div>
+      <div class="style-toast" hidden>
+        <span class="style-toast-label"></span>
+        <span class="style-toast-mood"></span>
+      </div>
+      <div class="hint">탭 · ← → 디자인</div>
       <div class="settings-host"></div>
     </div>
   `
 
   const clockRoot = root.querySelector('.clock-root') as HTMLElement
   const digitalEl = root.querySelector('.digital-clock') as HTMLElement
-  const timeEl = root.querySelector('.time') as HTMLElement
   const dateEl = root.querySelector('.date-label') as HTMLElement
   const modeLabelEl = root.querySelector('.mode-label') as HTMLElement
   const statusEl = root.querySelector('.session-status') as HTMLElement
@@ -66,8 +82,12 @@ export function createClockView(root: HTMLElement) {
   const pomodoroHost = root.querySelector('.pomodoro-host') as HTMLElement
   const settingsHost = root.querySelector('.settings-host') as HTMLElement
   const hintEl = root.querySelector('.hint') as HTMLElement
+  const toastEl = root.querySelector('.style-toast') as HTMLElement
+  const toastLabel = root.querySelector('.style-toast-label') as HTMLElement
+  const toastMood = root.querySelector('.style-toast-mood') as HTMLElement
 
   const analog: AnalogView = createAnalogView(analogHost)
+  const digital = createDigitalView(digitalEl)
   const pomodoroCircle: PomodoroCircleView = createPomodoroCircleView(pomodoroHost)
 
   const center = document.createElement('div')
@@ -76,8 +96,12 @@ export function createClockView(root: HTMLElement) {
   pomodoroCircle.el.appendChild(center)
 
   let handlers: SessionControlsHandlers | null = null
+  let onStyleSwipe: StyleSwipeHandler | null = null
+  let latestSettings: ClockSettings | null = null
+  let toastTimer: number | null = null
+  let suppressClick = false
 
-  const minuteScroll = attachMinuteScroll(timeEl, {
+  const minuteScroll = attachMinuteScroll(digitalEl, {
     getMinutes: () => handlers?.getPomodoroMinutes() ?? 25,
     onChange: (minutes, phase) => handlers?.onScrubMinutes(minutes, phase),
   })
@@ -124,28 +148,46 @@ export function createClockView(root: HTMLElement) {
   }
 
   function updateHint(settings: ClockSettings) {
-    if (settings.appMode === 'pomodoro' && usesPomodoroVisual(settings)) {
-      hintEl.textContent = '중앙 노브 · 설정'
+    if (usesDialVisual(settings)) {
+      hintEl.textContent = '설정'
     } else if (usesDigitalMinuteScroll(settings)) {
       hintEl.textContent = '숫자 스크롤 · 화면 탭 설정'
+    } else if (settings.appMode === 'clock') {
+      hintEl.textContent = '탭 설정 · ← → 디자인'
     } else {
       hintEl.textContent = '탭하여 설정'
     }
   }
 
+  function showStyleToast(label: string, mood: string) {
+    toastLabel.textContent = label
+    toastMood.textContent = mood
+    toastEl.hidden = false
+    toastEl.classList.add('is-visible')
+    if (toastTimer !== null) window.clearTimeout(toastTimer)
+    toastTimer = window.setTimeout(() => {
+      toastEl.classList.remove('is-visible')
+      toastTimer = window.setTimeout(() => {
+        toastEl.hidden = true
+        toastTimer = null
+      }, 280)
+    }, 1600)
+  }
+
   function applySettingsChrome(settings: ClockSettings) {
+    latestSettings = settings
     applyTheme(settings)
     clockRoot.dataset.mode = settings.mode
     clockRoot.dataset.appMode = settings.appMode
-    const visual = usesPomodoroVisual(settings)
+    const visual = usesDialVisual(settings)
     clockRoot.dataset.pomodoroVisual = String(visual)
     updateHint(settings)
 
     const isClock = settings.appMode === 'clock'
     const showAnalog = isClock && (settings.mode === 'analog' || settings.mode === 'both')
     const showSessionDigital =
-      settings.appMode === 'stopwatch' ||
-      (settings.appMode === 'pomodoro' && (settings.mode === 'digital' || settings.mode === 'both'))
+      (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') &&
+      (settings.mode === 'digital' || settings.mode === 'both')
     const showDigital = isClock
       ? settings.mode === 'digital' || settings.mode === 'both'
       : showSessionDigital || visual
@@ -173,18 +215,14 @@ export function createClockView(root: HTMLElement) {
       statusEl.hidden = isClock
     }
 
-    // Digital pomodoro: scroll numbers to change duration.
-    // When "both", numbers overlay dial — still allow scroll.
     const scrollOk = usesDigitalMinuteScroll(settings) && !digitalEl.hidden
     minuteScroll.setEnabled(scrollOk)
-    timeEl.classList.toggle('is-minute-scroll', scrollOk)
   }
 
   function renderClock(settings: ClockSettings, date: Date) {
     pomodoroCircle.setVisible(false)
     placeDigitalInStage()
     minuteScroll.setEnabled(false)
-    timeEl.classList.remove('is-minute-scroll')
 
     const snapshot: ClockSnapshot = getClockSnapshot(date, {
       showSeconds: settings.showSeconds,
@@ -192,7 +230,15 @@ export function createClockView(root: HTMLElement) {
       dateFormat: settings.dateFormat,
     })
 
-    timeEl.textContent = snapshot.digitalTime
+    const showDigital = settings.mode === 'digital' || settings.mode === 'both'
+    if (showDigital) {
+      digital.update(snapshot, {
+        style: settings.digitalStyle,
+        showSeconds: settings.showSeconds,
+        structured: true,
+      })
+    }
+
     dateEl.textContent = snapshot.dateLabel
     modeLabelEl.textContent = ''
     statusEl.textContent = ''
@@ -208,7 +254,7 @@ export function createClockView(root: HTMLElement) {
   }
 
   function renderSession(settings: ClockSettings, session: SessionSnapshot) {
-    const visual = usesPomodoroVisual(settings)
+    const visual = usesDialVisual(settings)
 
     modeLabelEl.hidden = false
     statusEl.hidden = false
@@ -235,15 +281,34 @@ export function createClockView(root: HTMLElement) {
 
     const scrollOk = usesDigitalMinuteScroll(settings) && !digitalEl.hidden
     minuteScroll.setEnabled(scrollOk)
-    timeEl.classList.toggle('is-minute-scroll', scrollOk)
 
     modeLabelEl.textContent = session.label
-    // Digital scroll mode: show set duration prominently while idle.
-    if (scrollOk && !session.running && !session.completed && session.elapsedMs === 0) {
-      timeEl.textContent = `${String(Math.round(session.durationMs / 60_000)).padStart(2, '0')}:00`
-    } else {
-      timeEl.textContent = session.primaryText
+
+    // Sessions keep a plain readout so minute scrubbing stays reliable.
+    const plain: ClockSnapshot = {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      hours12: 0,
+      padHours: '00',
+      padMinutes: '00',
+      padSeconds: '00',
+      period: '',
+      digitalTime:
+        scrollOk && !session.running && !session.completed && session.elapsedMs === 0
+          ? `${String(Math.round(session.durationMs / 60_000)).padStart(2, '0')}:00`
+          : session.primaryText,
+      dateLabel: '',
+      hourAngle: 0,
+      minuteAngle: 0,
+      secondAngle: 0,
     }
+    digital.update(plain, {
+      style: settings.digitalStyle,
+      showSeconds: false,
+      structured: false,
+    })
+
     statusEl.textContent = session.statusText
     toggleBtn.textContent = session.running ? '일시정지' : session.completed ? '다시 시작' : '시작'
     toggleBtn.disabled = false
@@ -265,7 +330,7 @@ export function createClockView(root: HTMLElement) {
 
   function showHintBriefly() {
     clockRoot.classList.add('show-hint')
-    window.setTimeout(() => clockRoot.classList.remove('show-hint'), 2800)
+    window.setTimeout(() => clockRoot.classList.remove('show-hint'), 3200)
   }
 
   function setSessionHandlers(next: SessionControlsHandlers) {
@@ -278,15 +343,117 @@ export function createClockView(root: HTMLElement) {
     })
   }
 
+  function setStyleSwipeHandler(handler: StyleSwipeHandler | null) {
+    onStyleSwipe = handler
+  }
+
+  function cycleStyle(dir: 1 | -1) {
+    const settings = latestSettings
+    if (!settings || settings.appMode !== 'clock' || !onStyleSwipe) return
+
+    let next = { ...settings }
+    let label = ''
+    let mood = ''
+
+    if (settings.mode === 'digital') {
+      next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
+      const meta = digitalStyleMeta(next.digitalStyle)
+      label = meta.label
+      mood = meta.mood
+    } else if (settings.mode === 'analog') {
+      next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
+      const meta = analogStyleMeta(next.analogStyle)
+      label = meta.label
+      mood = meta.mood
+    } else {
+      next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
+      next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
+      const d = digitalStyleMeta(next.digitalStyle)
+      const a = analogStyleMeta(next.analogStyle)
+      label = `${d.label} · ${a.label}`
+      mood = `${d.mood} / ${a.mood}`
+    }
+
+    showStyleToast(label, mood)
+    onStyleSwipe(next, label)
+  }
+
+  // Horizontal swipe → next/prev design (clock mode only).
+  {
+    let startX = 0
+    let startY = 0
+    let tracking = false
+    let pointerId: number | null = null
+
+    clockRoot.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return
+      const t = e.target as HTMLElement
+      if (
+        t.closest('.settings-sheet') ||
+        t.closest('.session-controls') ||
+        t.closest('.pomodoro-timer-wrap') ||
+        t.closest('.is-minute-scroll')
+      ) {
+        return
+      }
+      tracking = true
+      pointerId = e.pointerId
+      startX = e.clientX
+      startY = e.clientY
+    })
+
+    clockRoot.addEventListener('pointerup', (e) => {
+      if (!tracking || e.pointerId !== pointerId) return
+      tracking = false
+      pointerId = null
+      const dx = e.clientX - startX
+      const dy = e.clientY - startY
+      if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.35) return
+      suppressClick = true
+      window.setTimeout(() => {
+        suppressClick = false
+      }, 320)
+      cycleStyle(dx < 0 ? 1 : -1)
+    })
+
+    clockRoot.addEventListener('pointercancel', () => {
+      tracking = false
+      pointerId = null
+    })
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+      const target = e.target as HTMLElement | null
+      if (
+        target?.closest('input, select, textarea, [contenteditable="true"]') ||
+        clockRoot.querySelector('.settings-sheet.open')
+      ) {
+        return
+      }
+      e.preventDefault()
+      cycleStyle(e.key === 'ArrowRight' ? 1 : -1)
+    })
+  }
+
+  function consumeSwipeClick(): boolean {
+    if (!suppressClick) return false
+    suppressClick = false
+    return true
+  }
+
   return {
     clockRoot,
     settingsHost,
     controlsEl,
-    timeEl,
+    get timeEl() {
+      return digital.getTimeEl()
+    },
     render,
     applySettingsChrome,
     showHintBriefly,
     setSessionHandlers,
+    setStyleSwipeHandler,
+    consumeSwipeClick,
   }
 }
 

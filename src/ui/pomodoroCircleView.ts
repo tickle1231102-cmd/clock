@@ -88,6 +88,15 @@ function minutesFromDeg(deg: number): number {
 }
 
 function endDegForSession(session: SessionSnapshot): number {
+  // Stopwatch: opposite of pomodoro — empty at start, wedge grows with elapsed time.
+  if (session.kind === 'stopwatch') {
+    const elapsedMin = Math.max(0, session.elapsedMs / 60_000)
+    // 60-minute face; wrap each hour so the dial keeps filling.
+    const onFace = elapsedMin % FACE_MINUTES
+    if (onFace < 0.001 && elapsedMin > 0) return 360
+    return (onFace / FACE_MINUTES) * 360
+  }
+
   const remainingMin = Math.max(0, session.remainingMs / 60_000)
   const durationMin = session.durationMs / 60_000
   if (durationMin > FACE_MINUTES) {
@@ -137,6 +146,7 @@ export function createPomodoroCircleView(container: HTMLElement) {
 
   let onScrub: PomodoroScrubHandler | null = null
   let onKnobTap: (() => void) | null = null
+  let scrubEnabled = true
   let dragging = false
   let activePointerId: number | null = null
   let lastEmitted = -1
@@ -170,6 +180,14 @@ export function createPomodoroCircleView(container: HTMLElement) {
 
   function update(session: SessionSnapshot) {
     if (dragging) return
+    scrubEnabled = session.kind === 'pomodoro'
+    wrap.classList.toggle('is-stopwatch', session.kind === 'stopwatch')
+    wrap.classList.toggle('scrub-disabled', !scrubEnabled)
+    svg.setAttribute(
+      'aria-label',
+      session.kind === 'stopwatch' ? '스톱워치' : '뽀모도로 시간 설정',
+    )
+    svg.setAttribute('role', scrubEnabled ? 'slider' : 'img')
     paintDeg(endDegForSession(session))
     wrap.classList.toggle('is-complete', session.completed)
     wrap.classList.toggle('is-running', session.running)
@@ -220,6 +238,12 @@ export function createPomodoroCircleView(container: HTMLElement) {
 
     // Center knob → settings (not time scrub).
     if (isOnKnob(svg, e.clientX, e.clientY)) {
+      onKnobTap?.()
+      return
+    }
+
+    // Stopwatch dial is display-only (grows with elapsed time).
+    if (!scrubEnabled) {
       onKnobTap?.()
       return
     }

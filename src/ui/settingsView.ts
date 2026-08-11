@@ -12,6 +12,7 @@ import {
   MAX_POMODORO_MINUTES,
   MIN_POMODORO_MINUTES,
 } from '../domain/settings'
+import { ANALOG_STYLES, DIGITAL_STYLES } from '../domain/clockStyles'
 import { FONT_OPTIONS, THEME_PRESETS } from '../domain/themes'
 import { isWakeLockSupported } from '../platform/wakeLock'
 
@@ -152,7 +153,7 @@ export function createSettingsView({
             <label for="hour-format">시간제</label>
             <select id="hour-format">
               <option value="24h" ${s.hourFormat === '24h' ? 'selected' : ''}>24시간제</option>
-              <option value="12h" ${s.hourFormat === '12h' ? 'selected' : ''}>12시간제 (AM/PM)</option>
+              <option value="12h" ${s.hourFormat === '12h' ? 'selected' : ''}>12시간제</option>
             </select>
           </div>
           <div class="row">
@@ -215,25 +216,26 @@ export function createSettingsView({
 
         <section class="settings-section">
           <h3>스타일</h3>
+          <p class="note">시계 화면에서 좌우 스와이프 또는 ← → 키로 디자인을 바꿉니다.</p>
           <div class="row">
             <label for="digital-style">디지털</label>
             <select id="digital-style">
-              <option value="minimal" ${s.digitalStyle === 'minimal' ? 'selected' : ''}>Minimal</option>
-              <option value="bold" ${s.digitalStyle === 'bold' ? 'selected' : ''}>Bold</option>
-              <option value="rounded" ${s.digitalStyle === 'rounded' ? 'selected' : ''}>Rounded</option>
-              <option value="monospace" ${s.digitalStyle === 'monospace' ? 'selected' : ''}>Mono</option>
+              ${DIGITAL_STYLES.map(
+                (style) =>
+                  `<option value="${style.id}" ${s.digitalStyle === style.id ? 'selected' : ''}>${style.label}</option>`,
+              ).join('')}
             </select>
           </div>
           <div class="row">
             <label for="analog-style">아날로그</label>
             <select id="analog-style">
-              <option value="classic" ${s.analogStyle === 'classic' ? 'selected' : ''}>Classic</option>
-              <option value="minimal" ${s.analogStyle === 'minimal' ? 'selected' : ''}>Minimal</option>
-              <option value="ticks" ${s.analogStyle === 'ticks' ? 'selected' : ''}>Ticks</option>
+              ${ANALOG_STYLES.map(
+                (style) =>
+                  `<option value="${style.id}" ${s.analogStyle === style.id ? 'selected' : ''}>${style.label}</option>`,
+              ).join('')}
             </select>
           </div>
         </section>
-
         <section class="settings-section">
           <h3>화면</h3>
           ${toggleRow('keep-screen-on', '화면 켜두기', s.keepScreenOn)}

@@ -44,7 +44,6 @@ export function getClockSnapshot(
   const seconds = date.getSeconds()
   const hours12 = hours % 12 || 12
   const use12h = options.hourFormat === '12h'
-  const period: 'AM' | 'PM' | '' = use12h ? (hours < 12 ? 'AM' : 'PM') : ''
   const displayHours = use12h ? hours12 : hours
   const padHours = use12h ? String(displayHours) : pad2(displayHours)
   const padMinutes = pad2(minutes)
@@ -53,7 +52,8 @@ export function getClockSnapshot(
   const core = options.showSeconds
     ? `${padHours}:${padMinutes}:${padSeconds}`
     : `${padHours}:${padMinutes}`
-  const digitalTime = use12h ? `${core} ${period}` : core
+  // 12h: show hours without AM/PM suffix.
+  const digitalTime = core
 
   // Stepped angles (no continuous sub-second motion)
   const secondAngle = seconds * 6
@@ -68,7 +68,7 @@ export function getClockSnapshot(
     padHours,
     padMinutes,
     padSeconds,
-    period,
+    period: '',
     digitalTime,
     dateLabel: formatDateLabel(date, options.dateFormat ?? 'short'),
     hourAngle,

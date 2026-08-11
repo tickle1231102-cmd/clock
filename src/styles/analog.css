@@ -1,6 +1,11 @@
 .analog-wrap {
   width: min(72vmin, 420px);
   aspect-ratio: 1;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.analog-wrap[hidden] {
+  display: none !important;
 }
 
 .analog-face {
@@ -8,12 +13,22 @@
   height: 100%;
   display: block;
   overflow: visible;
+  filter: drop-shadow(0 14px 28px color-mix(in srgb, #000 22%, transparent));
 }
 
 .analog-face .face-ring {
   fill: none;
   stroke: var(--face-border);
   stroke-width: 2.5;
+}
+
+.analog-face .face-ring.soft {
+  stroke-width: 1.2;
+  opacity: 0.55;
+}
+
+.analog-face .face-fill {
+  stroke: none;
 }
 
 .analog-face .tick {
@@ -32,6 +47,7 @@
 
 .analog-face .hand {
   stroke-linecap: round;
+  transform-box: view-box;
   transform-origin: 50px 50px;
   transition: transform 0.12s linear;
 }
@@ -39,11 +55,13 @@
 .analog-face .hand-hour {
   stroke: var(--hand-hour);
   stroke-width: 3.2;
+  fill: var(--hand-hour);
 }
 
 .analog-face .hand-minute {
   stroke: var(--hand-minute);
   stroke-width: 2.4;
+  fill: var(--hand-minute);
 }
 
 .analog-face .hand-second {
@@ -54,6 +72,21 @@
 .analog-face .pivot {
   fill: var(--accent);
 }
+
+.analog-face .pivot-ring {
+  fill: none;
+  stroke: var(--face-border);
+  stroke-width: 1.1;
+}
+
+.analog-face .face-num {
+  fill: var(--face-tick);
+  font-size: 7px;
+  font-weight: 700;
+  font-family: 'Syne', var(--font);
+}
+
+/* classic / minimal / ticks */
 
 html[data-analog-style='minimal'] .analog-face .tick-minute {
   display: none;
@@ -78,6 +111,175 @@ html[data-analog-style='ticks'] .analog-face .tick-hour {
 
 html[data-analog-style='classic'] .analog-face .face-ring {
   stroke-width: 3;
+}
+
+/* lunar */
+
+.analog-face[data-analog-style='lunar'] .lunar-fill {
+  fill: color-mix(in srgb, var(--bg) 70%, var(--fg) 8%);
+}
+
+.analog-face[data-analog-style='lunar'] .crescent {
+  fill: color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.analog-face[data-analog-style='lunar'] .lunar-dot {
+  fill: color-mix(in srgb, var(--fg) 55%, var(--accent));
+}
+
+.analog-face[data-analog-style='lunar'] .hand-hour,
+.analog-face[data-analog-style='lunar'] .hand-minute {
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+/* bauhaus */
+
+.analog-face[data-analog-style='bauhaus'] .bauhaus-fill {
+  fill: color-mix(in srgb, var(--bg) 85%, var(--fg) 6%);
+}
+
+.analog-face[data-analog-style='bauhaus'] .bauhaus-hour {
+  fill: var(--hand-hour);
+  stroke: none;
+}
+
+.analog-face[data-analog-style='bauhaus'] .bauhaus-minute {
+  fill: var(--accent);
+  stroke: none;
+}
+
+.analog-face[data-analog-style='bauhaus'] .hand-second {
+  stroke: var(--hand-second);
+  stroke-width: 1.4;
+}
+
+/* orbit */
+
+.analog-face[data-analog-style='orbit'] .orbit-fill {
+  fill: color-mix(in srgb, var(--bg) 88%, #000 12%);
+}
+
+.analog-face[data-analog-style='orbit'] .orbit-ring {
+  fill: none;
+  stroke: color-mix(in srgb, var(--fg) 18%, transparent);
+  stroke-width: 0.7;
+  stroke-dasharray: 1.2 2.4;
+}
+
+.analog-face[data-analog-style='orbit'] .orbit-ring.r2 {
+  stroke-dasharray: 2 3;
+  opacity: 0.7;
+}
+
+.analog-face[data-analog-style='orbit'] .orbit-dot {
+  fill: var(--accent);
+}
+
+.analog-face[data-analog-style='orbit'] .hand-hour {
+  stroke-width: 2;
+}
+
+.analog-face[data-analog-style='orbit'] .hand-minute {
+  stroke-width: 1.5;
+}
+
+/* bloom */
+
+.analog-face[data-analog-style='bloom'] .bloom-fill {
+  fill: color-mix(in srgb, var(--bg) 75%, var(--accent) 10%);
+}
+
+.analog-face[data-analog-style='bloom'] .petal {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--fg));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.analog-face[data-analog-style='bloom'] .hand-hour,
+.analog-face[data-analog-style='bloom'] .hand-minute {
+  stroke-width: 2.4;
+}
+
+/* skeleton */
+
+.analog-face[data-analog-style='skeleton'] {
+  filter: drop-shadow(0 8px 18px color-mix(in srgb, #000 18%, transparent));
+}
+
+.analog-face[data-analog-style='skeleton'] .skeleton-ring {
+  stroke-width: 1.1;
+  opacity: 0.85;
+}
+
+.analog-face[data-analog-style='skeleton'] .skeleton-inner {
+  stroke-width: 0.7;
+  opacity: 0.35;
+  stroke-dasharray: 1 2.5;
+}
+
+.analog-face[data-analog-style='skeleton'] .hand-hour {
+  stroke-width: 1.8;
+}
+
+.analog-face[data-analog-style='skeleton'] .hand-minute {
+  stroke-width: 1.2;
+}
+
+/* noir */
+
+.analog-face[data-analog-style='noir'] .noir-fill {
+  fill: color-mix(in srgb, var(--bg) 92%, #000);
+}
+
+.analog-face[data-analog-style='noir'] .tick-hour {
+  stroke-width: 4.2;
+  stroke: var(--fg);
+}
+
+.analog-face[data-analog-style='noir'] .tick-minute {
+  stroke-width: 1;
+  opacity: 0.35;
+}
+
+.analog-face[data-analog-style='noir'] .hand-hour {
+  stroke-width: 4.5;
+  stroke: var(--fg);
+}
+
+.analog-face[data-analog-style='noir'] .hand-minute {
+  stroke-width: 3;
+  stroke: var(--fg);
+}
+
+.analog-face[data-analog-style='noir'] .hand-second {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+/* dawn */
+
+.analog-face[data-analog-style='dawn'] .dawn-fill {
+  /* fill via gradient in markup */
+}
+
+.analog-face[data-analog-style='dawn'] .dawn-dot {
+  fill: color-mix(in srgb, var(--fg) 40%, var(--accent));
+}
+
+.analog-face[data-analog-style='dawn'] .hand-hour,
+.analog-face[data-analog-style='dawn'] .hand-minute {
+  stroke: color-mix(in srgb, var(--fg) 70%, #3a2a1c);
+  stroke-width: 2.2;
+}
+
+.analog-face[data-analog-style='dawn'] .hand-second {
+  stroke: var(--accent);
+}
+
+.analog-face[data-analog-style='dawn'] .pivot {
+  fill: color-mix(in srgb, var(--fg) 55%, #5a4030);
 }
 
 @media (prefers-reduced-motion: reduce) {

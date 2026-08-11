@@ -1,7 +1,13 @@
+import {
+  isAnalogStyle,
+  isDigitalStyle,
+  type AnalogStyle,
+  type DigitalStyle,
+} from './clockStyles'
+
 export type AppMode = 'clock' | 'pomodoro' | 'stopwatch'
 export type ClockMode = 'digital' | 'analog' | 'both'
-export type DigitalStyle = 'minimal' | 'bold' | 'rounded' | 'monospace'
-export type AnalogStyle = 'classic' | 'minimal' | 'ticks'
+export type { AnalogStyle, DigitalStyle }
 export type DateFormat = 'short'
 export type HourFormat = '24h' | '12h'
 export type FontFamilyId =
@@ -106,8 +112,12 @@ function migrate(raw: unknown): ClockSettings {
     ),
     themeId: typeof raw.themeId === 'string' ? raw.themeId : DEFAULT_SETTINGS.themeId,
     custom,
-    digitalStyle: (raw.digitalStyle as DigitalStyle) ?? DEFAULT_SETTINGS.digitalStyle,
-    analogStyle: (raw.analogStyle as AnalogStyle) ?? DEFAULT_SETTINGS.analogStyle,
+    digitalStyle: isDigitalStyle(raw.digitalStyle)
+      ? raw.digitalStyle
+      : DEFAULT_SETTINGS.digitalStyle,
+    analogStyle: isAnalogStyle(raw.analogStyle)
+      ? raw.analogStyle
+      : DEFAULT_SETTINGS.analogStyle,
     keepScreenOn: Boolean(raw.keepScreenOn ?? DEFAULT_SETTINGS.keepScreenOn),
     dateFormat: (raw.dateFormat as DateFormat) ?? DEFAULT_SETTINGS.dateFormat,
   }

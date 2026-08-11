@@ -82,15 +82,56 @@ body {
   transform: translateX(-50%);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--accent);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
+  white-space: nowrap;
 }
 
 .clock-root.show-hint .hint {
   opacity: 0.45;
+}
+
+.style-toast {
+  position: absolute;
+  top: max(1.4rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 28px color-mix(in srgb, #000 22%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  z-index: 5;
+}
+
+.style-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.style-toast-label {
+  font-size: clamp(0.85rem, 2.8vmin, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+}
+
+.style-toast-mood {
+  font-size: clamp(0.65rem, 2.1vmin, 0.78rem);
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  opacity: 0.85;
 }
 
 @media (prefers-reduced-motion: reduce) {
