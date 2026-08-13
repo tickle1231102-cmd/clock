@@ -5,7 +5,7 @@ import { MESSAGES, type Locale, type Messages } from './messages'
 
 export type { Locale, Messages }
 
-const LOCALES: Locale[] = ['en', 'ko']
+const LOCALES: Locale[] = ['en', 'ko', 'ja']
 
 let activeLocale: Locale = 'en'
 
@@ -75,6 +75,9 @@ export function formatMonthTitle(year: number, month: number): string {
   if (activeLocale === 'en') {
     return `${m.months[month] ?? month + 1} ${year}`
   }
+  if (activeLocale === 'ja') {
+    return `${year}年${m.months[month] ?? `${month + 1}月`}`
+  }
   return `${year}. ${m.months[month] ?? `${month + 1}월`}`
 }
 
@@ -82,6 +85,9 @@ export function formatCalendarMonthHeading(month: number): string {
   const m = msg()
   if (activeLocale === 'en') {
     return m.months[month] ?? String(month + 1)
+  }
+  if (activeLocale === 'ja') {
+    return m.months[month] ?? `${month + 1}月`
   }
   return `${month + 1}월`
 }

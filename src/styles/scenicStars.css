@@ -1,0 +1,72 @@
+/* Shared night sky for all time-shifting scenic themes. */
+.scenic-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: var(--stars-opacity, 0);
+  pointer-events: none;
+  transition: opacity 1.4s ease;
+  background-image:
+    radial-gradient(1.1px 1.1px at 8% 12%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(1px 1px at 18% 28%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.3px 1.3px at 27% 9%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 36% 22%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.2px 1.2px at 47% 14%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 58% 31%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.4px 1.4px at 69% 11%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(1px 1px at 78% 25%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.1px 1.1px at 88% 16%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 12% 42%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.2px 1.2px at 24% 51%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1px 1px at 41% 39%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.3px 1.3px at 55% 48%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 73% 43%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.1px 1.1px at 91% 52%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 6% 63%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.2px 1.2px at 33% 68%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 62% 71%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.4px 1.4px at 84% 66%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 15% 82%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.1px 1.1px at 49% 86%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 77% 79%, rgba(255, 255, 255, 0.4), transparent);
+  filter: drop-shadow(0 0 1px rgba(200, 220, 255, 0.35));
+}
+
+.scenic-stars::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 22% 18%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(1.2px 1.2px at 63% 8%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.4px 1.4px at 81% 34%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1.1px 1.1px at 39% 26%, rgba(255, 255, 255, 0.7), transparent);
+  animation: scenic-star-twinkle 3.8s ease-in-out infinite alternate;
+}
+
+.grove-window .scenic-stars,
+.tide-window .scenic-stars,
+.island-window .scenic-stars,
+.beach-window .scenic-stars {
+  bottom: 42%;
+}
+
+.nook-window .scenic-stars {
+  bottom: 0;
+}
+
+@keyframes scenic-star-twinkle {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenic-stars::after {
+    animation: none;
+    opacity: 0.75;
+  }
+}

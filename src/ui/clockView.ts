@@ -63,7 +63,7 @@ export function createClockView(root: HTMLElement) {
     <div class="clock-root" data-mode="digital" data-app-mode="clock" data-pomodoro-visual="false">
       <div class="sky-window" hidden aria-hidden="true">
         <div class="sky-gradient"></div>
-        <div class="sky-stars"></div>
+        <div class="scenic-stars"></div>
         <div class="sky-haze"></div>
         <div class="sky-sun"></div>
         <div class="sky-moon"></div>
@@ -71,6 +71,7 @@ export function createClockView(root: HTMLElement) {
       </div>
       <div class="grove-window" hidden aria-hidden="true">
         <div class="grove-sky"></div>
+        <div class="scenic-stars"></div>
         <div class="grove-canopy-wash"></div>
         <div class="grove-shafts"></div>
         <div class="grove-trees grove-trees-back">
@@ -107,12 +108,30 @@ export function createClockView(root: HTMLElement) {
       </div>
       <div class="tide-window" hidden aria-hidden="true">
         <div class="tide-sky"></div>
+        <div class="scenic-stars"></div>
         <div class="tide-horizon-glow"></div>
         <div class="tide-islands">
           <svg viewBox="0 0 400 80" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
             <path fill="currentColor" opacity="0.45" d="M6 80 L32 56 Q42 44 54 56 L74 70 L96 42 Q108 30 122 44 L146 66 L164 52 Q174 44 186 56 L208 80 Z" />
             <path fill="currentColor" d="M58 80 L92 48 Q106 28 122 46 L148 70 L176 20 Q192 6 210 26 L244 60 L274 34 Q290 20 306 40 L338 72 L358 50 Q372 38 386 54 L400 80 Z" />
             <path fill="currentColor" opacity="0.72" d="M230 80 L252 58 Q264 44 278 58 L298 74 L318 50 Q330 38 344 52 L368 72 L384 62 Q392 56 400 64 L400 80 Z" />
+          </svg>
+        </div>
+        <div class="tide-lighthouse" aria-hidden="true">
+          <svg viewBox="0 0 140 320" preserveAspectRatio="xMidYMax meet">
+            <path class="tide-beam" d="M78 52 L220 -8 L228 118 Z" />
+            <path fill="currentColor" opacity="0.55" d="M18 320 L28 248 Q48 228 70 232 Q96 236 112 258 L122 320 Z" />
+            <path fill="currentColor" d="M48 268 L56 78 H84 L92 268 Z" />
+            <path fill="currentColor" opacity="0.22" d="M50 238 H90 L88.5 258 H51.5 Z" />
+            <path fill="currentColor" opacity="0.22" d="M51.2 198 H88.8 L87.4 218 H52.6 Z" />
+            <path fill="currentColor" opacity="0.22" d="M52.4 158 H87.6 L86.2 178 H53.8 Z" />
+            <path fill="currentColor" opacity="0.22" d="M53.5 118 H86.5 L85.2 138 H54.8 Z" />
+            <rect x="42" y="70" width="56" height="10" rx="1.5" fill="currentColor" />
+            <rect class="tide-lantern" x="54" y="38" width="32" height="32" rx="3" />
+            <path fill="currentColor" opacity="0.35" d="M54 54 H86 V70 H54 Z" />
+            <path fill="currentColor" d="M48 40 L70 14 L92 40 Z" />
+            <rect x="67" y="8" width="6" height="10" fill="currentColor" />
+            <circle class="tide-lantern" cx="70" cy="54" r="6" />
           </svg>
         </div>
         <div class="tide-water"></div>
@@ -140,6 +159,7 @@ export function createClockView(root: HTMLElement) {
       </div>
       <div class="island-window" hidden aria-hidden="true">
         <div class="island-sky"></div>
+        <div class="scenic-stars"></div>
         <div class="island-glow"></div>
         <div class="island-lagoon"></div>
         <div class="island-sparkle"></div>
@@ -176,6 +196,110 @@ export function createClockView(root: HTMLElement) {
           </svg>
         </div>
         <div class="island-veil"></div>
+      </div>
+      <div class="beach-window" hidden aria-hidden="true">
+        <div class="beach-sky"></div>
+        <div class="scenic-stars"></div>
+        <div class="beach-glow"></div>
+        <div class="beach-sea"></div>
+        <div class="beach-sparkle"></div>
+        <div class="beach-ripples beach-ripples-back">
+          ${loopingWaveTrack(
+            '<path fill="currentColor" d="M0 72 C133 50 267 50 400 72 S667 94 800 72 V120 H0 Z" />',
+            '0 0 800 120',
+          )}
+        </div>
+        <div class="beach-ripples beach-ripples-front">
+          ${loopingWaveTrack(
+            '<path fill="currentColor" opacity="0.88" d="M0 82 C67 64 133 64 200 82 S333 100 400 82 S533 64 600 82 S733 100 800 82 V120 H0 Z" />',
+            '0 0 800 120',
+          )}
+        </div>
+        <div class="beach-dunes">
+          <svg viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true">
+            <path fill="currentColor" d="M0 80 C40 52 90 58 140 48 C190 38 230 58 280 46 C330 34 370 50 400 44 V80 Z" />
+          </svg>
+        </div>
+        <div class="beach-sand"></div>
+        <div class="beach-grass beach-grass-left">
+          <svg viewBox="0 0 80 90" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M18 90 C20 60 8 38 12 12 C22 36 24 58 22 90 Z" />
+            <path fill="currentColor" opacity="0.85" d="M32 90 C30 58 36 32 28 6 C40 30 42 56 40 90 Z" />
+            <path fill="currentColor" opacity="0.7" d="M46 90 C48 62 58 40 62 14 C54 38 52 62 50 90 Z" />
+          </svg>
+        </div>
+        <div class="beach-grass beach-grass-right">
+          <svg viewBox="0 0 80 90" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M18 90 C20 60 8 38 12 12 C22 36 24 58 22 90 Z" />
+            <path fill="currentColor" opacity="0.85" d="M32 90 C30 58 36 32 28 6 C40 30 42 56 40 90 Z" />
+            <path fill="currentColor" opacity="0.7" d="M46 90 C48 62 58 40 62 14 C54 38 52 62 50 90 Z" />
+          </svg>
+        </div>
+        <div class="beach-umbrellas">
+          <svg viewBox="0 0 220 140" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" opacity="0.35" d="M48 138 L52 62" stroke="currentColor" stroke-width="3" />
+            <path fill="currentColor" d="M18 68 Q52 18 86 68 Q52 58 18 68 Z" />
+            <path fill="currentColor" opacity="0.28" d="M52 62 L52 138" stroke="currentColor" stroke-width="3" />
+            <path fill="currentColor" opacity="0.35" d="M148 138 L154 70" stroke="currentColor" stroke-width="3" />
+            <path fill="currentColor" d="M112 76 Q154 22 196 76 Q154 66 112 76 Z" />
+            <path fill="currentColor" opacity="0.22" d="M70 132 Q88 124 108 132 Q88 128 70 132 Z" />
+            <path fill="currentColor" opacity="0.22" d="M168 132 Q186 124 206 132 Q186 128 168 132 Z" />
+          </svg>
+        </div>
+        <div class="beach-veil"></div>
+      </div>
+      <div class="nook-window" hidden aria-hidden="true">
+        <div class="nook-wall"></div>
+        <div class="nook-wainscot"></div>
+        <div class="nook-pane">
+          <div class="nook-sky"></div>
+          <div class="scenic-stars"></div>
+        </div>
+        <div class="nook-frame">
+          <svg viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true">
+            <rect x="3" y="3" width="194" height="114" fill="none" stroke="currentColor" stroke-width="10" />
+            <rect x="97" y="3" width="6" height="114" fill="currentColor" />
+            <rect x="3" y="57" width="194" height="6" fill="currentColor" />
+            <rect x="3" y="106" width="194" height="11" fill="currentColor" />
+          </svg>
+        </div>
+        <div class="nook-floor"></div>
+        <div class="nook-lamp-glow"></div>
+        <div class="nook-desk-scene">
+          <svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <g class="nook-wood" opacity="0.55">
+              <path d="M168 148 L176 168 H196 L188 236 H172 L164 168 Z" />
+              <path d="M284 148 L292 168 H308 L300 228 H286 L280 168 Z" />
+            </g>
+            <g class="nook-wood">
+              <ellipse cx="240" cy="272" rx="168" ry="16" opacity="0.28" />
+              <path d="M86 168 L96 268 H114 L104 168 Z" />
+              <path d="M366 168 L376 268 H394 L384 168 Z" />
+              <path d="M58 148 L422 148 L404 172 L76 172 Z" />
+              <path d="M48 128 L432 128 L422 148 L58 148 Z" />
+              <path opacity="0.22" d="M70 132 L420 132 L418 138 L72 138 Z" />
+            </g>
+            <g class="nook-plant">
+              <path class="nook-wood" d="M78 128 L86 92 H118 L126 128 Z" />
+              <ellipse class="nook-wood" cx="102" cy="92" rx="22" ry="6" />
+              <path d="M92 92 C70 70 52 48 64 18 C86 42 90 68 96 92 Z" />
+              <path opacity="0.88" d="M102 90 C108 58 128 32 118 4 C104 28 100 58 100 90 Z" />
+              <path opacity="0.74" d="M112 92 C136 72 158 50 152 22 C130 44 122 70 116 92 Z" />
+              <path opacity="0.62" d="M86 88 C62 64 48 40 58 16 C76 38 82 62 88 88 Z" />
+              <path opacity="0.8" d="M108 86 C122 54 146 36 138 8 C118 30 110 56 106 86 Z" />
+            </g>
+            <g class="nook-book">
+              <rect x="148" y="108" width="42" height="20" rx="1.5" />
+              <rect x="154" y="98" width="40" height="18" rx="1.5" opacity="0.82" />
+            </g>
+            <g class="nook-lamp-shade">
+              <rect class="nook-wood" x="368" y="78" width="8" height="50" rx="1" />
+              <ellipse class="nook-wood" cx="372" cy="128" rx="16" ry="5" />
+              <path d="M346 78 L372 38 L398 78 Z" />
+            </g>
+          </svg>
+        </div>
+        <div class="nook-veil"></div>
       </div>
       <div class="date-label" hidden></div>
       <div class="clock-stage">
@@ -225,6 +349,8 @@ export function createClockView(root: HTMLElement) {
   const groveWindowEl = root.querySelector('.grove-window') as HTMLElement
   const tideWindowEl = root.querySelector('.tide-window') as HTMLElement
   const islandWindowEl = root.querySelector('.island-window') as HTMLElement
+  const beachWindowEl = root.querySelector('.beach-window') as HTMLElement
+  const nookWindowEl = root.querySelector('.nook-window') as HTMLElement
   const digitalEl = root.querySelector('.digital-clock') as HTMLElement
   const dateEl = root.querySelector('.date-label') as HTMLElement
   const dayProgressEl = root.querySelector('.day-progress') as HTMLElement
@@ -333,10 +459,14 @@ export function createClockView(root: HTMLElement) {
     const isGrove = theme.id === 'grove' && Boolean(theme.forest)
     const isTide = theme.id === 'tide' && Boolean(theme.ocean)
     const isIsland = theme.id === 'island' && Boolean(theme.island)
+    const isBeach = theme.id === 'beach' && Boolean(theme.beach)
+    const isNook = theme.id === 'nook' && Boolean(theme.nook)
     skyWindowEl.hidden = !isSkylight
     groveWindowEl.hidden = !isGrove
     tideWindowEl.hidden = !isTide
     islandWindowEl.hidden = !isIsland
+    beachWindowEl.hidden = !isBeach
+    nookWindowEl.hidden = !isNook
   }
 
   function placeDigitalInStage() {

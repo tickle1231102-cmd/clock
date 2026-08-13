@@ -1,3 +1,5 @@
+import { scenicNightStarsOpacity } from './scenicTime'
+
 /** Grove theme — emotional forest backdrop that shifts with local time. */
 
 export const GROVE_THEME_ID = 'grove'
@@ -13,6 +15,7 @@ export type ForestSceneState = {
   shaftOpacity: number
   fireflyOpacity: number
   fogOpacity: number
+  starsOpacity: number
   fg: string
   accent: string
 }
@@ -251,6 +254,7 @@ export function getForestSceneState(date: Date = new Date()): ForestSceneState {
     shaftOpacity: sample.shaftOpacity,
     fireflyOpacity: sample.fireflyOpacity,
     fogOpacity: sample.fogOpacity,
+    starsOpacity: scenicNightStarsOpacity(dayHour(date)),
     fg: sample.fg,
     accent: sample.accent,
   }

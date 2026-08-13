@@ -1,0 +1,271 @@
+.beach-window {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--beach-sea-deep, #2aa0c0);
+}
+
+.beach-window[hidden] {
+  display: none !important;
+}
+
+.beach-sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 58%;
+  background: linear-gradient(
+    180deg,
+    var(--beach-sky-top, #5ab8e8) 0%,
+    var(--beach-sky-mid, #88d0f0) 52%,
+    var(--beach-sky-bottom, #c8ecf8) 100%
+  );
+  transition: background 2.5s ease;
+}
+
+.beach-glow {
+  position: absolute;
+  left: -15%;
+  right: -15%;
+  top: 36%;
+  height: 26%;
+  background: radial-gradient(
+    ellipse 70% 80% at 50% 40%,
+    color-mix(in srgb, var(--beach-horizon, #b8e0ec) calc(var(--beach-glow-opacity, 0.42) * 100%), transparent),
+    transparent 72%
+  );
+  filter: blur(10px);
+}
+
+.beach-sea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22%;
+  height: 38%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--beach-sea-shallow, #90e0e8) 40%, transparent) 10%,
+    var(--beach-sea-mid, #50c8d8) 42%,
+    var(--beach-sea-deep, #2aa0c0) 100%
+  );
+  transition: background 2.5s ease;
+}
+
+.beach-sparkle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 46%;
+  height: 24%;
+  opacity: var(--beach-sparkle-opacity, 0.7);
+  background-image:
+    radial-gradient(1.3px 1.3px at 14% 40%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.1px 1.1px at 32% 58%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 48% 32%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 66% 50%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.4px 1.4px at 82% 36%, rgba(255, 255, 255, 0.75), transparent);
+  mix-blend-mode: soft-light;
+  animation: beach-sparkle-drift 16s ease-in-out infinite alternate;
+}
+
+.beach-ripples {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20%;
+  height: 22%;
+  overflow: hidden;
+  opacity: var(--beach-wave-opacity, 0.65);
+  color: color-mix(in srgb, var(--beach-sea-shallow, #90e0e8) 70%, #fff);
+}
+
+.beach-ripples .wave-track {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  width: 200%;
+  height: 100%;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.beach-ripples .wave-track svg {
+  display: block;
+  flex: 0 0 50%;
+  width: 50%;
+  height: 100%;
+  overflow: visible;
+}
+
+.beach-ripples .wave-track svg + svg {
+  margin-left: -1px;
+}
+
+.beach-ripples-back {
+  opacity: 0.38;
+  bottom: 26%;
+  height: 18%;
+}
+
+.beach-ripples-back .wave-track {
+  animation: beach-ripple-drift 48s linear infinite;
+}
+
+.beach-ripples-front {
+  opacity: 0.58;
+  bottom: 20%;
+  height: 20%;
+}
+
+.beach-ripples-front .wave-track {
+  animation: beach-ripple-drift 34s linear infinite reverse;
+}
+
+.beach-sand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--beach-sand, #f2d7a4) 45%, transparent) 18%,
+    var(--beach-sand, #f2d7a4) 48%,
+    color-mix(in srgb, var(--beach-sand, #f2d7a4) 82%, #c8a878) 100%
+  );
+}
+
+.beach-dunes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: 16%;
+  color: var(--beach-dune, #e8c888);
+}
+
+.beach-dunes svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.beach-grass {
+  position: absolute;
+  bottom: 16%;
+  width: min(28vw, 140px);
+  height: min(14vh, 90px);
+  color: var(--beach-grass, #3e8a4e);
+}
+
+.beach-grass svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.beach-grass-left {
+  left: 2%;
+}
+
+.beach-grass-right {
+  right: 3%;
+  transform: scaleX(-1);
+}
+
+.beach-umbrellas {
+  position: absolute;
+  left: 18%;
+  bottom: 8%;
+  width: min(46vw, 260px);
+  height: min(22vh, 150px);
+  color: var(--beach-umbrella, #e45c5c);
+}
+
+.beach-umbrellas svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
+}
+
+.beach-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 40%,
+      color-mix(in srgb, var(--beach-sand) 8%, transparent) 78%,
+      color-mix(in srgb, var(--beach-sand) 18%, transparent) 100%
+    ),
+    radial-gradient(ellipse 90% 65% at 50% 45%, transparent 42%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+@keyframes beach-ripple-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes beach-sparkle-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -0.8%, 0);
+  }
+}
+
+.clock-root[data-theme='beach'] {
+  background: transparent;
+}
+
+.clock-root[data-theme='beach'] .clock-stage {
+  position: relative;
+  z-index: 1;
+}
+
+.clock-root[data-theme='beach'] .date-label {
+  z-index: 3;
+}
+
+.clock-root[data-theme='beach'] .session-controls,
+.clock-root[data-theme='beach'] .hint,
+.clock-root[data-theme='beach'] .style-toast,
+.clock-root[data-theme='beach'] .style-nav {
+  z-index: 4;
+}
+
+.clock-root[data-theme='beach'] .settings-sheet {
+  z-index: 20;
+}
+
+.clock-root[data-theme='beach'] .digital-clock,
+.clock-root[data-theme='beach'] .digital-clock .time,
+.clock-root[data-theme='beach'] .digital-clock .flip-card,
+.clock-root[data-theme='beach'] .digital-clock .digit-stack,
+.clock-root[data-theme='beach'] .digital-clock .retro-digit {
+  color: var(--fg, #f7fcfd);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beach-ripples-back .wave-track,
+  .beach-ripples-front .wave-track,
+  .beach-sparkle {
+    animation: none;
+  }
+}

@@ -1,3 +1,5 @@
+import { scenicNightStarsOpacity } from './scenicTime'
+
 /** Island theme — tropical lagoon with palms, sand, and gentle ripples. */
 
 export const ISLAND_THEME_ID = 'island'
@@ -16,6 +18,7 @@ export type IslandSceneState = {
   sparkleOpacity: number
   waveOpacity: number
   glowOpacity: number
+  starsOpacity: number
   fg: string
   accent: string
 }
@@ -276,7 +279,8 @@ function sampleIsland(hour: number): Omit<IslandKeyframe, 'hour'> {
 }
 
 export function getIslandSceneState(date: Date = new Date()): IslandSceneState {
-  return sampleIsland(dayHour(date))
+  const hour = dayHour(date)
+  return { ...sampleIsland(hour), starsOpacity: scenicNightStarsOpacity(hour) }
 }
 
 export function islandFlatBg(scene: IslandSceneState): string {

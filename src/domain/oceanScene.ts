@@ -1,3 +1,5 @@
+import { scenicNightStarsOpacity } from './scenicTime'
+
 /** Tide theme — emotional seascape that shifts with local time. */
 
 export const TIDE_THEME_ID = 'tide'
@@ -13,6 +15,7 @@ export type OceanSceneState = {
   sparkleOpacity: number
   moonPathOpacity: number
   waveOpacity: number
+  starsOpacity: number
   fg: string
   accent: string
 }
@@ -240,7 +243,8 @@ function sampleOcean(hour: number): Omit<OceanKeyframe, 'hour'> {
 }
 
 export function getOceanSceneState(date: Date = new Date()): OceanSceneState {
-  return sampleOcean(dayHour(date))
+  const hour = dayHour(date)
+  return { ...sampleOcean(hour), starsOpacity: scenicNightStarsOpacity(hour) }
 }
 
 export function oceanFlatBg(scene: OceanSceneState): string {

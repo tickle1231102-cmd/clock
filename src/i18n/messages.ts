@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'ko'
+export type Locale = 'en' | 'ko' | 'ja'
 
 export type Messages = {
   settings: {
@@ -78,6 +78,7 @@ export type Messages = {
   languageSection: {
     en: string
     ko: string
+    ja: string
   }
   session: {
     start: string
@@ -183,7 +184,7 @@ const en: Messages = {
     fixedTime: 'Fixed',
     fixedPhase: 'Fixed phase',
     scenicNote:
-      'For Skylight, Grove, Tide, and Island: match the backdrop to the current time or lock it to a phase.',
+      'For Skylight, Grove, Tide, Island, Beach, and Nook: match the backdrop to the current time or lock it to a phase.',
   },
   styleSection: {
     note: 'On the clock screen, swipe left/right or use ← → to change designs.',
@@ -198,6 +199,7 @@ const en: Messages = {
   languageSection: {
     en: 'English',
     ko: '한국어',
+    ja: '日本語',
   },
   session: {
     start: 'Start',
@@ -355,7 +357,7 @@ const ko: Messages = {
     fixedTime: '고정',
     fixedPhase: '고정 시간대',
     scenicNote:
-      'Skylight · Grove · Tide · Island 테마에서 배경을 현재 시각에 맞출지, 고정 시간대로 둘지 선택합니다.',
+      'Skylight · Grove · Tide · Island · Beach · Nook 테마에서 배경을 현재 시각에 맞출지, 고정 시간대로 둘지 선택합니다.',
   },
   styleSection: {
     note: '시계 화면에서 좌우 스와이프 또는 ← → 키로 디자인을 바꿉니다.',
@@ -370,6 +372,7 @@ const ko: Messages = {
   languageSection: {
     en: 'English',
     ko: '한국어',
+    ja: '日本語',
   },
   session: {
     start: '시작',
@@ -463,4 +466,177 @@ const ko: Messages = {
   ],
 }
 
-export const MESSAGES: Record<Locale, Messages> = { en, ko }
+const ja: Messages = {
+  settings: {
+    title: '設定',
+    ariaLabel: '時計の設定',
+    features: '機能',
+    display: '表示',
+    theme: 'テーマ',
+    style: 'スタイル',
+    screen: '画面',
+    language: '言語',
+  },
+  appMode: {
+    clock: '時計',
+    pomodoro: 'ポモドーロ',
+    stopwatch: 'ストップウォッチ',
+    calendar: 'カレンダー',
+  },
+  calendar: {
+    view: '表示',
+    month: '月',
+    year: '年',
+    help: 'スワイプまたは矢印で月・年を切り替えます。年表示で月をタップすると月表示に入ります。',
+    prev: '前へ',
+    next: '次へ',
+    yearView: '年表示',
+    monthTitle: '{month}',
+    yearSubtitle: '十二か月',
+  },
+  pomodoro: {
+    focusMinutes: '集中（分）',
+    decMinute: '1分減らす',
+    incMinute: '1分増やす',
+    minutes: '{n}分',
+    analogDial: 'アナログダイヤル',
+    help: '60分を超えると120分ダイヤルに切り替わります。アナログ／両方モードで円形タイマーが表示されます。',
+    dialSetup: 'ポモドーロ時間設定',
+    dialFace: 'ポモドーロ {n}分ダイヤル',
+    focusListbox: '集中時間（分）',
+  },
+  clockDisplay: {
+    clock: '時計',
+    digital: 'デジタル',
+    analog: 'アナログ',
+    hourFormat: '時刻形式',
+    h24: '24時間',
+    h12: '12時間',
+    extras: 'その他',
+    seconds: '秒',
+    date: '日付',
+    dayProgress: '一日の進捗',
+    percent: '%',
+    help: 'オンにした項目だけが表示されます。デジタルとアナログは同時にオンにできます。',
+  },
+  themeSection: {
+    background: '背景',
+    text: '文字',
+    accent: 'アクセント',
+    font: 'フォント',
+    custom: 'Custom',
+    scenicTime: '背景の時間',
+    liveTime: '現在時刻',
+    fixedTime: '固定',
+    fixedPhase: '固定の時間帯',
+    scenicNote:
+      'Skylight・Grove・Tide・Island・Beach・Nookでは、背景を現在時刻に合わせるか、時間帯で固定するかを選べます。',
+  },
+  styleSection: {
+    note: '時計画面で左右スワイプ、または ← → キーでデザインを切り替えます。',
+    digital: 'デジタル',
+    analog: 'アナログ',
+  },
+  screenSection: {
+    keepAwake: '画面をつけたまま',
+    wakeSupported: '対応端末でのみ動作します。バッテリーを使うので必要なときだけオンにしてください。',
+    wakeUnsupported: 'このブラウザは画面オフ防止に対応していません。',
+  },
+  languageSection: {
+    en: 'English',
+    ko: '한국어',
+    ja: '日本語',
+  },
+  session: {
+    start: 'スタート',
+    pause: '一時停止',
+    resume: '再開',
+    reset: 'リセット',
+    ready: '準備完了',
+    done: '完了',
+    running: '進行中',
+    paused: '一時停止中',
+  },
+  hints: {
+    tapStyle: 'タップ · ← → デザイン',
+    centerSettings: '中央で設定 · ← → デザイン',
+    tapDigits: '数字をタップ · ← → デザイン',
+    tapSettings: 'タップで設定 · ← → デザイン',
+    tapToSettings: 'タップで設定',
+  },
+  nav: {
+    prevDesign: '前のデザイン',
+    nextDesign: '次のデザイン',
+    settings: '設定',
+  },
+  scenicPhase: {
+    night: '夜',
+    dawn: '夜明け',
+    day: '昼',
+    sunset: '夕焼け',
+    bluehour: 'ブルーアワー',
+  },
+  digitalStyle: {
+    minimal: 'ミニマル',
+    bold: 'ボールド',
+    rounded: 'ラウンド',
+    monospace: 'モノ',
+    flip: 'フリップ',
+    vertical: '縦',
+    retro: 'レトロ',
+    editorial: 'エディトリアル',
+    neon: 'ネオン',
+    soft: 'ソフト',
+  },
+  analogStyle: {
+    classic: 'クラシック',
+    minimal: 'ミニマル',
+    ticks: 'ティック',
+    lunar: 'ルナ',
+    bauhaus: 'バウハウス',
+    orbit: 'オービット',
+    bloom: 'ブルーム',
+    skeleton: 'スケルトン',
+    noir: 'ノワール',
+    dawn: 'ドーン',
+  },
+  pomodoroDial: {
+    classic: 'クラシック',
+    halo: 'ヘイロー',
+    retro: 'レトロ',
+  },
+  date: {
+    label: '{month}{day}日 · {weekday}',
+  },
+  weekdays: ['日', '月', '火', '水', '木', '金', '土'],
+  months: [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ],
+  monthsShort: [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ],
+}
+
+export const MESSAGES: Record<Locale, Messages> = { en, ko, ja }

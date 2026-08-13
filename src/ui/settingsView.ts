@@ -326,6 +326,7 @@ export function createSettingsView({
           <div class="display-btns">
             <button type="button" class="display-btn" data-locale="en" aria-pressed="${s.locale === 'en'}">${t('languageSection.en')}</button>
             <button type="button" class="display-btn" data-locale="ko" aria-pressed="${s.locale === 'ko'}">${t('languageSection.ko')}</button>
+            <button type="button" class="display-btn" data-locale="ja" aria-pressed="${s.locale === 'ja'}">${t('languageSection.ja')}</button>
           </div>
         </section>
       </div>

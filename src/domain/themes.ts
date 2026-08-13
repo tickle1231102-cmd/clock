@@ -1,5 +1,11 @@
 import type { ClockSettings, FontFamilyId } from './settings'
 import {
+  beachFlatBg,
+  getBeachSceneState,
+  BEACH_THEME_ID,
+  type BeachSceneState,
+} from './beachScene'
+import {
   forestFlatBg,
   getForestSceneState,
   GROVE_THEME_ID,
@@ -11,6 +17,12 @@ import {
   ISLAND_THEME_ID,
   type IslandSceneState,
 } from './islandScene'
+import {
+  getNookSceneState,
+  nookFlatBg,
+  NOOK_THEME_ID,
+  type NookSceneState,
+} from './nookScene'
 import {
   getOceanSceneState,
   oceanFlatBg,
@@ -124,6 +136,28 @@ export const THEME_PRESETS: ThemeTokens[] = [
       'linear-gradient(175deg, #58c8e8 0%, #30a8b0 42%, #e8d0a0 88%)',
   },
   {
+    id: BEACH_THEME_ID,
+    name: 'Beach',
+    bg: '#50c8d8',
+    fg: '#f7fcfd',
+    accent: '#f0b45a',
+    fontFamily: 'system',
+    dynamic: true,
+    swatch:
+      'linear-gradient(175deg, #5ab8e8 0%, #50c8d8 38%, #f2d7a4 88%)',
+  },
+  {
+    id: NOOK_THEME_ID,
+    name: 'Nook',
+    bg: '#e8dcc8',
+    fg: '#3a2c22',
+    accent: '#c08048',
+    fontFamily: 'serif',
+    dynamic: true,
+    swatch:
+      'linear-gradient(165deg, #6ab8e4 0%, #e8dcc8 48%, #8a5a38 100%)',
+  },
+  {
     id: SKYLIGHT_THEME_ID,
     name: 'Skylight',
     bg: '#6eb0e4',
@@ -181,6 +215,8 @@ export type ResolvedTheme = {
   forest?: ForestSceneState
   ocean?: OceanSceneState
   island?: IslandSceneState
+  beach?: BeachSceneState
+  nook?: NookSceneState
 }
 
 /** Single source of truth for colors/fonts applied to the DOM. */
@@ -257,6 +293,32 @@ export function resolveTheme(
       accent: settings.custom.accent || island.accent,
       fontFamily: settings.custom.fontFamily || preset.fontFamily,
       island,
+    }
+  }
+
+  if (themeId === BEACH_THEME_ID) {
+    const beach = getBeachSceneState(scenicAt)
+    const preset = getThemeById(BEACH_THEME_ID)!
+    return {
+      id: BEACH_THEME_ID,
+      bg: beachFlatBg(beach),
+      fg: settings.custom.fg || beach.fg,
+      accent: settings.custom.accent || beach.accent,
+      fontFamily: settings.custom.fontFamily || preset.fontFamily,
+      beach,
+    }
+  }
+
+  if (themeId === NOOK_THEME_ID) {
+    const nook = getNookSceneState(scenicAt)
+    const preset = getThemeById(NOOK_THEME_ID)!
+    return {
+      id: NOOK_THEME_ID,
+      bg: nookFlatBg(nook),
+      fg: settings.custom.fg || nook.fg,
+      accent: settings.custom.accent || nook.accent,
+      fontFamily: settings.custom.fontFamily || preset.fontFamily,
+      nook,
     }
   }
 
@@ -357,7 +419,6 @@ export function applySkyVars(sky: SolarSkyState | undefined, root: HTMLElement) 
     root.style.removeProperty('--moon-opacity')
     root.style.removeProperty('--moon-scale')
     root.style.removeProperty('--moon-glow')
-    root.style.removeProperty('--stars-opacity')
     return
   }
 
@@ -375,7 +436,6 @@ export function applySkyVars(sky: SolarSkyState | undefined, root: HTMLElement) 
   root.style.setProperty('--moon-opacity', String(sky.moon.opacity))
   root.style.setProperty('--moon-scale', String(sky.moon.scale))
   root.style.setProperty('--moon-glow', String(sky.moon.glow))
-  root.style.setProperty('--stars-opacity', String(sky.starsOpacity))
 }
 
 export function applyForestVars(forest: ForestSceneState | undefined, root: HTMLElement) {
@@ -417,6 +477,7 @@ export function applyOceanVars(ocean: OceanSceneState | undefined, root: HTMLEle
     root.style.removeProperty('--tide-sparkle-opacity')
     root.style.removeProperty('--tide-moon-path-opacity')
     root.style.removeProperty('--tide-wave-opacity')
+    root.style.removeProperty('--tide-lamp-opacity')
     return
   }
 
@@ -430,6 +491,7 @@ export function applyOceanVars(ocean: OceanSceneState | undefined, root: HTMLEle
   root.style.setProperty('--tide-sparkle-opacity', String(ocean.sparkleOpacity))
   root.style.setProperty('--tide-moon-path-opacity', String(ocean.moonPathOpacity))
   root.style.setProperty('--tide-wave-opacity', String(ocean.waveOpacity))
+  root.style.setProperty('--tide-lamp-opacity', String(ocean.starsOpacity))
 }
 
 export function applyIslandVars(island: IslandSceneState | undefined, root: HTMLElement) {
@@ -465,6 +527,74 @@ export function applyIslandVars(island: IslandSceneState | undefined, root: HTML
   root.style.setProperty('--island-glow-opacity', String(island.glowOpacity))
 }
 
+export function applyBeachVars(beach: BeachSceneState | undefined, root: HTMLElement) {
+  if (!beach) {
+    root.style.removeProperty('--beach-sky-top')
+    root.style.removeProperty('--beach-sky-mid')
+    root.style.removeProperty('--beach-sky-bottom')
+    root.style.removeProperty('--beach-sea-deep')
+    root.style.removeProperty('--beach-sea-mid')
+    root.style.removeProperty('--beach-sea-shallow')
+    root.style.removeProperty('--beach-sand')
+    root.style.removeProperty('--beach-dune')
+    root.style.removeProperty('--beach-grass')
+    root.style.removeProperty('--beach-umbrella')
+    root.style.removeProperty('--beach-horizon')
+    root.style.removeProperty('--beach-sparkle-opacity')
+    root.style.removeProperty('--beach-wave-opacity')
+    root.style.removeProperty('--beach-glow-opacity')
+    return
+  }
+
+  root.style.setProperty('--beach-sky-top', beach.skyTop)
+  root.style.setProperty('--beach-sky-mid', beach.skyMid)
+  root.style.setProperty('--beach-sky-bottom', beach.skyBottom)
+  root.style.setProperty('--beach-sea-deep', beach.seaDeep)
+  root.style.setProperty('--beach-sea-mid', beach.seaMid)
+  root.style.setProperty('--beach-sea-shallow', beach.seaShallow)
+  root.style.setProperty('--beach-sand', beach.sand)
+  root.style.setProperty('--beach-dune', beach.dune)
+  root.style.setProperty('--beach-grass', beach.grass)
+  root.style.setProperty('--beach-umbrella', beach.umbrella)
+  root.style.setProperty('--beach-horizon', beach.horizon)
+  root.style.setProperty('--beach-sparkle-opacity', String(beach.sparkleOpacity))
+  root.style.setProperty('--beach-wave-opacity', String(beach.waveOpacity))
+  root.style.setProperty('--beach-glow-opacity', String(beach.glowOpacity))
+}
+
+export function applyNookVars(nook: NookSceneState | undefined, root: HTMLElement) {
+  if (!nook) {
+    root.style.removeProperty('--nook-wall')
+    root.style.removeProperty('--nook-wall-shadow')
+    root.style.removeProperty('--nook-desk')
+    root.style.removeProperty('--nook-wood')
+    root.style.removeProperty('--nook-floor')
+    root.style.removeProperty('--nook-sky-top')
+    root.style.removeProperty('--nook-sky-mid')
+    root.style.removeProperty('--nook-sky-bottom')
+    root.style.removeProperty('--nook-frame')
+    root.style.removeProperty('--nook-lamp')
+    root.style.removeProperty('--nook-lamp-glow')
+    root.style.removeProperty('--nook-plant')
+    root.style.removeProperty('--nook-book')
+    return
+  }
+
+  root.style.setProperty('--nook-wall', nook.wall)
+  root.style.setProperty('--nook-wall-shadow', nook.wallShadow)
+  root.style.setProperty('--nook-desk', nook.desk)
+  root.style.setProperty('--nook-wood', nook.wood)
+  root.style.setProperty('--nook-floor', nook.floor)
+  root.style.setProperty('--nook-sky-top', nook.skyTop)
+  root.style.setProperty('--nook-sky-mid', nook.skyMid)
+  root.style.setProperty('--nook-sky-bottom', nook.skyBottom)
+  root.style.setProperty('--nook-frame', nook.frame)
+  root.style.setProperty('--nook-lamp', nook.lamp)
+  root.style.setProperty('--nook-lamp-glow', String(nook.lampGlow))
+  root.style.setProperty('--nook-plant', nook.plant)
+  root.style.setProperty('--nook-book', nook.book)
+}
+
 export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = document.documentElement) {
   const dial = dialTokens(theme)
 
@@ -494,6 +624,18 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
   applyForestVars(theme.forest, root)
   applyOceanVars(theme.ocean, root)
   applyIslandVars(theme.island, root)
+  applyBeachVars(theme.beach, root)
+  applyNookVars(theme.nook, root)
+
+  const starsOpacity =
+    theme.sky?.starsOpacity ??
+    theme.forest?.starsOpacity ??
+    theme.ocean?.starsOpacity ??
+    theme.island?.starsOpacity ??
+    theme.beach?.starsOpacity ??
+    theme.nook?.starsOpacity ??
+    0
+  root.style.setProperty('--stars-opacity', String(starsOpacity))
   root.dataset.theme = theme.id
 
   if (root === document.documentElement) {
@@ -516,6 +658,14 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
       pageBackground = `linear-gradient(180deg, ${theme.island.skyTop}, ${theme.island.lagoonDeep})`
       pageBackgroundColor = theme.island.lagoonDeep
       themeColor = theme.island.lagoonDeep
+    } else if (theme.beach) {
+      pageBackground = `linear-gradient(180deg, ${theme.beach.skyTop}, ${theme.beach.sand})`
+      pageBackgroundColor = theme.beach.sand
+      themeColor = theme.beach.sand
+    } else if (theme.nook) {
+      pageBackground = `linear-gradient(180deg, ${theme.nook.wall}, ${theme.nook.desk})`
+      pageBackgroundColor = theme.nook.desk
+      themeColor = theme.nook.desk
     }
     document.documentElement.style.backgroundColor = pageBackgroundColor
     document.documentElement.style.background = pageBackground

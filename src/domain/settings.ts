@@ -20,10 +20,10 @@ export type FontFamilyId = 'system' | 'serif'
 
 export type ScenicTimeMode = 'live' | 'fixed'
 export type ScenicFixedPhase = 'dawn' | 'day' | 'sunset' | 'bluehour' | 'night'
-export type Locale = 'en' | 'ko'
+export type Locale = 'en' | 'ko' | 'ja'
 
 const FONT_FAMILY_IDS: FontFamilyId[] = ['system', 'serif']
-const LOCALES: Locale[] = ['en', 'ko']
+const LOCALES: Locale[] = ['en', 'ko', 'ja']
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && LOCALES.includes(value as Locale)

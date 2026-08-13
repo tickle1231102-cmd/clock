@@ -64,6 +64,21 @@ const MONTHS_POETIC_EN = [
   'Year settling',
 ]
 
+const MONTHS_POETIC_JA = [
+  '静かな始まり',
+  'まだ早い春',
+  '風がほどける',
+  '花の名残',
+  '緑が広がる',
+  '日の長い頃',
+  '影の深い頃',
+  '光がやわらかい',
+  '空気の澄む頃',
+  '葉が色づく',
+  '夜が長くなる',
+  '一年が落ち着く',
+]
+
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
@@ -137,9 +152,10 @@ export function buildMonthGrid(anchor: Date, today = new Date()): MonthGrid {
 }
 
 function getLocalePoetic(month: number): string {
-  return getLocale() === 'en'
-    ? MONTHS_POETIC_EN[month] ?? ''
-    : MONTHS_POETIC_KO[month] ?? ''
+  const locale = getLocale()
+  if (locale === 'en') return MONTHS_POETIC_EN[month] ?? ''
+  if (locale === 'ja') return MONTHS_POETIC_JA[month] ?? ''
+  return MONTHS_POETIC_KO[month] ?? ''
 }
 
 export function buildYearView(anchor: Date, today = new Date()): YearViewModel {
