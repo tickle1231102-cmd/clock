@@ -80,7 +80,28 @@
 
 .clock-root[data-app-mode='pomodoro'] .hint,
 .clock-root[data-app-mode='stopwatch'] .hint {
-  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  display: none !important;
+}
+
+/* Session modes: settings gear only — no hint text or style arrows. */
+.clock-root[data-app-mode='pomodoro'] .style-nav-arrow,
+.clock-root[data-app-mode='stopwatch'] .style-nav-arrow,
+.clock-root[data-app-mode='pomodoro'] .style-nav-edge,
+.clock-root[data-app-mode='stopwatch'] .style-nav-edge {
+  display: none !important;
+}
+
+.clock-root[data-app-mode='pomodoro'] .style-nav-settings,
+.clock-root[data-app-mode='stopwatch'] .style-nav-settings {
+  opacity: 0.52;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.clock-root[data-app-mode='pomodoro'] .style-nav-settings:active,
+.clock-root[data-app-mode='stopwatch'] .style-nav-settings:active {
+  opacity: 0.78;
+  transform: translateX(-50%) translateY(0) scale(0.94);
 }
 
 .pomodoro-settings[hidden],

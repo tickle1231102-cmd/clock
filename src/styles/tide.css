@@ -23,7 +23,7 @@
     var(--tide-sky-mid, #68b0dc) 55%,
     var(--tide-sky-bottom, #a8d0e8) 100%
   );
-  transition: background 2s ease;
+  transition: background 2.5s ease;
 }
 
 .tide-horizon-glow {
@@ -54,7 +54,7 @@
     var(--tide-water-mid, #2a7aaa) 36%,
     var(--tide-water-deep, #0e3a58) 100%
   );
-  transition: background 2s ease;
+  transition: background 2.5s ease;
 }
 
 .tide-moon-path {
@@ -71,7 +71,6 @@
     transparent 90%
   );
   filter: blur(3px);
-  transition: opacity 2s ease;
 }
 
 .tide-sparkle {
@@ -90,8 +89,7 @@
     radial-gradient(1.1px 1.1px at 86% 60%, rgba(255, 255, 255, 0.45), transparent),
     radial-gradient(1.3px 1.3px at 38% 70%, rgba(255, 255, 255, 0.4), transparent);
   mix-blend-mode: soft-light;
-  transition: opacity 2s ease;
-  animation: tide-sparkle-shimmer 5.5s ease-in-out infinite alternate;
+  animation: tide-sparkle-drift 14s ease-in-out infinite alternate;
 }
 
 .tide-waves {
@@ -113,6 +111,9 @@
   height: 100%;
   overflow: hidden;
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
 .tide-waves-back {
@@ -122,7 +123,7 @@
 }
 
 .tide-waves-back svg {
-  animation: tide-wave-drift 22s linear infinite;
+  animation: tide-wave-drift 44s linear infinite;
 }
 
 .tide-waves-mid {
@@ -132,7 +133,7 @@
 }
 
 .tide-waves-mid svg {
-  animation: tide-wave-drift-rev 16s linear infinite;
+  animation: tide-wave-drift-rev 32s linear infinite;
 }
 
 .tide-waves-front {
@@ -143,7 +144,7 @@
 }
 
 .tide-waves-front svg {
-  animation: tide-wave-drift 11s linear infinite;
+  animation: tide-wave-drift 22s linear infinite;
 }
 
 .tide-islands {
@@ -195,14 +196,12 @@
   }
 }
 
-@keyframes tide-sparkle-shimmer {
+@keyframes tide-sparkle-drift {
   from {
-    opacity: calc(var(--tide-sparkle-opacity, 0.6) * 0.75);
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    opacity: var(--tide-sparkle-opacity, 0.6);
-    transform: translateY(-1.2%);
+    transform: translate3d(0, -1%, 0);
   }
 }
 

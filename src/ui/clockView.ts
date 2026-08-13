@@ -308,19 +308,18 @@ export function createClockView(root: HTMLElement) {
   }
 
   function updateHint(settings: ClockSettings) {
-    if (settings.appMode === 'calendar') {
+    if (settings.appMode === 'calendar' || isSessionMode(settings)) {
       hintEl.textContent = ''
       hintEl.hidden = true
-    } else if (usesDialVisual(settings)) {
+      return
+    }
+    if (usesDialVisual(settings)) {
       hintEl.hidden = false
       hintEl.textContent = '중앙 설정 · ← → 디자인'
     } else if (usesMinutePicker(settings)) {
       hintEl.hidden = false
       hintEl.textContent = '숫자 탭 · ← → 디자인'
     } else if (settings.appMode === 'clock') {
-      hintEl.hidden = false
-      hintEl.textContent = '탭 설정 · ← → 디자인'
-    } else if (isSessionMode(settings)) {
       hintEl.hidden = false
       hintEl.textContent = '탭 설정 · ← → 디자인'
     } else {
@@ -562,11 +561,11 @@ export function createClockView(root: HTMLElement) {
   }
 
   function showHintBriefly() {
+    if (latestSettings && isSessionMode(latestSettings)) {
+      return
+    }
     clockRoot.classList.add('show-hint')
-    if (
-      latestSettings &&
-      (latestSettings.appMode === 'clock' || isSessionMode(latestSettings))
-    ) {
+    if (latestSettings?.appMode === 'clock') {
       showStyleNavBriefly(3200)
     }
     window.setTimeout(() => clockRoot.classList.remove('show-hint'), 3200)

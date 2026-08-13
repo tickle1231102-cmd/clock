@@ -9,6 +9,7 @@ import {
   isPomodoroDialStyle,
   type PomodoroDialStyle,
 } from './pomodoroDial'
+import { isScenicThemeId } from './scenicTime'
 
 export type AppMode = 'clock' | 'pomodoro' | 'stopwatch' | 'calendar'
 export type ClockMode = 'digital' | 'analog' | 'both'
@@ -16,6 +17,9 @@ export type { AnalogStyle, DigitalStyle, CalendarScope, PomodoroDialStyle }
 export type DateFormat = 'short'
 export type HourFormat = '24h' | '12h'
 export type FontFamilyId = 'system' | 'serif'
+
+export type ScenicTimeMode = 'live' | 'fixed'
+export type ScenicFixedPhase = 'dawn' | 'day' | 'sunset' | 'night'
 
 const FONT_FAMILY_IDS: FontFamilyId[] = ['system', 'serif']
 
@@ -48,6 +52,8 @@ export type ClockSettings = {
   analogStyle: AnalogStyle
   keepScreenOn: boolean
   dateFormat: DateFormat
+  scenicTimeMode: ScenicTimeMode
+  scenicFixedPhase: ScenicFixedPhase
 }
 
 export const STORAGE_KEY = 'clock.settings.v1'
@@ -79,6 +85,8 @@ export const DEFAULT_SETTINGS: ClockSettings = {
   analogStyle: 'classic',
   keepScreenOn: false,
   dateFormat: 'short',
+  scenicTimeMode: 'live',
+  scenicFixedPhase: 'day',
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -154,6 +162,17 @@ function migrate(raw: unknown): ClockSettings {
       : DEFAULT_SETTINGS.analogStyle,
     keepScreenOn: Boolean(raw.keepScreenOn ?? DEFAULT_SETTINGS.keepScreenOn),
     dateFormat: (raw.dateFormat as DateFormat) ?? DEFAULT_SETTINGS.dateFormat,
+    scenicTimeMode:
+      raw.scenicTimeMode === 'live' || raw.scenicTimeMode === 'fixed'
+        ? raw.scenicTimeMode
+        : DEFAULT_SETTINGS.scenicTimeMode,
+    scenicFixedPhase:
+      raw.scenicFixedPhase === 'dawn' ||
+      raw.scenicFixedPhase === 'day' ||
+      raw.scenicFixedPhase === 'sunset' ||
+      raw.scenicFixedPhase === 'night'
+        ? raw.scenicFixedPhase
+        : DEFAULT_SETTINGS.scenicFixedPhase,
   }
 }
 
@@ -174,8 +193,8 @@ export function saveSettings(settings: ClockSettings): void {
 /** True when ticker should fire every second. */
 export function needsSecondTicks(settings: ClockSettings): boolean {
   if (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') return true
-  if (settings.themeId === 'skylight' || settings.themeId === 'grove' || settings.themeId === 'tide') {
-    return true
+  if (isScenicThemeId(settings.themeId)) {
+    return settings.scenicTimeMode === 'live'
   }
   return settings.showSeconds
 }

@@ -283,10 +283,6 @@
   color: var(--accent);
 }
 
-.clock-root[data-pomodoro-visual='true'] .hint {
-  opacity: 0.4;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pomodoro-timer .wedge {
     transition: none;

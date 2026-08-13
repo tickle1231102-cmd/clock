@@ -13,10 +13,13 @@ import {
   clampPomodoroMinutes,
   MAX_POMODORO_MINUTES,
   MIN_POMODORO_MINUTES,
+  type ScenicFixedPhase,
+  type ScenicTimeMode,
 } from '../domain/settings'
 import { ANALOG_STYLES, DIGITAL_STYLES } from '../domain/clockStyles'
 import { POMODORO_DIAL_STYLES } from '../domain/pomodoroDial'
-import { FONT_OPTIONS, THEME_PRESETS } from '../domain/themes'
+import { SCENIC_FIXED_PHASES } from '../domain/scenicTime'
+import { FONT_OPTIONS, isScenicThemeId, THEME_PRESETS } from '../domain/themes'
 import { isWakeLockSupported } from '../platform/wakeLock'
 
 type SettingsViewOptions = {
@@ -76,10 +79,7 @@ export function createSettingsView({
   function patchCustom(partial: Partial<ClockSettings['custom']>) {
     const settings = getSettings()
     // Keep scenic themes active so backdrops stay when tweaking colors.
-    const stayScenic =
-      settings.themeId === 'skylight' ||
-      settings.themeId === 'grove' ||
-      settings.themeId === 'tide'
+    const stayScenic = isScenicThemeId(settings.themeId)
     onChange({
       ...settings,
       themeId: stayScenic ? settings.themeId : 'custom',
@@ -107,6 +107,7 @@ export function createSettingsView({
     const wakeSupported = isWakeLockSupported()
     const isPomodoro = s.appMode === 'pomodoro'
     const isCalendar = s.appMode === 'calendar'
+    const isScenic = isScenicThemeId(s.themeId)
 
     sheet.innerHTML = `
       <div class="settings-panel">
@@ -249,6 +250,31 @@ export function createSettingsView({
                 ).join('')}
               </select>
             </div>
+          </div>
+          <div class="scenic-settings"${isScenic ? '' : ' hidden'}>
+            <div class="display-group" style="margin-top: 0.65rem;">
+              <p class="display-group-label">배경 시간</p>
+              <div class="display-btns">
+                <button type="button" class="display-btn" data-scenic-time-mode="live" aria-pressed="${s.scenicTimeMode === 'live'}">현재 시간</button>
+                <button type="button" class="display-btn" data-scenic-time-mode="fixed" aria-pressed="${s.scenicTimeMode === 'fixed'}">고정</button>
+              </div>
+            </div>
+            <div class="scenic-phase-group display-group" style="margin-top: 0.45rem;"${s.scenicTimeMode === 'fixed' ? '' : ' hidden'}>
+              <p class="display-group-label">고정 시간대</p>
+              <div class="display-btns">
+                ${SCENIC_FIXED_PHASES.map(
+                  (p) => `
+                  <button
+                    type="button"
+                    class="display-btn"
+                    data-scenic-phase="${p.id}"
+                    aria-pressed="${s.scenicFixedPhase === p.id}"
+                  >${p.label}</button>
+                `,
+                ).join('')}
+              </div>
+            </div>
+            <p class="note">Skylight · Grove · Tide 테마에서 배경 하늘/풍경을 현재 시각에 맞출지, 고정 시간대로 둘지 선택합니다.</p>
           </div>
         </section>
 
@@ -450,6 +476,36 @@ export function createSettingsView({
       syncThemePressed(getSettings().themeId)
     })
 
+    sheet.querySelectorAll<HTMLElement>('[data-scenic-time-mode]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const scenicTimeMode = el.dataset.scenicTimeMode as ScenicTimeMode
+        patch({ scenicTimeMode })
+        sheet.querySelectorAll<HTMLElement>('[data-scenic-time-mode]').forEach((btn) => {
+          btn.setAttribute(
+            'aria-pressed',
+            String(btn.dataset.scenicTimeMode === scenicTimeMode),
+          )
+        })
+        const phaseGroup = sheet.querySelector('.scenic-phase-group') as HTMLElement | null
+        if (phaseGroup) phaseGroup.hidden = scenicTimeMode !== 'fixed'
+      })
+    })
+
+    sheet.querySelectorAll<HTMLElement>('[data-scenic-phase]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const scenicFixedPhase = el.dataset.scenicPhase as ScenicFixedPhase
+        patch({ scenicFixedPhase })
+        sheet.querySelectorAll<HTMLElement>('[data-scenic-phase]').forEach((btn) => {
+          btn.setAttribute(
+            'aria-pressed',
+            String(btn.dataset.scenicPhase === scenicFixedPhase),
+          )
+        })
+      })
+    })
+
     bindColorInput('color-bg', 'bg')
     bindColorInput('color-fg', 'fg')
     bindColorInput('color-accent', 'accent')
@@ -462,6 +518,8 @@ export function createSettingsView({
         if (id === 'custom') {
           patch({ themeId: 'custom' })
           syncThemePressed('custom')
+          const scenic = sheet.querySelector('.scenic-settings') as HTMLElement | null
+          if (scenic) scenic.hidden = true
           return
         }
         const preset = THEME_PRESETS.find((t) => t.id === id)
@@ -486,6 +544,8 @@ export function createSettingsView({
         if (fg) fg.value = preset.fg
         if (accent) accent.value = preset.accent
         if (font) font.value = preset.fontFamily
+        const scenic = sheet.querySelector('.scenic-settings') as HTMLElement | null
+        if (scenic) scenic.hidden = !isScenicThemeId(preset.id)
       })
     })
   }

@@ -1,4 +1,4 @@
-import type { FontFamilyId } from './settings'
+import type { ClockSettings, FontFamilyId } from './settings'
 import {
   forestFlatBg,
   getForestSceneState,
@@ -11,12 +11,15 @@ import {
   TIDE_THEME_ID,
   type OceanSceneState,
 } from './oceanScene'
+import { scenicReferenceDate } from './scenicTime'
 import {
   getSolarSkyState,
   SKYLIGHT_THEME_ID,
   solarSkyFlatBg,
   type SolarSkyState,
 } from './solarSky'
+
+export { isScenicThemeId } from './scenicTime'
 
 export type ThemeTokens = {
   id: string
@@ -162,24 +165,16 @@ export type ResolvedTheme = {
   ocean?: OceanSceneState
 }
 
-/** Themes that keep their scenic backdrop when color pickers change. */
-export function isScenicThemeId(id: string): boolean {
-  return id === SKYLIGHT_THEME_ID || id === GROVE_THEME_ID || id === TIDE_THEME_ID
-}
-
 /** Single source of truth for colors/fonts applied to the DOM. */
 export function resolveTheme(
-  settings: {
-    themeId: string
-    custom: {
-      bg: string
-      fg: string
-      accent: string
-      fontFamily: FontFamilyId
-    }
-  },
+  settings: Pick<
+    ClockSettings,
+    'themeId' | 'custom' | 'scenicTimeMode' | 'scenicFixedPhase'
+  >,
   now: Date = new Date(),
 ): ResolvedTheme {
+  const scenicAt = scenicReferenceDate(settings as ClockSettings, now)
+
   if (settings.themeId === 'custom') {
     return {
       id: 'custom',
@@ -193,7 +188,7 @@ export function resolveTheme(
   const themeId = migrateThemeId(settings.themeId)
 
   if (themeId === SKYLIGHT_THEME_ID) {
-    const sky = getSolarSkyState(now)
+    const sky = getSolarSkyState(scenicAt)
     const preset = getThemeById(SKYLIGHT_THEME_ID)!
     const savedFg = settings.custom.fg
     const fg =
@@ -209,7 +204,7 @@ export function resolveTheme(
   }
 
   if (themeId === GROVE_THEME_ID) {
-    const forest = getForestSceneState(now)
+    const forest = getForestSceneState(scenicAt)
     const preset = getThemeById(GROVE_THEME_ID)!
     return {
       id: GROVE_THEME_ID,
@@ -222,7 +217,7 @@ export function resolveTheme(
   }
 
   if (themeId === TIDE_THEME_ID) {
-    const ocean = getOceanSceneState(now)
+    const ocean = getOceanSceneState(scenicAt)
     const preset = getThemeById(TIDE_THEME_ID)!
     return {
       id: TIDE_THEME_ID,
