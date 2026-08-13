@@ -1,5 +1,5 @@
 .grove-window {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
@@ -85,8 +85,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
-  height: 28%;
+  bottom: -2px;
+  height: calc(28% + 2px);
   background: linear-gradient(
     180deg,
     transparent 0%,
@@ -137,7 +137,8 @@
 
 .grove-trees-front svg {
   left: -6%;
-  height: 100%;
+  bottom: -2px;
+  height: calc(100% + 2px);
   width: 112%;
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.28));
 }

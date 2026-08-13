@@ -133,12 +133,12 @@ export function migrateThemeId(id: string): string {
 export const FONT_OPTIONS: { id: FontFamilyId; label: string; css: string }[] = [
   {
     id: 'system',
-    label: '시스템',
+    label: 'System',
     css: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   {
     id: 'serif',
-    label: '세리프',
+    label: 'Serif',
     css: 'Georgia, "Times New Roman", serif',
   },
 ]

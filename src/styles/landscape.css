@@ -26,6 +26,12 @@
     overflow: visible;
   }
 
+  .clock-root:has(.date-label:not([hidden])) .clock-stage {
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 4.5rem
+    );
+  }
+
   .date-label {
     top: max(0.25rem, env(safe-area-inset-top));
     font-size: clamp(0.68rem, 3svh, 0.88rem);

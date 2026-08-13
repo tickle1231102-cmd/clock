@@ -1,7 +1,22 @@
 .analog-wrap {
   width: min(72vmin, 420px);
   aspect-ratio: 1;
+  flex-shrink: 0;
   transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.clock-root:has(.date-label:not([hidden]))[data-mode='analog'] .analog-wrap {
+  width: min(64vmin, 360px);
+}
+
+@media (orientation: portrait) and (max-width: 480px) {
+  .clock-root:has(.date-label:not([hidden]))[data-mode='both'] .analog-wrap {
+    width: min(46vmin, 250px);
+  }
+
+  .clock-root:has(.date-label:not([hidden]))[data-mode='analog'] .analog-wrap {
+    width: min(58vmin, 320px);
+  }
 }
 
 .analog-wrap[hidden] {
