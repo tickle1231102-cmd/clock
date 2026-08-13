@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core'
+import { KeepAwake } from '@capacitor-community/keep-awake'
+
 type WakeLockSentinelLike = {
   released: boolean
   release: () => Promise<void>
@@ -6,8 +9,36 @@ type WakeLockSentinelLike = {
 
 let sentinel: WakeLockSentinelLike | null = null
 let desired = false
+let nativeKeptAwake = false
 
-async function requestLock(): Promise<void> {
+function isNativeApp(): boolean {
+  return Capacitor.isNativePlatform()
+}
+
+async function requestNative(): Promise<void> {
+  if (!desired || nativeKeptAwake) return
+  try {
+    const { isSupported } = await KeepAwake.isSupported()
+    if (!isSupported) return
+    await KeepAwake.keepAwake()
+    nativeKeptAwake = true
+  } catch {
+    nativeKeptAwake = false
+  }
+}
+
+async function releaseNative(): Promise<void> {
+  if (!nativeKeptAwake) return
+  try {
+    await KeepAwake.allowSleep()
+  } catch {
+    // ignore
+  } finally {
+    nativeKeptAwake = false
+  }
+}
+
+async function requestWebLock(): Promise<void> {
   if (!desired) return
   if (!('wakeLock' in navigator)) return
   if (document.visibilityState !== 'visible') return
@@ -19,16 +50,15 @@ async function requestLock(): Promise<void> {
     sentinel.addEventListener('release', () => {
       sentinel = null
       if (desired && document.visibilityState === 'visible') {
-        void requestLock()
+        void requestWebLock()
       }
     })
   } catch {
-    // User gesture / policy / unsupported — fail quietly
     sentinel = null
   }
 }
 
-async function releaseLock(): Promise<void> {
+async function releaseWebLock(): Promise<void> {
   if (!sentinel) return
   try {
     await sentinel.release()
@@ -40,8 +70,8 @@ async function releaseLock(): Promise<void> {
 }
 
 function onVisibility() {
-  if (document.visibilityState === 'visible' && desired) {
-    void requestLock()
+  if (document.visibilityState === 'visible' && desired && !isNativeApp()) {
+    void requestWebLock()
   }
 }
 
@@ -49,13 +79,23 @@ document.addEventListener('visibilitychange', onVisibility)
 
 export async function setKeepScreenOn(enabled: boolean): Promise<void> {
   desired = enabled
+  if (isNativeApp()) {
+    if (enabled) {
+      await requestNative()
+    } else {
+      await releaseNative()
+    }
+    return
+  }
+
   if (enabled) {
-    await requestLock()
+    await requestWebLock()
   } else {
-    await releaseLock()
+    await releaseWebLock()
   }
 }
 
 export function isWakeLockSupported(): boolean {
+  if (isNativeApp()) return true
   return 'wakeLock' in navigator
 }

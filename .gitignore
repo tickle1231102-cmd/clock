@@ -4,3 +4,17 @@ dist
 *.local
 .vercel
 tmp/
+
+# Android / Capacitor local & secrets
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/captures/
+android/*.iml
+android/app/release/
+*.jks
+*.keystore
+*.apk
+*.aab

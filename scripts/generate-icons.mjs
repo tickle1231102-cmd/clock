@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const outDir = join(__dirname, '../public/icons')
+const androidRes = join(__dirname, '../android/app/src/main/res')
 mkdirSync(outDir, { recursive: true })
 
 function crc32(buf) {
@@ -60,6 +61,7 @@ function png(size, paint) {
   ])
 }
 
+/** Opaque black square with white clock face (web / legacy launcher). */
 function clockIcon(x, y, size) {
   const cx = (size - 1) / 2
   const cy = (size - 1) / 2
@@ -69,13 +71,10 @@ function clockIcon(x, y, size) {
   const r = size * 0.38
   const stroke = size * 0.045
 
-  // background
   if (dist > r + stroke) return [0, 0, 0, 255]
 
-  // face ring
   if (Math.abs(dist - r) < stroke) return [245, 245, 245, 255]
 
-  // hour hand (~10:10)
   const hourLen = r * 0.45
   const hourAngle = (-60 * Math.PI) / 180
   const hx = Math.sin(hourAngle)
@@ -86,7 +85,6 @@ function clockIcon(x, y, size) {
     return [245, 245, 245, 255]
   }
 
-  // minute hand
   const minLen = r * 0.7
   const minAngle = (60 * Math.PI) / 180
   const mx = Math.sin(minAngle)
@@ -97,10 +95,50 @@ function clockIcon(x, y, size) {
     return [200, 200, 200, 255]
   }
 
-  // center pivot
   if (dist < stroke * 1.1) return [163, 163, 163, 255]
 
   return [0, 0, 0, 255]
+}
+
+/**
+ * Adaptive-icon foreground: transparent outside, clock inset in safe zone (~66%).
+ */
+function adaptiveForeground(x, y, size) {
+  const cx = (size - 1) / 2
+  const cy = (size - 1) / 2
+  const dx = x - cx
+  const dy = y - cy
+  const dist = Math.hypot(dx, dy)
+  const r = size * 0.28
+  const stroke = Math.max(1.5, size * 0.035)
+
+  if (dist > r + stroke * 1.2) return [0, 0, 0, 0]
+
+  if (Math.abs(dist - r) < stroke) return [245, 245, 245, 255]
+
+  const hourLen = r * 0.45
+  const hourAngle = (-60 * Math.PI) / 180
+  const hx = Math.sin(hourAngle)
+  const hy = -Math.cos(hourAngle)
+  const hourProj = dx * hx + dy * hy
+  const hourDist = Math.abs(dx * hy - dy * hx)
+  if (hourProj >= 0 && hourProj <= hourLen && hourDist < stroke * 0.9) {
+    return [245, 245, 245, 255]
+  }
+
+  const minLen = r * 0.7
+  const minAngle = (60 * Math.PI) / 180
+  const mx = Math.sin(minAngle)
+  const my = -Math.cos(minAngle)
+  const minProj = dx * mx + dy * my
+  const minDist = Math.abs(dx * my - dy * mx)
+  if (minProj >= 0 && minProj <= minLen && minDist < stroke * 0.7) {
+    return [200, 200, 200, 255]
+  }
+
+  if (dist < stroke * 1.1) return [163, 163, 163, 255]
+
+  return [0, 0, 0, 0]
 }
 
 for (const size of [180, 192, 512]) {
@@ -110,3 +148,35 @@ for (const size of [180, 192, 512]) {
 }
 
 console.log('Icons written to', outDir)
+
+/** dens: folder → [legacy launcher px, adaptive foreground px] */
+const ANDROID_DENSITIES = {
+  'mipmap-mdpi': [48, 108],
+  'mipmap-hdpi': [72, 162],
+  'mipmap-xhdpi': [96, 216],
+  'mipmap-xxhdpi': [144, 324],
+  'mipmap-xxxhdpi': [192, 432],
+}
+
+try {
+  for (const [folder, [legacy, foreground]] of Object.entries(ANDROID_DENSITIES)) {
+    const dir = join(androidRes, folder)
+    mkdirSync(dir, { recursive: true })
+    const legacyPng = png(legacy, clockIcon)
+    writeFileSync(join(dir, 'ic_launcher.png'), legacyPng)
+    writeFileSync(join(dir, 'ic_launcher_round.png'), legacyPng)
+    writeFileSync(join(dir, 'ic_launcher_foreground.png'), png(foreground, adaptiveForeground))
+  }
+
+  writeFileSync(
+    join(androidRes, 'values/ic_launcher_background.xml'),
+    `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#000000</color>
+</resources>
+`,
+  )
+  console.log('Android mipmaps updated under', androidRes)
+} catch (err) {
+  console.warn('Skipped Android icons (android/ missing?):', err.message)
+}

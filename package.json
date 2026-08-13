@@ -1,5 +1,5 @@
 {
-  "name": "clock",
+  "name": "cozy-time",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,14 +7,23 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "cap:sync": "npm run build && npx cap sync android",
+    "cap:open": "npx cap open android",
+    "cap:copy": "npm run build && npx cap copy android"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.2",
     "vite-plugin-pwa": "^0.21.1"
   },
   "allowScripts": {
     "esbuild@0.25.12": true
+  },
+  "dependencies": {
+    "@capacitor-community/keep-awake": "^8.0.1",
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
   }
 }

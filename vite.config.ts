@@ -7,9 +7,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
-        name: 'Clock',
-        short_name: 'Clock',
-        description: 'Fullscreen clock for iPhone and iPad',
+        name: 'Cozy Time',
+        short_name: 'Cozy Time',
+        description: 'A cozy fullscreen clock with scenic themes, pomodoro, and calendar',
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',

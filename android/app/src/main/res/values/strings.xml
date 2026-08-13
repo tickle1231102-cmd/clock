@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Cozy Time</string>
+    <string name="title_activity_main">Cozy Time</string>
+    <string name="package_name">com.cozytime1231.studio</string>
+    <string name="custom_url_scheme">com.cozytime1231.studio</string>
+</resources>
