@@ -233,6 +233,32 @@
   border-color: var(--accent);
 }
 
+.theme-swatch-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--control-bg);
+  color: var(--fg);
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.theme-swatch-add:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.theme-swatch-user {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--fg) 20%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.theme-delete-btn {
+  justify-self: start;
+}
+
 .custom-grid {
   display: grid;
   grid-template-columns: 1fr;

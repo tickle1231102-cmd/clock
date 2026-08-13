@@ -40,6 +40,11 @@ export type CustomTheme = {
   fontFamily: FontFamilyId
 }
 
+/** User-saved flat color themes (from Custom colors +). */
+export type UserTheme = CustomTheme & {
+  id: string
+}
+
 export type ClockSettings = {
   version: 1
   showSeconds: boolean
@@ -54,6 +59,7 @@ export type ClockSettings = {
   pomodoroDialStyle: PomodoroDialStyle
   themeId: string
   custom: CustomTheme
+  userThemes: UserTheme[]
   digitalStyle: DigitalStyle
   analogStyle: AnalogStyle
   keepScreenOn: boolean
@@ -88,6 +94,7 @@ export const DEFAULT_SETTINGS: ClockSettings = {
     accent: '#c6a58a',
     fontFamily: 'system',
   },
+  userThemes: [],
   digitalStyle: 'minimal',
   analogStyle: 'classic',
   keepScreenOn: false,
@@ -119,6 +126,25 @@ function migrate(raw: unknown): ClockSettings {
       ? customRaw.fontFamily
       : DEFAULT_SETTINGS.custom.fontFamily,
   }
+
+  const userThemes: UserTheme[] = Array.isArray(raw.userThemes)
+    ? raw.userThemes
+        .filter(isObject)
+        .map((item, index) => {
+          const id =
+            typeof item.id === 'string' && item.id.startsWith('user-')
+              ? item.id
+              : `user-${index}-${Date.now()}`
+          return {
+            id,
+            bg: typeof item.bg === 'string' ? item.bg : custom.bg,
+            fg: typeof item.fg === 'string' ? item.fg : custom.fg,
+            accent: typeof item.accent === 'string' ? item.accent : custom.accent,
+            fontFamily: isFontFamilyId(item.fontFamily) ? item.fontFamily : custom.fontFamily,
+          }
+        })
+        .filter((theme, index, list) => list.findIndex((t) => t.id === theme.id) === index)
+    : []
 
   const appMode =
     raw.appMode === 'pomodoro' ||
@@ -162,6 +188,7 @@ function migrate(raw: unknown): ClockSettings {
       return id
     })(),
     custom,
+    userThemes,
     digitalStyle: isDigitalStyle(raw.digitalStyle)
       ? raw.digitalStyle
       : DEFAULT_SETTINGS.digitalStyle,
@@ -181,13 +208,27 @@ function migrate(raw: unknown): ClockSettings {
   }
 }
 
+export function createUserThemeId(): string {
+  return `user-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+}
+
 export function loadSettings(): ClockSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return { ...DEFAULT_SETTINGS, custom: { ...DEFAULT_SETTINGS.custom } }
+    if (!raw) {
+      return {
+        ...DEFAULT_SETTINGS,
+        custom: { ...DEFAULT_SETTINGS.custom },
+        userThemes: [],
+      }
+    }
     return migrate(JSON.parse(raw) as unknown)
   } catch {
-    return { ...DEFAULT_SETTINGS, custom: { ...DEFAULT_SETTINGS.custom } }
+    return {
+      ...DEFAULT_SETTINGS,
+      custom: { ...DEFAULT_SETTINGS.custom },
+      userThemes: [],
+    }
   }
 }
 

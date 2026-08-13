@@ -59,6 +59,8 @@ export type Messages = {
     accent: string
     font: string
     custom: string
+    addTheme: string
+    deleteTheme: string
     scenicTime: string
     liveTime: string
     fixedTime: string
@@ -179,6 +181,8 @@ const en: Messages = {
     accent: 'Accent',
     font: 'Font',
     custom: 'Custom',
+    addTheme: 'Save current colors as a theme',
+    deleteTheme: 'Delete saved theme',
     scenicTime: 'Backdrop time',
     liveTime: 'Live',
     fixedTime: 'Fixed',
@@ -352,6 +356,8 @@ const ko: Messages = {
     accent: '포인트',
     font: '폰트',
     custom: 'Custom',
+    addTheme: '지금 색으로 테마 저장',
+    deleteTheme: '저장한 테마 삭제',
     scenicTime: '배경 시간',
     liveTime: '현재 시간',
     fixedTime: '고정',
@@ -525,6 +531,8 @@ const ja: Messages = {
     accent: 'アクセント',
     font: 'フォント',
     custom: 'Custom',
+    addTheme: '今の色でテーマを保存',
+    deleteTheme: '保存したテーマを削除',
     scenicTime: '背景の時間',
     liveTime: '現在時刻',
     fixedTime: '固定',

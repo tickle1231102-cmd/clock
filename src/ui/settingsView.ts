@@ -8,9 +8,11 @@ import type {
   FontFamilyId,
   HourFormat,
   PomodoroDialStyle,
+  UserTheme,
 } from '../domain/settings'
 import {
   clampPomodoroMinutes,
+  createUserThemeId,
   MAX_POMODORO_MINUTES,
   MIN_POMODORO_MINUTES,
   type ScenicFixedPhase,
@@ -39,6 +41,11 @@ type SettingsViewOptions = {
 }
 
 const POMODORO_PRESETS = [15, 25, 45, 60, 90, 120]
+const MAX_USER_THEMES = 16
+
+function themeSwatchStyle(bg: string, fg: string): string {
+  return `linear-gradient(135deg, ${bg} 50%, ${fg} 50%)`
+}
 
 function toggleRow(id: string, label: string, checked: boolean): string {
   return `
@@ -67,6 +74,7 @@ export function createSettingsView({
 
   let open = false
   let hideTimer: number | null = null
+  let colorPickerActive = false
 
   function clearHideTimer() {
     if (hideTimer !== null) {
@@ -76,8 +84,15 @@ export function createSettingsView({
   }
 
   function scheduleAutoHide() {
+    if (colorPickerActive) return
     clearHideTimer()
     hideTimer = window.setTimeout(() => setOpen(false), 12000)
+  }
+
+  function shouldDeferSettingsRefresh(): boolean {
+    if (colorPickerActive) return true
+    const el = document.activeElement
+    return el instanceof HTMLInputElement && el.type === 'color' && sheet.contains(el)
   }
 
   function patch(partial: Partial<ClockSettings>) {
@@ -93,6 +108,66 @@ export function createSettingsView({
       ...settings,
       themeId: stayScenic ? settings.themeId : 'custom',
       custom: { ...settings.custom, ...partial },
+    })
+    // Keep sheet open while the user is still picking colors.
+    clearHideTimer()
+  }
+
+  function applyFlatTheme(theme: Pick<UserTheme, 'id' | 'bg' | 'fg' | 'accent' | 'fontFamily'>) {
+    onChange({
+      ...getSettings(),
+      themeId: theme.id,
+      custom: {
+        bg: theme.bg,
+        fg: theme.fg,
+        accent: theme.accent,
+        fontFamily: theme.fontFamily,
+      },
+    })
+    scheduleAutoHide()
+    syncThemePressed(theme.id)
+    const bg = sheet.querySelector<HTMLInputElement>('#color-bg')
+    const fg = sheet.querySelector<HTMLInputElement>('#color-fg')
+    const accent = sheet.querySelector<HTMLInputElement>('#color-accent')
+    const font = sheet.querySelector<HTMLSelectElement>('#font-family')
+    if (bg) bg.value = theme.bg
+    if (fg) fg.value = theme.fg
+    if (accent) accent.value = theme.accent
+    if (font) font.value = theme.fontFamily
+    const scenic = sheet.querySelector('.scenic-settings') as HTMLElement | null
+    if (scenic) scenic.hidden = true
+    const del = sheet.querySelector<HTMLButtonElement>('#delete-user-theme')
+    if (del) del.hidden = !theme.id.startsWith('user-')
+  }
+
+  function addUserThemeFromCustom() {
+    const settings = getSettings()
+    if (settings.userThemes.length >= MAX_USER_THEMES) return
+    const id = createUserThemeId()
+    const theme: UserTheme = {
+      id,
+      bg: settings.custom.bg,
+      fg: settings.custom.fg,
+      accent: settings.custom.accent,
+      fontFamily: settings.custom.fontFamily,
+    }
+    onChange({
+      ...settings,
+      themeId: id,
+      userThemes: [...settings.userThemes, theme],
+    })
+    scheduleAutoHide()
+  }
+
+  function deleteSelectedUserTheme() {
+    const settings = getSettings()
+    const id = settings.themeId
+    if (!id.startsWith('user-')) return
+    const userThemes = settings.userThemes.filter((theme) => theme.id !== id)
+    onChange({
+      ...settings,
+      userThemes,
+      themeId: 'custom',
     })
     scheduleAutoHide()
   }
@@ -227,16 +302,37 @@ export function createSettingsView({
                 data-theme-id="${theme.id}"
                 aria-label="${theme.name}"
                 aria-pressed="${s.themeId === theme.id}"
-                style="background: ${theme.swatch ?? `linear-gradient(135deg, ${theme.bg} 50%, ${theme.fg} 50%)`};"
+                style="background: ${theme.swatch ?? themeSwatchStyle(theme.bg, theme.fg)};"
               ></button>
             `,
             ).join('')}
+            ${s.userThemes
+              .map(
+                (theme) => `
+              <button
+                type="button"
+                class="theme-swatch theme-swatch-user"
+                data-theme-id="${theme.id}"
+                aria-label="${t('themeSection.custom')}"
+                aria-pressed="${s.themeId === theme.id}"
+                style="background: ${themeSwatchStyle(theme.bg, theme.fg)};"
+              ></button>
+            `,
+              )
+              .join('')}
             <button
               type="button"
               class="chip"
               data-theme-id="custom"
               aria-pressed="${s.themeId === 'custom'}"
             >${t('themeSection.custom')}</button>
+            <button
+              type="button"
+              class="theme-swatch theme-swatch-add"
+              id="add-user-theme"
+              aria-label="${t('themeSection.addTheme')}"
+              ${s.userThemes.length >= MAX_USER_THEMES ? 'disabled' : ''}
+            >+</button>
           </div>
           <div class="custom-grid" style="margin-top: 0.55rem;">
             <div class="row">
@@ -260,6 +356,12 @@ export function createSettingsView({
                 ).join('')}
               </select>
             </div>
+            <button
+              type="button"
+              class="chip theme-delete-btn"
+              id="delete-user-theme"
+              ${s.themeId.startsWith('user-') ? '' : 'hidden'}
+            >${t('themeSection.deleteTheme')}</button>
           </div>
           <div class="scenic-settings"${isScenic ? '' : ' hidden'}>
             <div class="display-group" style="margin-top: 0.65rem;">
@@ -344,20 +446,43 @@ export function createSettingsView({
   function bindColorInput(id: string, key: 'bg' | 'fg' | 'accent') {
     const input = sheet.querySelector<HTMLInputElement>(`#${id}`)
     if (!input) return
+    const beginPick = () => {
+      colorPickerActive = true
+      clearHideTimer()
+    }
     const commit = () => {
       patchCustom({ [key]: input.value })
-      const themeId = getSettings().themeId
-      syncThemePressed(themeId)
-      const custom = getSettings().custom
-      const bg = sheet.querySelector<HTMLInputElement>('#color-bg')
-      const fg = sheet.querySelector<HTMLInputElement>('#color-fg')
-      const accent = sheet.querySelector<HTMLInputElement>('#color-accent')
-      if (bg) bg.value = custom.bg
-      if (fg) fg.value = custom.fg
-      if (accent) accent.value = custom.accent
+      syncThemePressed(getSettings().themeId)
+      const del = sheet.querySelector<HTMLButtonElement>('#delete-user-theme')
+      if (del) del.hidden = !getSettings().themeId.startsWith('user-')
     }
-    input.addEventListener('input', commit)
-    input.addEventListener('change', commit)
+    const endPick = () => {
+      colorPickerActive = false
+      scheduleAutoHide()
+    }
+    input.addEventListener('pointerdown', beginPick)
+    input.addEventListener('focus', beginPick)
+    input.addEventListener('input', () => {
+      beginPick()
+      commit()
+    })
+    input.addEventListener('change', () => {
+      commit()
+      endPick()
+    })
+    input.addEventListener('blur', () => {
+      window.setTimeout(() => {
+        if (document.activeElement === input) return
+        if (
+          document.activeElement instanceof HTMLInputElement &&
+          document.activeElement.type === 'color' &&
+          sheet.contains(document.activeElement)
+        ) {
+          return
+        }
+        endPick()
+      }, 250)
+    })
   }
 
   function bind() {
@@ -537,6 +662,18 @@ export function createSettingsView({
     bindColorInput('color-fg', 'fg')
     bindColorInput('color-accent', 'accent')
 
+    sheet.querySelector('#add-user-theme')?.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      addUserThemeFromCustom()
+    })
+
+    sheet.querySelector('#delete-user-theme')?.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      deleteSelectedUserTheme()
+    })
+
     sheet.querySelectorAll<HTMLElement>('[data-theme-id]').forEach((el) => {
       el.addEventListener('click', (e) => {
         e.preventDefault()
@@ -547,6 +684,13 @@ export function createSettingsView({
           syncThemePressed('custom')
           const scenic = sheet.querySelector('.scenic-settings') as HTMLElement | null
           if (scenic) scenic.hidden = true
+          const del = sheet.querySelector<HTMLButtonElement>('#delete-user-theme')
+          if (del) del.hidden = true
+          return
+        }
+        const userTheme = getSettings().userThemes.find((theme) => theme.id === id)
+        if (userTheme) {
+          applyFlatTheme(userTheme)
           return
         }
         const preset = THEME_PRESETS.find((t) => t.id === id)
@@ -573,6 +717,8 @@ export function createSettingsView({
         if (font) font.value = preset.fontFamily
         const scenic = sheet.querySelector('.scenic-settings') as HTMLElement | null
         if (scenic) scenic.hidden = !isScenicThemeId(preset.id)
+        const del = sheet.querySelector<HTMLButtonElement>('#delete-user-theme')
+        if (del) del.hidden = true
       })
     })
   }
@@ -582,9 +728,11 @@ export function createSettingsView({
     sheet.classList.toggle('open', open)
     onOpenChange(open)
     if (open) {
+      colorPickerActive = false
       render()
       scheduleAutoHide()
     } else {
+      colorPickerActive = false
       clearHideTimer()
     }
   }
@@ -602,7 +750,7 @@ export function createSettingsView({
     setOpen,
     toggle,
     refresh: () => {
-      if (open) render()
+      if (open && !shouldDeferSettingsRefresh()) render()
     },
   }
 }

@@ -223,7 +223,7 @@ export type ResolvedTheme = {
 export function resolveTheme(
   settings: Pick<
     ClockSettings,
-    'themeId' | 'custom' | 'scenicTimeMode' | 'scenicFixedPhase'
+    'themeId' | 'custom' | 'userThemes' | 'scenicTimeMode' | 'scenicFixedPhase'
   >,
   now: Date = new Date(),
 ): ResolvedTheme {
@@ -236,6 +236,17 @@ export function resolveTheme(
       fg: settings.custom.fg,
       accent: settings.custom.accent,
       fontFamily: settings.custom.fontFamily,
+    }
+  }
+
+  const userTheme = settings.userThemes?.find((theme) => theme.id === settings.themeId)
+  if (userTheme) {
+    return {
+      id: userTheme.id,
+      bg: userTheme.bg,
+      fg: userTheme.fg,
+      accent: userTheme.accent,
+      fontFamily: userTheme.fontFamily,
     }
   }
 
