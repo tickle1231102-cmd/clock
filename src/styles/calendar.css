@@ -166,7 +166,7 @@
 }
 
 .cal-dow.is-weekend {
-  color: color-mix(in srgb, var(--accent) 70%, var(--fg));
+  color: color-mix(in srgb, var(--accent) 88%, var(--fg));
 }
 
 .cal-day {
@@ -191,14 +191,18 @@
 }
 
 .cal-day.is-weekend.in-month .cal-day-num {
-  color: color-mix(in srgb, var(--accent) 55%, var(--fg));
+  color: color-mix(in srgb, var(--accent) 72%, var(--fg));
 }
 
 .cal-day.is-today {
+  width: 84%;
+  height: 84%;
+  align-self: center;
+  justify-self: center;
   background: color-mix(in srgb, var(--accent) 22%, transparent);
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
-    0 6px 18px color-mix(in srgb, var(--accent) 16%, transparent);
+    0 4px 14px color-mix(in srgb, var(--accent) 16%, transparent);
   cursor: pointer;
   pointer-events: auto;
 }
@@ -291,7 +295,7 @@
 }
 
 .cal-year-day.is-weekend {
-  color: color-mix(in srgb, var(--accent) 50%, var(--fg));
+  color: color-mix(in srgb, var(--accent) 68%, var(--fg));
 }
 
 .cal-year-day.is-today {
