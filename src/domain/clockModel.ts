@@ -1,5 +1,7 @@
 import type { DateFormat, HourFormat } from './settings'
 
+import { formatDateLabel as formatDateLabelI18n } from '../i18n'
+
 export type ClockSnapshot = {
   hours: number
   minutes: number
@@ -16,17 +18,13 @@ export type ClockSnapshot = {
   secondAngle: number
 }
 
-const WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토']
 
 function pad2(n: number): string {
   return n.toString().padStart(2, '0')
 }
 
 export function formatDateLabel(date: Date, _format: DateFormat = 'short'): string {
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const weekday = WEEKDAYS_KO[date.getDay()]
-  return `${month}월 ${day}일 · ${weekday}`
+  return formatDateLabelI18n(date)
 }
 
 export function getClockSnapshot(

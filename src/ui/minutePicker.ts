@@ -3,6 +3,7 @@ import {
   MAX_POMODORO_MINUTES,
   MIN_POMODORO_MINUTES,
 } from '../domain/settings'
+import { t } from '../i18n'
 
 export type MinutePickerHandler = (
   minutes: number,
@@ -23,7 +24,7 @@ export function createMinutePicker({ host, getMinutes, onChange }: MinutePickerO
   root.className = 'minute-picker'
   root.hidden = true
   root.innerHTML = `
-    <div class="minute-picker-card" role="listbox" aria-label="집중 시간(분)">
+    <div class="minute-picker-card" role="listbox" aria-label="${t('pomodoro.focusListbox')}">
       <div class="minute-picker-highlight" aria-hidden="true"></div>
       <div class="minute-picker-wheel"></div>
     </div>
@@ -219,6 +220,9 @@ export function createMinutePicker({ host, getMinutes, onChange }: MinutePickerO
     toggle,
     isOpen,
     el: root,
+    refreshLabels() {
+      root.querySelector('.minute-picker-card')?.setAttribute('aria-label', t('pomodoro.focusListbox'))
+    },
     setMinutes(minutes: number) {
       current = clampPomodoroMinutes(minutes)
       if (open) {

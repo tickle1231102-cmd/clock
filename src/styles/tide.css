@@ -175,7 +175,7 @@
       color-mix(in srgb, var(--tide-water-deep) 18%, transparent) 70%,
       color-mix(in srgb, var(--tide-water-deep) 40%, transparent) 100%
     ),
-    radial-gradient(ellipse 100% 70% at 50% 30%, transparent 45%, rgba(0, 0, 0, 0.16) 100%);
+    radial-gradient(ellipse 100% 70% at 50% 30%, transparent 45%, rgba(0, 0, 0, 0.09) 100%);
 }
 
 @keyframes tide-wave-drift {

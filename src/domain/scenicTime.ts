@@ -6,14 +6,13 @@ import type { ClockSettings, ScenicFixedPhase, ScenicTimeMode } from './settings
 
 export const SCENIC_FIXED_PHASES: {
   id: ScenicFixedPhase
-  label: string
   hour: number
 }[] = [
-  { id: 'night', label: '밤', hour: 0 },
-  { id: 'dawn', label: '새벽', hour: 6 },
-  { id: 'day', label: '낮', hour: 11 },
-  { id: 'sunset', label: '노을', hour: 18 },
-  { id: 'bluehour', label: '블루아워', hour: 19.5 },
+  { id: 'night', hour: 0 },
+  { id: 'dawn', hour: 6 },
+  { id: 'day', hour: 11 },
+  { id: 'sunset', hour: 18 },
+  { id: 'bluehour', hour: 19.5 },
 ]
 
 const SCENIC_THEME_IDS = new Set([

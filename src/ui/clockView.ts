@@ -1,14 +1,17 @@
 import { getClockSnapshot, type ClockSnapshot } from '../domain/clockModel'
 import {
-  analogStyleMeta,
   cycleAnalogStyle,
   cycleDigitalStyle,
-  digitalStyleMeta,
 } from '../domain/clockStyles'
 import {
   cyclePomodoroDialStyle,
-  pomodoroDialStyleMeta,
 } from '../domain/pomodoroDial'
+import {
+  analogStyleLabel,
+  digitalStyleLabel,
+  pomodoroDialLabel,
+  t,
+} from '../i18n'
 import { getDayProgress } from '../domain/dayProgress'
 import type { CalendarScope, ClockSettings } from '../domain/settings'
 import type { SessionSnapshot } from '../domain/sessionModel'
@@ -181,16 +184,16 @@ export function createClockView(root: HTMLElement) {
         <div class="session-status session-status-outer" hidden></div>
       </div>
       <div class="session-controls" hidden>
-        <button type="button" class="session-btn primary" data-action="toggle">시작</button>
-        <button type="button" class="session-btn" data-action="reset">리셋</button>
+        <button type="button" class="session-btn primary" data-action="toggle">${t('session.start')}</button>
+        <button type="button" class="session-btn" data-action="reset">${t('session.reset')}</button>
       </div>
       <div class="style-toast" hidden>
         <span class="style-toast-label"></span>
       </div>
       <div class="style-nav">
-        <button type="button" class="style-nav-edge style-nav-edge-prev" aria-label="이전 디자인"></button>
-        <button type="button" class="style-nav-arrow style-nav-prev" aria-label="이전 디자인">‹</button>
-        <button type="button" class="style-nav-settings" aria-label="설정">
+        <button type="button" class="style-nav-edge style-nav-edge-prev" aria-label="${t('nav.prevDesign')}"></button>
+        <button type="button" class="style-nav-arrow style-nav-prev" aria-label="${t('nav.prevDesign')}">‹</button>
+        <button type="button" class="style-nav-settings" aria-label="${t('nav.settings')}">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path
               fill="currentColor"
@@ -198,10 +201,10 @@ export function createClockView(root: HTMLElement) {
             />
           </svg>
         </button>
-        <button type="button" class="style-nav-arrow style-nav-next" aria-label="다음 디자인">›</button>
-        <button type="button" class="style-nav-edge style-nav-edge-next" aria-label="다음 디자인"></button>
+        <button type="button" class="style-nav-arrow style-nav-next" aria-label="${t('nav.nextDesign')}">›</button>
+        <button type="button" class="style-nav-edge style-nav-edge-next" aria-label="${t('nav.nextDesign')}"></button>
       </div>
-      <div class="hint">탭 · ← → 디자인</div>
+      <div class="hint">${t('hints.tapStyle')}</div>
       <div class="settings-host"></div>
     </div>
   `
@@ -347,6 +350,32 @@ export function createClockView(root: HTMLElement) {
     center.hidden = false
   }
 
+  function updateChromeLabels(settings: ClockSettings) {
+    styleNavEl.querySelectorAll<HTMLElement>('.style-nav-edge-prev, .style-nav-prev').forEach((el) => {
+      el.setAttribute('aria-label', t('nav.prevDesign'))
+    })
+    styleNavEl.querySelectorAll<HTMLElement>('.style-nav-edge-next, .style-nav-next').forEach((el) => {
+      el.setAttribute('aria-label', t('nav.nextDesign'))
+    })
+    styleNavEl.querySelector('.style-nav-settings')?.setAttribute('aria-label', t('nav.settings'))
+    resetBtn.textContent = t('session.reset')
+    minutePicker.refreshLabels()
+    updateHint(settings)
+    if (latestSession) {
+      updateSessionButtons(latestSession)
+    }
+  }
+
+  function updateSessionButtons(session: SessionSnapshot) {
+    toggleBtn.textContent = session.running
+      ? t('session.pause')
+      : session.completed
+        ? t('session.resume')
+        : t('session.start')
+  }
+
+  let latestSession: SessionSnapshot | null = null
+
   function updateHint(settings: ClockSettings) {
     if (settings.appMode === 'calendar' || isSessionMode(settings)) {
       hintEl.textContent = ''
@@ -355,16 +384,16 @@ export function createClockView(root: HTMLElement) {
     }
     if (usesDialVisual(settings)) {
       hintEl.hidden = false
-      hintEl.textContent = '중앙 설정 · ← → 디자인'
+      hintEl.textContent = t('hints.centerSettings')
     } else if (usesMinutePicker(settings)) {
       hintEl.hidden = false
-      hintEl.textContent = '숫자 탭 · ← → 디자인'
+      hintEl.textContent = t('hints.tapDigits')
     } else if (settings.appMode === 'clock') {
       hintEl.hidden = false
-      hintEl.textContent = '탭 설정 · ← → 디자인'
+      hintEl.textContent = t('hints.tapSettings')
     } else {
       hintEl.hidden = false
-      hintEl.textContent = '탭하여 설정'
+      hintEl.textContent = t('hints.tapToSettings')
     }
   }
 
@@ -407,7 +436,7 @@ export function createClockView(root: HTMLElement) {
     clockRoot.dataset.appMode = settings.appMode
     const visual = usesDialVisual(settings)
     clockRoot.dataset.pomodoroVisual = String(visual)
-    updateHint(settings)
+    updateChromeLabels(settings)
 
     const isClock = settings.appMode === 'clock'
     const isCalendar = settings.appMode === 'calendar'
@@ -464,6 +493,7 @@ export function createClockView(root: HTMLElement) {
   }
 
   function renderClock(settings: ClockSettings, date: Date) {
+    latestSession = null
     calendar.setVisible(false)
     pomodoroCircle.setVisible(false)
     placeDigitalInStage()
@@ -516,6 +546,7 @@ export function createClockView(root: HTMLElement) {
   }
 
   function renderSession(settings: ClockSettings, session: SessionSnapshot) {
+    latestSession = session
     calendar.setVisible(false)
     dayProgressEl.hidden = true
     const visual = usesDialVisual(settings)
@@ -578,7 +609,7 @@ export function createClockView(root: HTMLElement) {
     })
 
     statusEl.textContent = session.statusText
-    toggleBtn.textContent = session.running ? '일시정지' : session.completed ? '다시 시작' : '시작'
+    updateSessionButtons(session)
     toggleBtn.disabled = false
     resetBtn.disabled = session.elapsedMs <= 0 && !session.running && !session.completed
   }
@@ -650,23 +681,21 @@ export function createClockView(root: HTMLElement) {
     if (settings.appMode === 'clock') {
       if (settings.mode === 'digital') {
         next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
-        label = digitalStyleMeta(next.digitalStyle).label
+        label = digitalStyleLabel(next.digitalStyle)
       } else if (settings.mode === 'analog') {
         next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
-        label = analogStyleMeta(next.analogStyle).label
+        label = analogStyleLabel(next.analogStyle)
       } else {
         next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
         next.analogStyle = cycleAnalogStyle(settings.analogStyle, dir)
-        const d = digitalStyleMeta(next.digitalStyle)
-        const a = analogStyleMeta(next.analogStyle)
-        label = `${a.label} · ${d.label}`
+        label = `${analogStyleLabel(next.analogStyle)} · ${digitalStyleLabel(next.digitalStyle)}`
       }
     } else if (usesDialVisual(settings)) {
       next.pomodoroDialStyle = cyclePomodoroDialStyle(settings.pomodoroDialStyle, dir)
-      label = pomodoroDialStyleMeta(next.pomodoroDialStyle).label
+      label = pomodoroDialLabel(next.pomodoroDialStyle)
     } else {
       next.digitalStyle = cycleDigitalStyle(settings.digitalStyle, dir)
-      label = digitalStyleMeta(next.digitalStyle).label
+      label = digitalStyleLabel(next.digitalStyle)
     }
 
     showStyleToast(label)

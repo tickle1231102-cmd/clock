@@ -35,6 +35,7 @@ import { setKeepScreenOn } from './platform/wakeLock'
 import { requestSolarLocation, SKYLIGHT_THEME_ID } from './domain/solarSky'
 import { createClockView } from './ui/clockView'
 import { createSettingsView } from './ui/settingsView'
+import { setLocale } from './i18n'
 
 const app = document.querySelector('#app')
 if (!app) {
@@ -62,6 +63,7 @@ function withSkyPreview(date: Date): Date {
 }
 
 let settings: ClockSettings = loadSettings()
+setLocale(settings.locale)
 if (skyPreviewHour != null) {
   document.documentElement.dataset.skyPreview = '1'
   settings = {
@@ -122,6 +124,9 @@ const settingsView = createSettingsView({
   onChange: (next) => {
     const prev = settings
     settings = next
+    if (settings.locale !== prev.locale) {
+      setLocale(settings.locale)
+    }
     saveSettings(settings)
     syncSessionToAppMode(settings, prev)
     if (settings.themeId === SKYLIGHT_THEME_ID) {
@@ -130,6 +135,7 @@ const settingsView = createSettingsView({
     paint()
     ticker.reschedule()
     void setKeepScreenOn(settings.keepScreenOn)
+    settingsView.refresh()
   },
   onOpenChange: () => {
     // no-op

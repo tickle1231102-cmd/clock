@@ -20,8 +20,14 @@ export type FontFamilyId = 'system' | 'serif'
 
 export type ScenicTimeMode = 'live' | 'fixed'
 export type ScenicFixedPhase = 'dawn' | 'day' | 'sunset' | 'bluehour' | 'night'
+export type Locale = 'en' | 'ko'
 
 const FONT_FAMILY_IDS: FontFamilyId[] = ['system', 'serif']
+const LOCALES: Locale[] = ['en', 'ko']
+
+export function isLocale(value: unknown): value is Locale {
+  return typeof value === 'string' && LOCALES.includes(value as Locale)
+}
 
 export function isFontFamilyId(id: unknown): id is FontFamilyId {
   return typeof id === 'string' && FONT_FAMILY_IDS.includes(id as FontFamilyId)
@@ -54,6 +60,7 @@ export type ClockSettings = {
   dateFormat: DateFormat
   scenicTimeMode: ScenicTimeMode
   scenicFixedPhase: ScenicFixedPhase
+  locale: Locale
 }
 
 export const STORAGE_KEY = 'clock.settings.v1'
@@ -87,6 +94,7 @@ export const DEFAULT_SETTINGS: ClockSettings = {
   dateFormat: 'short',
   scenicTimeMode: 'live',
   scenicFixedPhase: 'day',
+  locale: 'en',
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -169,6 +177,7 @@ function migrate(raw: unknown): ClockSettings {
     scenicFixedPhase: isScenicFixedPhase(raw.scenicFixedPhase)
       ? raw.scenicFixedPhase
       : DEFAULT_SETTINGS.scenicFixedPhase,
+    locale: isLocale(raw.locale) ? raw.locale : DEFAULT_SETTINGS.locale,
   }
 }
 

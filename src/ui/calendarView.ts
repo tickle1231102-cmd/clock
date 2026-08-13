@@ -5,6 +5,7 @@ import {
   shiftYear,
   type CalendarScope,
 } from '../domain/calendarModel'
+import { formatCalendarMonthHeading, getLocale, t } from '../i18n'
 
 export type CalendarViewHandlers = {
   onOpenSettings: () => void
@@ -24,15 +25,15 @@ export function createCalendarView(container: HTMLElement) {
   root.hidden = true
   root.innerHTML = `
     <header class="calendar-header">
-      <button type="button" class="calendar-nav-btn" data-cal-nav="-1" aria-label="이전">‹</button>
+      <button type="button" class="calendar-nav-btn" data-cal-nav="-1" aria-label="${t('calendar.prev')}">‹</button>
       <div class="calendar-heading">
-        <button type="button" class="calendar-year" aria-label="연간 캘린더"></button>
+        <button type="button" class="calendar-year" aria-label="${t('calendar.yearView')}"></button>
         <h2 class="calendar-title"></h2>
       </div>
-      <button type="button" class="calendar-nav-btn" data-cal-nav="1" aria-label="다음">›</button>
+      <button type="button" class="calendar-nav-btn" data-cal-nav="1" aria-label="${t('calendar.next')}">›</button>
     </header>
     <div class="calendar-body"></div>
-    <button type="button" class="calendar-settings-btn" aria-label="설정">${SETTINGS_ICON}</button>
+    <button type="button" class="calendar-settings-btn" aria-label="${t('nav.settings')}">${SETTINGS_ICON}</button>
   `
   container.appendChild(root)
 
@@ -66,11 +67,23 @@ export function createCalendarView(container: HTMLElement) {
     paint(new Date())
   }
 
+  function syncChromeLabels() {
+    root.querySelectorAll<HTMLElement>('[data-cal-nav="-1"]').forEach((el) => {
+      el.setAttribute('aria-label', t('calendar.prev'))
+    })
+    root.querySelectorAll<HTMLElement>('[data-cal-nav="1"]').forEach((el) => {
+      el.setAttribute('aria-label', t('calendar.next'))
+    })
+    yearEl.setAttribute('aria-label', t('calendar.yearView'))
+    settingsBtn.setAttribute('aria-label', t('nav.settings'))
+  }
+
   function renderMonth(today: Date) {
+    syncChromeLabels()
     const grid = buildMonthGrid(cursor, today)
     yearEl.textContent = String(grid.year)
     yearEl.hidden = false
-    titleEl.textContent = `${grid.month + 1}월`
+    titleEl.textContent = formatCalendarMonthHeading(grid.month)
 
     const weekHead = grid.weekdayLabels
       .map((d, i) => `<span class="cal-dow${i === 0 || i === 6 ? ' is-weekend' : ''}">${d}</span>`)
@@ -111,6 +124,7 @@ export function createCalendarView(container: HTMLElement) {
   }
 
   function renderYear(today: Date) {
+    syncChromeLabels()
     const model = buildYearView(cursor, today)
     yearEl.textContent = ''
     yearEl.hidden = true
@@ -165,7 +179,7 @@ export function createCalendarView(container: HTMLElement) {
   }
 
   function paint(today = new Date()) {
-    const key = `${scope}|${cursor.getFullYear()}|${cursor.getMonth()}|${today.toDateString()}`
+    const key = `${scope}|${cursor.getFullYear()}|${cursor.getMonth()}|${today.toDateString()}|${getLocale()}`
     if (key === lastKey && bodyEl.childElementCount > 0) return
     lastKey = key
     root.dataset.scope = scope
@@ -175,6 +189,7 @@ export function createCalendarView(container: HTMLElement) {
 
   function update(options: { scope: CalendarScope; today?: Date }) {
     scope = options.scope
+    lastKey = ''
     paint(options.today ?? new Date())
   }
 

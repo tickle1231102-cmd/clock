@@ -8,6 +8,7 @@ import {
   type PomodoroDialStyle,
 } from '../domain/pomodoroDial'
 import type { SessionSnapshot } from '../domain/sessionModel'
+import { t } from '../i18n'
 
 const CX = 50
 const CY = 50
@@ -154,7 +155,7 @@ export function createPomodoroCircleView(container: HTMLElement) {
   svg.classList.add('pomodoro-timer')
   svg.setAttribute('viewBox', '0 0 100 100')
   svg.setAttribute('role', 'slider')
-  svg.setAttribute('aria-label', '뽀모도로 시간 설정')
+  svg.setAttribute('aria-label', t('pomodoro.dialSetup'))
   svg.setAttribute('aria-valuemin', String(MIN_POMODORO_MINUTES))
 
   wrap.appendChild(svg)
@@ -281,8 +282,8 @@ export function createPomodoroCircleView(container: HTMLElement) {
     svg.setAttribute(
       'aria-label',
       session.kind === 'stopwatch'
-        ? '스톱워치'
-        : `뽀모도로 ${faceMinutes}분 다이얼`,
+        ? t('appMode.stopwatch')
+        : t('pomodoro.dialFace', { n: faceMinutes }),
     )
     svg.setAttribute('role', scrubEnabled ? 'slider' : 'img')
     paintDeg(endDegForSession(session))

@@ -1,3 +1,5 @@
+import { formatMonthTitle, getLocale, msg, t } from '../i18n'
+
 export type CalendarScope = 'month' | 'year'
 
 export type CalendarDayCell = {
@@ -32,22 +34,7 @@ export type YearViewModel = {
   months: YearMonthCard[]
 }
 
-const WEEKDAYS_KO = ['일', '월', '화', '수', '목', '금', '토']
-const MONTHS_KO = [
-  '1월',
-  '2월',
-  '3월',
-  '4월',
-  '5월',
-  '6월',
-  '7월',
-  '8월',
-  '9월',
-  '10월',
-  '11월',
-  '12월',
-]
-const MONTHS_POETIC = [
+const MONTHS_POETIC_KO = [
   '고요한 시작',
   '아직 이른 봄',
   '바람이 풀리는',
@@ -60,6 +47,21 @@ const MONTHS_POETIC = [
   '잎이 물드는',
   '밤이 길어지는',
   '한 해가 앉는',
+]
+
+const MONTHS_POETIC_EN = [
+  'Quiet start',
+  'Early spring',
+  'Wind opening',
+  'Flowers lingering',
+  'Green spreading',
+  'Long sun',
+  'Deep shade',
+  'Soft light',
+  'Clear air',
+  'Leaves turning',
+  'Longer nights',
+  'Year settling',
 ]
 
 function startOfDay(d: Date): Date {
@@ -127,11 +129,17 @@ export function buildMonthGrid(anchor: Date, today = new Date()): MonthGrid {
   return {
     year,
     month,
-    title: `${year}. ${MONTHS_KO[month]}`,
-    subtitle: MONTHS_POETIC[month],
-    weekdayLabels: WEEKDAYS_KO,
+    title: formatMonthTitle(year, month),
+    subtitle: getLocalePoetic(month),
+    weekdayLabels: msg().weekdays,
     weeks,
   }
+}
+
+function getLocalePoetic(month: number): string {
+  return getLocale() === 'en'
+    ? MONTHS_POETIC_EN[month] ?? ''
+    : MONTHS_POETIC_KO[month] ?? ''
 }
 
 export function buildYearView(anchor: Date, today = new Date()): YearViewModel {
@@ -165,7 +173,7 @@ export function buildYearView(anchor: Date, today = new Date()): YearViewModel {
     }
     months.push({
       month: m,
-      label: MONTHS_KO[m],
+      label: msg().months[m] ?? String(m + 1),
       shortLabel: String(m + 1),
       isCurrentMonth: today.getFullYear() === year && today.getMonth() === m,
       days,
@@ -175,7 +183,7 @@ export function buildYearView(anchor: Date, today = new Date()): YearViewModel {
   return {
     year,
     title: String(year),
-    subtitle: '열두 달의 결',
+    subtitle: t('calendar.yearSubtitle'),
     months,
   }
 }

@@ -20,6 +20,15 @@ import { ANALOG_STYLES, DIGITAL_STYLES } from '../domain/clockStyles'
 import { POMODORO_DIAL_STYLES } from '../domain/pomodoroDial'
 import { SCENIC_FIXED_PHASES } from '../domain/scenicTime'
 import { FONT_OPTIONS, isScenicThemeId, THEME_PRESETS } from '../domain/themes'
+import {
+  analogStyleLabel,
+  digitalStyleLabel,
+  formatPomodoroMinutes,
+  pomodoroDialLabel,
+  scenicPhaseLabel,
+  t,
+} from '../i18n'
+import type { Locale } from '../domain/settings'
 import { isWakeLockSupported } from '../platform/wakeLock'
 
 type SettingsViewOptions = {
@@ -53,7 +62,7 @@ export function createSettingsView({
   sheet.className = 'settings-sheet'
   sheet.setAttribute('role', 'dialog')
   sheet.setAttribute('aria-modal', 'true')
-  sheet.setAttribute('aria-label', '시계 설정')
+  sheet.setAttribute('aria-label', t('settings.ariaLabel'))
   host.appendChild(sheet)
 
   let open = false
@@ -104,6 +113,7 @@ export function createSettingsView({
 
   function render() {
     const s = getSettings()
+    sheet.setAttribute('aria-label', t('settings.ariaLabel'))
     const wakeSupported = isWakeLockSupported()
     const isPomodoro = s.appMode === 'pomodoro'
     const isCalendar = s.appMode === 'calendar'
@@ -112,31 +122,31 @@ export function createSettingsView({
     sheet.innerHTML = `
       <div class="settings-panel">
         <div class="settings-handle" aria-hidden="true"></div>
-        <h2>설정</h2>
+        <h2>${t('settings.title')}</h2>
 
         <section class="settings-section">
-          <h3>기능</h3>
+          <h3>${t('settings.features')}</h3>
           <div class="display-btns">
-            <button type="button" class="display-btn" data-app-mode="clock" aria-pressed="${s.appMode === 'clock'}">시계</button>
-            <button type="button" class="display-btn" data-app-mode="pomodoro" aria-pressed="${s.appMode === 'pomodoro'}">뽀모도로</button>
-            <button type="button" class="display-btn" data-app-mode="stopwatch" aria-pressed="${s.appMode === 'stopwatch'}">스톱워치</button>
-            <button type="button" class="display-btn" data-app-mode="calendar" aria-pressed="${s.appMode === 'calendar'}">캘린더</button>
+            <button type="button" class="display-btn" data-app-mode="clock" aria-pressed="${s.appMode === 'clock'}">${t('appMode.clock')}</button>
+            <button type="button" class="display-btn" data-app-mode="pomodoro" aria-pressed="${s.appMode === 'pomodoro'}">${t('appMode.pomodoro')}</button>
+            <button type="button" class="display-btn" data-app-mode="stopwatch" aria-pressed="${s.appMode === 'stopwatch'}">${t('appMode.stopwatch')}</button>
+            <button type="button" class="display-btn" data-app-mode="calendar" aria-pressed="${s.appMode === 'calendar'}">${t('appMode.calendar')}</button>
           </div>
           <div class="calendar-settings"${isCalendar ? '' : ' hidden'}>
             <div class="display-group" style="margin-top: 0.65rem;">
-              <p class="display-group-label">보기</p>
+              <p class="display-group-label">${t('calendar.view')}</p>
               <div class="display-btns">
-                <button type="button" class="display-btn" data-calendar-scope="month" aria-pressed="${s.calendarScope === 'month'}">월간</button>
-                <button type="button" class="display-btn" data-calendar-scope="year" aria-pressed="${s.calendarScope === 'year'}">연간</button>
+                <button type="button" class="display-btn" data-calendar-scope="month" aria-pressed="${s.calendarScope === 'month'}">${t('calendar.month')}</button>
+                <button type="button" class="display-btn" data-calendar-scope="year" aria-pressed="${s.calendarScope === 'year'}">${t('calendar.year')}</button>
               </div>
             </div>
-            <p class="note">좌우로 밀거나 화살표로 달·해를 넘깁니다. 연간에서 달을 탭하면 월간으로 들어갑니다.</p>
+            <p class="note">${t('calendar.help')}</p>
           </div>
           <div class="pomodoro-settings"${isPomodoro ? '' : ' hidden'}>
             <div class="row">
-              <label for="pomodoro-minutes">집중 시간(분)</label>
+              <label for="pomodoro-minutes">${t('pomodoro.focusMinutes')}</label>
               <div class="duration-stepper">
-                <button type="button" id="pomodoro-dec" aria-label="1분 감소">−</button>
+                <button type="button" id="pomodoro-dec" aria-label="${t('pomodoro.decMinute')}">−</button>
                 <input
                   id="pomodoro-minutes"
                   type="number"
@@ -144,7 +154,7 @@ export function createSettingsView({
                   max="${MAX_POMODORO_MINUTES}"
                   value="${s.pomodoroMinutes}"
                 />
-                <button type="button" id="pomodoro-inc" aria-label="1분 증가">+</button>
+                <button type="button" id="pomodoro-inc" aria-label="${t('pomodoro.incMinute')}">+</button>
               </div>
             </div>
             <div class="preset-mins">
@@ -155,12 +165,12 @@ export function createSettingsView({
                   class="chip"
                   data-pomodoro-min="${m}"
                   aria-pressed="${s.pomodoroMinutes === m}"
-                >${m}분</button>
+                >${formatPomodoroMinutes(m)}</button>
               `,
               ).join('')}
             </div>
             <div class="display-group" style="margin-top: 0.65rem;">
-              <p class="display-group-label">아날로그 다이얼</p>
+              <p class="display-group-label">${t('pomodoro.analogDial')}</p>
               <div class="display-btns">
                 ${POMODORO_DIAL_STYLES.map(
                   (d) => `
@@ -169,55 +179,55 @@ export function createSettingsView({
                     class="display-btn"
                     data-pomodoro-dial="${d.id}"
                     aria-pressed="${s.pomodoroDialStyle === d.id}"
-                  >${d.label}</button>
+                  >${pomodoroDialLabel(d.id)}</button>
                 `,
                 ).join('')}
               </div>
             </div>
-            <p class="note">60분 초과 입력 시 120분 다이얼로 바뀝니다. 아날로그/둘 다 모드에서 원형 타이머가 표시됩니다.</p>
+            <p class="note">${t('pomodoro.help')}</p>
           </div>
         </section>
 
         <section class="settings-section">
-          <h3>표시</h3>
+          <h3>${t('settings.display')}</h3>
           <div class="display-group">
-            <p class="display-group-label">시계</p>
+            <p class="display-group-label">${t('clockDisplay.clock')}</p>
             <div class="display-btns">
-              <button type="button" class="display-btn" data-display-mode="digital" aria-pressed="${s.mode === 'digital' || s.mode === 'both'}">디지털</button>
-              <button type="button" class="display-btn" data-display-mode="analog" aria-pressed="${s.mode === 'analog' || s.mode === 'both'}">아날로그</button>
+              <button type="button" class="display-btn" data-display-mode="digital" aria-pressed="${s.mode === 'digital' || s.mode === 'both'}">${t('clockDisplay.digital')}</button>
+              <button type="button" class="display-btn" data-display-mode="analog" aria-pressed="${s.mode === 'analog' || s.mode === 'both'}">${t('clockDisplay.analog')}</button>
             </div>
           </div>
           <div class="display-group">
-            <p class="display-group-label">시간제</p>
+            <p class="display-group-label">${t('clockDisplay.hourFormat')}</p>
             <div class="display-btns">
-              <button type="button" class="display-btn" data-hour-format="24h" aria-pressed="${s.hourFormat === '24h'}">24시간</button>
-              <button type="button" class="display-btn" data-hour-format="12h" aria-pressed="${s.hourFormat === '12h'}">12시간</button>
+              <button type="button" class="display-btn" data-hour-format="24h" aria-pressed="${s.hourFormat === '24h'}">${t('clockDisplay.h24')}</button>
+              <button type="button" class="display-btn" data-hour-format="12h" aria-pressed="${s.hourFormat === '12h'}">${t('clockDisplay.h12')}</button>
             </div>
           </div>
           <div class="display-group">
-            <p class="display-group-label">부가</p>
+            <p class="display-group-label">${t('clockDisplay.extras')}</p>
             <div class="display-btns">
-              <button type="button" class="display-btn" data-display-toggle="showSeconds" aria-pressed="${s.showSeconds}">초</button>
-              <button type="button" class="display-btn" data-display-toggle="showDate" aria-pressed="${s.showDate}">날짜</button>
-              <button type="button" class="display-btn" data-display-toggle="showDayProgress" aria-pressed="${s.showDayProgress}">하루 진행률</button>
-              <button type="button" class="display-btn" data-display-toggle="showDayProgressPercent" aria-pressed="${s.showDayProgressPercent}">%</button>
+              <button type="button" class="display-btn" data-display-toggle="showSeconds" aria-pressed="${s.showSeconds}">${t('clockDisplay.seconds')}</button>
+              <button type="button" class="display-btn" data-display-toggle="showDate" aria-pressed="${s.showDate}">${t('clockDisplay.date')}</button>
+              <button type="button" class="display-btn" data-display-toggle="showDayProgress" aria-pressed="${s.showDayProgress}">${t('clockDisplay.dayProgress')}</button>
+              <button type="button" class="display-btn" data-display-toggle="showDayProgressPercent" aria-pressed="${s.showDayProgressPercent}">${t('clockDisplay.percent')}</button>
             </div>
           </div>
-          <p class="note">눌러 켠 항목만 표시됩니다. 디지털·아날로그는 둘 다 켤 수 있습니다.</p>
+          <p class="note">${t('clockDisplay.help')}</p>
         </section>
 
         <section class="settings-section">
-          <h3>테마</h3>
+          <h3>${t('settings.theme')}</h3>
           <div class="chip-row" id="theme-chips">
             ${THEME_PRESETS.map(
-              (t) => `
+              (theme) => `
               <button
                 type="button"
                 class="theme-swatch"
-                data-theme-id="${t.id}"
-                aria-label="${t.name}"
-                aria-pressed="${s.themeId === t.id}"
-                style="background: ${t.swatch ?? `linear-gradient(135deg, ${t.bg} 50%, ${t.fg} 50%)`};"
+                data-theme-id="${theme.id}"
+                aria-label="${theme.name}"
+                aria-pressed="${s.themeId === theme.id}"
+                style="background: ${theme.swatch ?? `linear-gradient(135deg, ${theme.bg} 50%, ${theme.fg} 50%)`};"
               ></button>
             `,
             ).join('')}
@@ -226,23 +236,23 @@ export function createSettingsView({
               class="chip"
               data-theme-id="custom"
               aria-pressed="${s.themeId === 'custom'}"
-            >Custom</button>
+            >${t('themeSection.custom')}</button>
           </div>
           <div class="custom-grid" style="margin-top: 0.55rem;">
             <div class="row">
-              <label for="color-bg">배경</label>
+              <label for="color-bg">${t('themeSection.background')}</label>
               <input type="color" id="color-bg" value="${s.custom.bg}" />
             </div>
             <div class="row">
-              <label for="color-fg">글자</label>
+              <label for="color-fg">${t('themeSection.text')}</label>
               <input type="color" id="color-fg" value="${s.custom.fg}" />
             </div>
             <div class="row">
-              <label for="color-accent">포인트</label>
+              <label for="color-accent">${t('themeSection.accent')}</label>
               <input type="color" id="color-accent" value="${s.custom.accent}" />
             </div>
             <div class="row">
-              <label for="font-family">폰트</label>
+              <label for="font-family">${t('themeSection.font')}</label>
               <select id="font-family">
                 ${FONT_OPTIONS.map(
                   (f) =>
@@ -253,14 +263,14 @@ export function createSettingsView({
           </div>
           <div class="scenic-settings"${isScenic ? '' : ' hidden'}>
             <div class="display-group" style="margin-top: 0.65rem;">
-              <p class="display-group-label">배경 시간</p>
+              <p class="display-group-label">${t('themeSection.scenicTime')}</p>
               <div class="display-btns">
-                <button type="button" class="display-btn" data-scenic-time-mode="live" aria-pressed="${s.scenicTimeMode === 'live'}">현재 시간</button>
-                <button type="button" class="display-btn" data-scenic-time-mode="fixed" aria-pressed="${s.scenicTimeMode === 'fixed'}">고정</button>
+                <button type="button" class="display-btn" data-scenic-time-mode="live" aria-pressed="${s.scenicTimeMode === 'live'}">${t('themeSection.liveTime')}</button>
+                <button type="button" class="display-btn" data-scenic-time-mode="fixed" aria-pressed="${s.scenicTimeMode === 'fixed'}">${t('themeSection.fixedTime')}</button>
               </div>
             </div>
             <div class="scenic-phase-group display-group" style="margin-top: 0.45rem;"${s.scenicTimeMode === 'fixed' ? '' : ' hidden'}>
-              <p class="display-group-label">고정 시간대</p>
+              <p class="display-group-label">${t('themeSection.fixedPhase')}</p>
               <div class="display-btns">
                 ${SCENIC_FIXED_PHASES.map(
                   (p) => `
@@ -269,47 +279,54 @@ export function createSettingsView({
                     class="display-btn"
                     data-scenic-phase="${p.id}"
                     aria-pressed="${s.scenicFixedPhase === p.id}"
-                  >${p.label}</button>
+                  >${scenicPhaseLabel(p.id)}</button>
                 `,
                 ).join('')}
               </div>
             </div>
-            <p class="note">Skylight · Grove · Tide · Island 테마에서 배경을 현재 시각에 맞출지, 고정 시간대로 둘지 선택합니다.</p>
+            <p class="note">${t('themeSection.scenicNote')}</p>
           </div>
         </section>
 
         <section class="settings-section">
-          <h3>스타일</h3>
-          <p class="note">시계 화면에서 좌우 스와이프 또는 ← → 키로 디자인을 바꿉니다.</p>
+          <h3>${t('settings.style')}</h3>
+          <p class="note">${t('styleSection.note')}</p>
           <div class="row">
-            <label for="digital-style">디지털</label>
+            <label for="digital-style">${t('styleSection.digital')}</label>
             <select id="digital-style">
               ${DIGITAL_STYLES.map(
                 (style) =>
-                  `<option value="${style.id}" ${s.digitalStyle === style.id ? 'selected' : ''}>${style.label}</option>`,
+                  `<option value="${style.id}" ${s.digitalStyle === style.id ? 'selected' : ''}>${digitalStyleLabel(style.id)}</option>`,
               ).join('')}
             </select>
           </div>
           <div class="row">
-            <label for="analog-style">아날로그</label>
+            <label for="analog-style">${t('styleSection.analog')}</label>
             <select id="analog-style">
               ${ANALOG_STYLES.map(
                 (style) =>
-                  `<option value="${style.id}" ${s.analogStyle === style.id ? 'selected' : ''}>${style.label}</option>`,
+                  `<option value="${style.id}" ${s.analogStyle === style.id ? 'selected' : ''}>${analogStyleLabel(style.id)}</option>`,
               ).join('')}
             </select>
           </div>
         </section>
         <section class="settings-section">
-          <h3>화면</h3>
-          ${toggleRow('keep-screen-on', '화면 켜두기', s.keepScreenOn)}
+          <h3>${t('settings.screen')}</h3>
+          ${toggleRow('keep-screen-on', t('screenSection.keepAwake'), s.keepScreenOn)}
           <p class="note">
             ${
               wakeSupported
-                ? '지원 기기에서만 동작합니다. 배터리를 더 쓰므로 필요할 때만 켜세요.'
-                : '이 브라우저는 화면 켜두기를 지원하지 않습니다.'
+                ? t('screenSection.wakeSupported')
+                : t('screenSection.wakeUnsupported')
             }
           </p>
+        </section>
+        <section class="settings-section settings-section-language">
+          <h3>${t('settings.language')}</h3>
+          <div class="display-btns">
+            <button type="button" class="display-btn" data-locale="en" aria-pressed="${s.locale === 'en'}">${t('languageSection.en')}</button>
+            <button type="button" class="display-btn" data-locale="ko" aria-pressed="${s.locale === 'ko'}">${t('languageSection.ko')}</button>
+          </div>
         </section>
       </div>
     `
@@ -503,6 +520,15 @@ export function createSettingsView({
             String(btn.dataset.scenicPhase === scenicFixedPhase),
           )
         })
+      })
+    })
+
+    sheet.querySelectorAll<HTMLElement>('[data-locale]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const locale = el.dataset.locale as Locale
+        if (locale === getSettings().locale) return
+        patch({ locale })
       })
     })
 

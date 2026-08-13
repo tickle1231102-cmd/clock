@@ -1,3 +1,5 @@
+import { t } from '../i18n'
+
 export type SessionKind = 'pomodoro' | 'stopwatch'
 
 export type SessionSnapshot = {
@@ -66,10 +68,10 @@ export function getSessionSnapshot(state: SessionState, now = Date.now()): Sessi
   const completed =
     state.kind === 'pomodoro' ? remainingMs <= 0 && (state.completed || elapsedMs >= state.durationMs) : false
 
-  let statusText = '준비'
-  if (completed) statusText = '완료'
-  else if (state.running) statusText = '진행 중'
-  else if (elapsedMs > 0) statusText = '일시정지'
+  let statusText = t('session.ready')
+  if (completed) statusText = t('session.done')
+  else if (state.running) statusText = t('session.running')
+  else if (elapsedMs > 0) statusText = t('session.paused')
 
   return {
     kind: state.kind,
@@ -79,7 +81,7 @@ export function getSessionSnapshot(state: SessionState, now = Date.now()): Sessi
     elapsedMs,
     remainingMs,
     durationMs: state.durationMs,
-    label: state.kind === 'pomodoro' ? '뽀모도로' : '스톱워치',
+    label: state.kind === 'pomodoro' ? t('appMode.pomodoro') : t('appMode.stopwatch'),
     primaryText: formatDuration(displayMs, {
       forceHours: state.kind === 'stopwatch' && elapsedMs >= 3600_000,
     }),
