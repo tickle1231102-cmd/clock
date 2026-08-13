@@ -430,7 +430,7 @@ const ko: Messages = {
     retro: '레트로',
   },
   date: {
-    label: '{month}월 {day}일 · {weekday}',
+    label: '{month} {day}일 · {weekday}',
   },
   weekdays: ['일', '월', '화', '수', '목', '금', '토'],
   months: [

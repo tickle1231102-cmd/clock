@@ -103,17 +103,29 @@
   color: var(--tide-water-foam, #b8d8ec);
 }
 
-.tide-waves svg {
+.tide-waves .wave-track {
   position: absolute;
   left: 0;
   bottom: 0;
+  display: flex;
   width: 200%;
   height: 100%;
-  overflow: hidden;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
+}
+
+.tide-waves .wave-track svg {
+  display: block;
+  flex: 0 0 50%;
+  width: 50%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tide-waves .wave-track svg + svg {
+  margin-left: -1px;
 }
 
 .tide-waves-back {
@@ -122,7 +134,7 @@
   height: 34%;
 }
 
-.tide-waves-back svg {
+.tide-waves-back .wave-track {
   animation: tide-wave-drift 44s linear infinite;
 }
 
@@ -132,8 +144,8 @@
   height: 40%;
 }
 
-.tide-waves-mid svg {
-  animation: tide-wave-drift-rev 32s linear infinite;
+.tide-waves-mid .wave-track {
+  animation: tide-wave-drift 32s linear infinite reverse;
 }
 
 .tide-waves-front {
@@ -143,7 +155,7 @@
   filter: drop-shadow(0 -6px 18px rgba(0, 0, 0, 0.16));
 }
 
-.tide-waves-front svg {
+.tide-waves-front .wave-track {
   animation: tide-wave-drift 22s linear infinite;
 }
 
@@ -184,15 +196,6 @@
   }
   to {
     transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@keyframes tide-wave-drift-rev {
-  from {
-    transform: translate3d(-50%, 0, 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -239,9 +242,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tide-waves-back svg,
-  .tide-waves-mid svg,
-  .tide-waves-front svg,
+  .tide-waves-back .wave-track,
+  .tide-waves-mid .wave-track,
+  .tide-waves-front .wave-track,
   .tide-sparkle {
     animation: none;
   }

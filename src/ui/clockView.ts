@@ -52,6 +52,12 @@ function isSessionMode(settings: ClockSettings): boolean {
   return settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch'
 }
 
+/** Two identical tiles so a -50% drift loops without a visible seam. */
+function loopingWaveTrack(inner: string, viewBox: string): string {
+  const svg = `<svg viewBox="${viewBox}" preserveAspectRatio="none" aria-hidden="true">${inner}</svg>`
+  return `<div class="wave-track">${svg}${svg}</div>`
+}
+
 export function createClockView(root: HTMLElement) {
   root.innerHTML = `
     <div class="clock-root" data-mode="digital" data-app-mode="clock" data-pomodoro-visual="false">
@@ -104,28 +110,31 @@ export function createClockView(root: HTMLElement) {
         <div class="tide-horizon-glow"></div>
         <div class="tide-islands">
           <svg viewBox="0 0 400 80" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
-            <path fill="currentColor" d="M40 80 L55 52 L70 58 L88 38 L110 48 L130 28 L155 44 L170 36 L190 50 L210 42 L240 55 L260 40 L285 52 L310 34 L340 48 L360 42 L390 58 L400 80 Z" />
-            <path fill="currentColor" opacity="0.7" d="M210 80 L225 58 L245 62 L265 48 L290 58 L310 50 L335 60 L355 54 L380 66 L400 80 Z" />
+            <path fill="currentColor" opacity="0.45" d="M6 80 L32 56 Q42 44 54 56 L74 70 L96 42 Q108 30 122 44 L146 66 L164 52 Q174 44 186 56 L208 80 Z" />
+            <path fill="currentColor" d="M58 80 L92 48 Q106 28 122 46 L148 70 L176 20 Q192 6 210 26 L244 60 L274 34 Q290 20 306 40 L338 72 L358 50 Q372 38 386 54 L400 80 Z" />
+            <path fill="currentColor" opacity="0.72" d="M230 80 L252 58 Q264 44 278 58 L298 74 L318 50 Q330 38 344 52 L368 72 L384 62 Q392 56 400 64 L400 80 Z" />
           </svg>
         </div>
         <div class="tide-water"></div>
         <div class="tide-moon-path"></div>
         <div class="tide-sparkle"></div>
         <div class="tide-waves tide-waves-back">
-          <svg viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden="true">
-            <path fill="currentColor" d="M0 118 Q200 72 400 118 T800 118 T1200 118 T1600 118 V200 H0 Z" />
-          </svg>
+          ${loopingWaveTrack(
+            '<path fill="currentColor" d="M0 118 C133 72 267 72 400 118 S667 164 800 118 V200 H0 Z" />',
+            '0 0 800 200',
+          )}
         </div>
         <div class="tide-waves tide-waves-mid">
-          <svg viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden="true">
-            <path fill="currentColor" d="M0 132 Q100 88 200 132 T400 132 T600 132 T800 132 T1000 132 T1200 132 T1400 132 T1600 132 V200 H0 Z" />
-          </svg>
+          ${loopingWaveTrack(
+            '<path fill="currentColor" d="M0 132 C67 88 133 88 200 132 S333 176 400 132 S533 88 600 132 S733 176 800 132 V200 H0 Z" />',
+            '0 0 800 200',
+          )}
         </div>
         <div class="tide-waves tide-waves-front">
-          <svg viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden="true">
-            <path fill="currentColor" opacity="0.92" d="M0 148 Q100 108 200 148 T400 148 T600 148 T800 148 T1000 148 T1200 148 T1400 148 T1600 148 V200 H0 Z" />
-            <path fill="currentColor" opacity="0.38" d="M0 172 Q100 154 200 172 T400 172 T600 172 T800 172 T1000 172 T1200 172 T1400 172 T1600 172 V200 H0 Z" />
-          </svg>
+          ${loopingWaveTrack(
+            '<path fill="currentColor" opacity="0.92" d="M0 148 C67 108 133 108 200 148 S333 188 400 148 S533 108 600 148 S733 188 800 148 V200 H0 Z" /><path fill="currentColor" opacity="0.38" d="M0 172 C67 154 133 154 200 172 S333 190 400 172 S533 154 600 172 S733 190 800 172 V200 H0 Z" />',
+            '0 0 800 200',
+          )}
         </div>
         <div class="tide-veil"></div>
       </div>
@@ -135,14 +144,16 @@ export function createClockView(root: HTMLElement) {
         <div class="island-lagoon"></div>
         <div class="island-sparkle"></div>
         <div class="island-ripples island-ripples-back">
-          <svg viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">
-            <path fill="currentColor" d="M0 72 Q200 48 400 72 T800 72 T1200 72 T1600 72 V120 H0 Z" />
-          </svg>
+          ${loopingWaveTrack(
+            '<path fill="currentColor" d="M0 72 C133 48 267 48 400 72 S667 96 800 72 V120 H0 Z" />',
+            '0 0 800 120',
+          )}
         </div>
         <div class="island-ripples island-ripples-front">
-          <svg viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">
-            <path fill="currentColor" opacity="0.85" d="M0 82 Q100 62 200 82 T400 82 T600 82 T800 82 T1000 82 T1200 82 T1400 82 T1600 82 V120 H0 Z" />
-          </svg>
+          ${loopingWaveTrack(
+            '<path fill="currentColor" opacity="0.85" d="M0 82 C67 62 133 62 200 82 S333 102 400 82 S533 62 600 82 S733 102 800 82 V120 H0 Z" />',
+            '0 0 800 120',
+          )}
         </div>
         <div class="island-sand"></div>
         <div class="island-rock">

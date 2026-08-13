@@ -143,17 +143,29 @@
   color: color-mix(in srgb, var(--island-lagoon-shallow, #58c8c8) 75%, #fff);
 }
 
-.island-ripples svg {
+.island-ripples .wave-track {
   position: absolute;
   left: 0;
   bottom: 0;
+  display: flex;
   width: 200%;
   height: 100%;
-  overflow: hidden;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
+}
+
+.island-ripples .wave-track svg {
+  display: block;
+  flex: 0 0 50%;
+  width: 50%;
+  height: 100%;
+  overflow: visible;
+}
+
+.island-ripples .wave-track svg + svg {
+  margin-left: -1px;
 }
 
 .island-ripples-back {
@@ -162,7 +174,7 @@
   height: 22%;
 }
 
-.island-ripples-back svg {
+.island-ripples-back .wave-track {
   animation: island-ripple-drift 52s linear infinite;
 }
 
@@ -172,8 +184,8 @@
   height: 26%;
 }
 
-.island-ripples-front svg {
-  animation: island-ripple-drift-rev 38s linear infinite;
+.island-ripples-front .wave-track {
+  animation: island-ripple-drift 38s linear infinite reverse;
 }
 
 .island-veil {
@@ -195,15 +207,6 @@
   }
   to {
     transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@keyframes island-ripple-drift-rev {
-  from {
-    transform: translate3d(-50%, 0, 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -250,8 +253,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .island-ripples-back svg,
-  .island-ripples-front svg,
+  .island-ripples-back .wave-track,
+  .island-ripples-front .wave-track,
   .island-sparkle {
     animation: none;
   }
