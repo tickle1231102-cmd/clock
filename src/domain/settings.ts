@@ -15,12 +15,13 @@ export type ClockMode = 'digital' | 'analog' | 'both'
 export type { AnalogStyle, DigitalStyle, CalendarScope, PomodoroDialStyle }
 export type DateFormat = 'short'
 export type HourFormat = '24h' | '12h'
-export type FontFamilyId =
-  | 'system'
-  | 'serif'
-  | 'rounded'
-  | 'monospace'
-  | 'display'
+export type FontFamilyId = 'system' | 'serif'
+
+const FONT_FAMILY_IDS: FontFamilyId[] = ['system', 'serif']
+
+export function isFontFamilyId(id: unknown): id is FontFamilyId {
+  return typeof id === 'string' && FONT_FAMILY_IDS.includes(id as FontFamilyId)
+}
 
 export type CustomTheme = {
   bg: string
@@ -67,7 +68,7 @@ export const DEFAULT_SETTINGS: ClockSettings = {
   calendarScope: 'month',
   pomodoroMinutes: DEFAULT_POMODORO_MINUTES,
   pomodoroDialStyle: 'classic',
-  themeId: 'midnight',
+  themeId: 'slate',
   custom: {
     bg: '#141218',
     fg: '#f0e8e0',
@@ -98,10 +99,9 @@ function migrate(raw: unknown): ClockSettings {
     fg: typeof customRaw.fg === 'string' ? customRaw.fg : DEFAULT_SETTINGS.custom.fg,
     accent:
       typeof customRaw.accent === 'string' ? customRaw.accent : DEFAULT_SETTINGS.custom.accent,
-    fontFamily:
-      typeof customRaw.fontFamily === 'string'
-        ? (customRaw.fontFamily as FontFamilyId)
-        : DEFAULT_SETTINGS.custom.fontFamily,
+    fontFamily: isFontFamilyId(customRaw.fontFamily)
+      ? customRaw.fontFamily
+      : DEFAULT_SETTINGS.custom.fontFamily,
   }
 
   const appMode =
@@ -140,8 +140,9 @@ function migrate(raw: unknown): ClockSettings {
         : DEFAULT_SETTINGS.pomodoroDialStyle,
     themeId: (() => {
       const id = typeof raw.themeId === 'string' ? raw.themeId : DEFAULT_SETTINGS.themeId
-      if (id === 'ocean' || id === 'harbor') return 'slate'
-      if (id === 'graphite') return 'charcoal'
+      if (id === 'ocean' || id === 'harbor' || id === 'midnight') return 'slate'
+      if (id === 'graphite' || id === 'charcoal') return 'ash'
+      if (id === 'bone') return 'chalk'
       return id
     })(),
     custom,
@@ -173,6 +174,8 @@ export function saveSettings(settings: ClockSettings): void {
 /** True when ticker should fire every second. */
 export function needsSecondTicks(settings: ClockSettings): boolean {
   if (settings.appMode === 'pomodoro' || settings.appMode === 'stopwatch') return true
-  if (settings.themeId === 'skylight') return true
+  if (settings.themeId === 'skylight' || settings.themeId === 'grove' || settings.themeId === 'tide') {
+    return true
+  }
   return settings.showSeconds
 }

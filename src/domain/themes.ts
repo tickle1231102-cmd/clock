@@ -1,5 +1,17 @@
 import type { FontFamilyId } from './settings'
 import {
+  forestFlatBg,
+  getForestSceneState,
+  GROVE_THEME_ID,
+  type ForestSceneState,
+} from './forestScene'
+import {
+  getOceanSceneState,
+  oceanFlatBg,
+  TIDE_THEME_ID,
+  type OceanSceneState,
+} from './oceanScene'
+import {
   getSolarSkyState,
   SKYLIGHT_THEME_ID,
   solarSkyFlatBg,
@@ -22,14 +34,6 @@ export type ThemeTokens = {
 /** Softer, more atmospheric presets (warm neutrals, muted accents, achromatic). */
 export const THEME_PRESETS: ThemeTokens[] = [
   {
-    id: 'midnight',
-    name: 'Ink',
-    bg: '#141218',
-    fg: '#f0e8e0',
-    accent: '#c6a58a',
-    fontFamily: 'system',
-  },
-  {
     id: 'slate',
     name: 'Mist',
     bg: '#1a2229',
@@ -51,7 +55,7 @@ export const THEME_PRESETS: ThemeTokens[] = [
     bg: '#1c110f',
     fg: '#f4e3d5',
     accent: '#d49274',
-    fontFamily: 'display',
+    fontFamily: 'serif',
   },
   {
     id: 'forest',
@@ -59,14 +63,6 @@ export const THEME_PRESETS: ThemeTokens[] = [
     bg: '#131a15',
     fg: '#e5ece4',
     accent: '#8fa882',
-    fontFamily: 'system',
-  },
-  {
-    id: 'charcoal',
-    name: 'Charcoal',
-    bg: '#121212',
-    fg: '#ececec',
-    accent: '#9a9a9a',
     fontFamily: 'system',
   },
   {
@@ -86,18 +82,32 @@ export const THEME_PRESETS: ThemeTokens[] = [
     fontFamily: 'serif',
   },
   {
-    id: 'bone',
-    name: 'Bone',
-    bg: '#f4f4f1',
-    fg: '#242424',
-    accent: '#7a7a7a',
-    fontFamily: 'display',
+    id: GROVE_THEME_ID,
+    name: 'Grove',
+    bg: '#284030',
+    fg: '#f5faf6',
+    accent: '#a8c490',
+    fontFamily: 'serif',
+    dynamic: true,
+    swatch:
+      'linear-gradient(165deg, #5a8a98 0%, #3a6a48 42%, #122018 100%)',
+  },
+  {
+    id: TIDE_THEME_ID,
+    name: 'Tide',
+    bg: '#2a7aaa',
+    fg: '#f5fafc',
+    accent: '#7eb8d4',
+    fontFamily: 'system',
+    dynamic: true,
+    swatch:
+      'linear-gradient(175deg, #3a8ec8 0%, #2a7aaa 48%, #0e3a58 100%)',
   },
   {
     id: SKYLIGHT_THEME_ID,
     name: 'Skylight',
     bg: '#6eb0e4',
-    fg: '#132a40',
+    fg: '#ffffff',
     accent: '#f0b45a',
     fontFamily: 'system',
     dynamic: true,
@@ -109,8 +119,11 @@ export const THEME_PRESETS: ThemeTokens[] = [
 /** Removed presets remapped on load. */
 const THEME_ALIASES: Record<string, string> = {
   ocean: 'slate',
-  graphite: 'charcoal',
+  graphite: 'ash',
   harbor: 'slate',
+  charcoal: 'ash',
+  midnight: 'slate',
+  bone: 'chalk',
 }
 
 export function migrateThemeId(id: string): string {
@@ -120,28 +133,13 @@ export function migrateThemeId(id: string): string {
 export const FONT_OPTIONS: { id: FontFamilyId; label: string; css: string }[] = [
   {
     id: 'system',
-    label: 'System',
+    label: '시스템',
     css: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   {
     id: 'serif',
-    label: 'Serif',
+    label: '세리프',
     css: 'Georgia, "Times New Roman", serif',
-  },
-  {
-    id: 'rounded',
-    label: 'Rounded',
-    css: '"SF Pro Rounded", "Hiragino Maru Gothic ProN", ui-rounded, system-ui, sans-serif',
-  },
-  {
-    id: 'monospace',
-    label: 'Mono',
-    css: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-  },
-  {
-    id: 'display',
-    label: 'Display',
-    css: '"Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif',
   },
 ]
 
@@ -160,6 +158,13 @@ export type ResolvedTheme = {
   accent: string
   fontFamily: FontFamilyId
   sky?: SolarSkyState
+  forest?: ForestSceneState
+  ocean?: OceanSceneState
+}
+
+/** Themes that keep their scenic backdrop when color pickers change. */
+export function isScenicThemeId(id: string): boolean {
+  return id === SKYLIGHT_THEME_ID || id === GROVE_THEME_ID || id === TIDE_THEME_ID
 }
 
 /** Single source of truth for colors/fonts applied to the DOM. */
@@ -190,13 +195,42 @@ export function resolveTheme(
   if (themeId === SKYLIGHT_THEME_ID) {
     const sky = getSolarSkyState(now)
     const preset = getThemeById(SKYLIGHT_THEME_ID)!
+    const savedFg = settings.custom.fg
+    const fg =
+      !savedFg || savedFg === '#132a40' ? '#ffffff' : savedFg
     return {
       id: SKYLIGHT_THEME_ID,
       bg: solarSkyFlatBg(sky),
-      fg: sky.fg,
-      accent: sky.accent,
-      fontFamily: preset.fontFamily,
+      fg,
+      accent: settings.custom.accent || sky.accent,
+      fontFamily: settings.custom.fontFamily || preset.fontFamily,
       sky,
+    }
+  }
+
+  if (themeId === GROVE_THEME_ID) {
+    const forest = getForestSceneState(now)
+    const preset = getThemeById(GROVE_THEME_ID)!
+    return {
+      id: GROVE_THEME_ID,
+      bg: forestFlatBg(forest),
+      fg: settings.custom.fg || forest.fg,
+      accent: settings.custom.accent || forest.accent,
+      fontFamily: settings.custom.fontFamily || preset.fontFamily,
+      forest,
+    }
+  }
+
+  if (themeId === TIDE_THEME_ID) {
+    const ocean = getOceanSceneState(now)
+    const preset = getThemeById(TIDE_THEME_ID)!
+    return {
+      id: TIDE_THEME_ID,
+      bg: oceanFlatBg(ocean),
+      fg: settings.custom.fg || ocean.fg,
+      accent: settings.custom.accent || ocean.accent,
+      fontFamily: settings.custom.fontFamily || preset.fontFamily,
+      ocean,
     }
   }
 
@@ -318,6 +352,60 @@ export function applySkyVars(sky: SolarSkyState | undefined, root: HTMLElement) 
   root.style.setProperty('--stars-opacity', String(sky.starsOpacity))
 }
 
+export function applyForestVars(forest: ForestSceneState | undefined, root: HTMLElement) {
+  if (!forest) {
+    root.style.removeProperty('--grove-sky-top')
+    root.style.removeProperty('--grove-sky-mid')
+    root.style.removeProperty('--grove-sky-bottom')
+    root.style.removeProperty('--grove-canopy')
+    root.style.removeProperty('--grove-trunk')
+    root.style.removeProperty('--grove-mist')
+    root.style.removeProperty('--grove-ground')
+    root.style.removeProperty('--grove-shaft-opacity')
+    root.style.removeProperty('--grove-firefly-opacity')
+    root.style.removeProperty('--grove-fog-opacity')
+    return
+  }
+
+  root.style.setProperty('--grove-sky-top', forest.skyTop)
+  root.style.setProperty('--grove-sky-mid', forest.skyMid)
+  root.style.setProperty('--grove-sky-bottom', forest.skyBottom)
+  root.style.setProperty('--grove-canopy', forest.canopy)
+  root.style.setProperty('--grove-trunk', forest.trunk)
+  root.style.setProperty('--grove-mist', forest.mist)
+  root.style.setProperty('--grove-ground', forest.ground)
+  root.style.setProperty('--grove-shaft-opacity', String(forest.shaftOpacity))
+  root.style.setProperty('--grove-firefly-opacity', String(forest.fireflyOpacity))
+  root.style.setProperty('--grove-fog-opacity', String(forest.fogOpacity))
+}
+
+export function applyOceanVars(ocean: OceanSceneState | undefined, root: HTMLElement) {
+  if (!ocean) {
+    root.style.removeProperty('--tide-sky-top')
+    root.style.removeProperty('--tide-sky-mid')
+    root.style.removeProperty('--tide-sky-bottom')
+    root.style.removeProperty('--tide-water-deep')
+    root.style.removeProperty('--tide-water-mid')
+    root.style.removeProperty('--tide-water-foam')
+    root.style.removeProperty('--tide-horizon')
+    root.style.removeProperty('--tide-sparkle-opacity')
+    root.style.removeProperty('--tide-moon-path-opacity')
+    root.style.removeProperty('--tide-wave-opacity')
+    return
+  }
+
+  root.style.setProperty('--tide-sky-top', ocean.skyTop)
+  root.style.setProperty('--tide-sky-mid', ocean.skyMid)
+  root.style.setProperty('--tide-sky-bottom', ocean.skyBottom)
+  root.style.setProperty('--tide-water-deep', ocean.waterDeep)
+  root.style.setProperty('--tide-water-mid', ocean.waterMid)
+  root.style.setProperty('--tide-water-foam', ocean.waterFoam)
+  root.style.setProperty('--tide-horizon', ocean.horizon)
+  root.style.setProperty('--tide-sparkle-opacity', String(ocean.sparkleOpacity))
+  root.style.setProperty('--tide-moon-path-opacity', String(ocean.moonPathOpacity))
+  root.style.setProperty('--tide-wave-opacity', String(ocean.waveOpacity))
+}
+
 export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = document.documentElement) {
   const dial = dialTokens(theme)
 
@@ -344,12 +432,20 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
   root.style.setProperty('--dial-shadow', withAlpha(theme.bg, 0.35))
 
   applySkyVars(theme.sky, root)
+  applyForestVars(theme.forest, root)
+  applyOceanVars(theme.ocean, root)
   root.dataset.theme = theme.id
 
   if (root === document.documentElement) {
-    document.body.style.background = theme.sky
-      ? `linear-gradient(180deg, ${theme.sky.bgTop}, ${theme.sky.bgBottom})`
-      : theme.bg
+    if (theme.sky) {
+      document.body.style.background = `linear-gradient(180deg, ${theme.sky.bgTop}, ${theme.sky.bgBottom})`
+    } else if (theme.forest) {
+      document.body.style.background = `linear-gradient(180deg, ${theme.forest.skyTop}, ${theme.forest.ground})`
+    } else if (theme.ocean) {
+      document.body.style.background = `linear-gradient(180deg, ${theme.ocean.skyTop}, ${theme.ocean.waterDeep})`
+    } else {
+      document.body.style.background = theme.bg
+    }
     document.body.style.color = theme.fg
     document.body.style.fontFamily = fontCss(theme.fontFamily)
     const meta = document.querySelector('meta[name="theme-color"]')

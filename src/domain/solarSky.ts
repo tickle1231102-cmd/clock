@@ -334,14 +334,14 @@ function sunState(hour: number, rise: number, set: number): CelestialBody {
   const dayLen = Math.max(0.5, set - rise)
   if (hour < rise || hour > set) {
     const exitX = hour > (rise + set) / 2 ? 112 : -12
-    return { x: exitX, y: 92, opacity: 0, scale: 0.75, glow: 0 }
+    return { x: exitX, y: 18, opacity: 0, scale: 0.75, glow: 0 }
   }
 
   const t = clamp((hour - rise) / dayLen)
-  const x = lerp(-4, 104, t)
+  // Keep the disc in the upper band so it never covers the centered analog face.
+  const x = lerp(6, 94, t)
   const altitude = Math.sin(t * Math.PI)
-  const y = lerp(82, 12, altitude)
-  // Soft only at the exact limb — fully visible between rise and set
+  const y = lerp(20, 5.5, altitude)
   const edge =
     smoothstep(rise - 0.02, rise + 0.08, hour) *
     (1 - smoothstep(set - 0.08, set + 0.02, hour))
@@ -349,8 +349,8 @@ function sunState(hour: number, rise: number, set: number): CelestialBody {
     x,
     y,
     opacity: clamp(edge),
-    scale: lerp(0.88, 1.28, altitude),
-    glow: (0.7 + 0.3 * altitude) * edge,
+    scale: lerp(0.78, 1.05, altitude),
+    glow: (0.55 + 0.25 * altitude) * edge,
   }
 }
 
@@ -360,13 +360,12 @@ function sunState(hour: number, rise: number, set: number): CelestialBody {
 function moonState(hour: number, rise: number, set: number): CelestialBody {
   const t = nightProgress(hour, rise, set)
   if (t < 0) {
-    return { x: 50, y: 120, opacity: 0, scale: 0.95, glow: 0 }
+    return { x: 50, y: 18, opacity: 0, scale: 0.9, glow: 0 }
   }
 
-  const x = lerp(102, -6, t)
+  const x = lerp(92, 8, t)
   const altitude = Math.sin(t * Math.PI)
-  const y = lerp(78, 16, altitude)
-  // Full presence from sunset; only soft-exit near dawn
+  const y = lerp(18, 5.5, altitude)
   const fadeOut = 1 - smoothstep(0.88, 1, t)
   const opacity = clamp(fadeOut) * (0.78 + 0.22 * altitude)
 
@@ -374,8 +373,8 @@ function moonState(hour: number, rise: number, set: number): CelestialBody {
     x,
     y,
     opacity,
-    scale: lerp(0.95, 1.12, altitude),
-    glow: opacity * 0.85,
+    scale: lerp(0.88, 1.02, altitude),
+    glow: opacity * 0.7,
   }
 }
 

@@ -75,9 +75,14 @@ export function createSettingsView({
 
   function patchCustom(partial: Partial<ClockSettings['custom']>) {
     const settings = getSettings()
+    // Keep scenic themes active so backdrops stay when tweaking colors.
+    const stayScenic =
+      settings.themeId === 'skylight' ||
+      settings.themeId === 'grove' ||
+      settings.themeId === 'tide'
     onChange({
       ...settings,
-      themeId: 'custom',
+      themeId: stayScenic ? settings.themeId : 'custom',
       custom: { ...settings.custom, ...partial },
     })
     scheduleAutoHide()
@@ -297,7 +302,8 @@ export function createSettingsView({
     if (!input) return
     const commit = () => {
       patchCustom({ [key]: input.value })
-      syncThemePressed('custom')
+      const themeId = getSettings().themeId
+      syncThemePressed(themeId)
       const custom = getSettings().custom
       const bg = sheet.querySelector<HTMLInputElement>('#color-bg')
       const fg = sheet.querySelector<HTMLInputElement>('#color-fg')
@@ -441,7 +447,7 @@ export function createSettingsView({
     })
     sheet.querySelector('#font-family')?.addEventListener('change', (e) => {
       patchCustom({ fontFamily: (e.target as HTMLSelectElement).value as FontFamilyId })
-      syncThemePressed('custom')
+      syncThemePressed(getSettings().themeId)
     })
 
     bindColorInput('color-bg', 'bg')

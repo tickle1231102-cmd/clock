@@ -60,6 +60,72 @@ export function createClockView(root: HTMLElement) {
         <div class="sky-moon"></div>
         <div class="sky-glass"></div>
       </div>
+      <div class="grove-window" hidden aria-hidden="true">
+        <div class="grove-sky"></div>
+        <div class="grove-canopy-wash"></div>
+        <div class="grove-shafts"></div>
+        <div class="grove-trees grove-trees-back">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M28 300 L48 168 L38 168 L62 110 L52 110 L78 48 L104 110 L94 110 L118 168 L108 168 L128 300 Z" />
+            <path fill="currentColor" d="M150 300 L168 190 L158 190 L182 130 L172 130 L198 70 L224 130 L214 130 L238 190 L228 190 L246 300 Z" />
+            <path fill="currentColor" d="M270 300 L288 175 L278 175 L302 112 L292 112 L318 50 L344 112 L334 112 L358 175 L348 175 L366 300 Z" />
+            <path fill="currentColor" opacity="0.7" d="M90 300 L102 220 L96 220 L114 170 L108 170 L126 120 L144 170 L138 170 L156 220 L150 220 L162 300 Z" />
+            <path fill="currentColor" opacity="0.65" d="M330 300 L342 230 L336 230 L352 180 L346 180 L362 135 L378 180 L372 180 L388 230 L382 230 L394 300 Z" />
+          </svg>
+        </div>
+        <div class="grove-mist"></div>
+        <div class="grove-trees grove-trees-mid">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M-10 300 L18 160 L6 160 L40 85 L28 85 L62 10 L96 85 L84 85 L118 160 L106 160 L134 300 Z" />
+            <path fill="currentColor" d="M175 300 L198 155 L186 155 L220 78 L208 78 L242 8 L276 78 L264 78 L298 155 L286 155 L310 300 Z" />
+            <path fill="currentColor" d="M340 300 L358 170 L348 170 L372 100 L362 100 L388 35 L414 100 L404 100 L428 170 L418 170 L436 300 Z" />
+            <path fill="currentColor" opacity="0.85" d="M70 300 L88 200 L78 200 L102 140 L94 140 L118 85 L142 140 L134 140 L158 200 L148 200 L166 300 Z" />
+            <path fill="currentColor" opacity="0.8" d="M250 300 L266 210 L258 210 L280 155 L272 155 L294 105 L316 155 L308 155 L330 210 L322 210 L338 300 Z" />
+          </svg>
+        </div>
+        <div class="grove-ground"></div>
+        <div class="grove-trees grove-trees-front">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M-30 300 L5 145 L-8 145 L30 60 L16 60 L55 -15 L94 60 L80 60 L118 145 L105 145 L140 300 Z" />
+            <path fill="currentColor" d="M300 300 L328 140 L314 140 L350 55 L336 55 L372 -20 L408 55 L394 55 L430 140 L416 140 L450 300 Z" />
+            <path fill="currentColor" opacity="0.9" d="M115 300 L132 195 L124 195 L148 130 L140 130 L164 70 L188 130 L180 130 L204 195 L196 195 L212 300 Z" />
+            <ellipse cx="48" cy="292" rx="36" ry="10" fill="currentColor" opacity="0.25" />
+            <ellipse cx="380" cy="292" rx="40" ry="11" fill="currentColor" opacity="0.22" />
+          </svg>
+        </div>
+        <div class="grove-fireflies"></div>
+        <div class="grove-veil"></div>
+      </div>
+      <div class="tide-window" hidden aria-hidden="true">
+        <div class="tide-sky"></div>
+        <div class="tide-horizon-glow"></div>
+        <div class="tide-islands">
+          <svg viewBox="0 0 400 80" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M40 80 L55 52 L70 58 L88 38 L110 48 L130 28 L155 44 L170 36 L190 50 L210 42 L240 55 L260 40 L285 52 L310 34 L340 48 L360 42 L390 58 L400 80 Z" />
+            <path fill="currentColor" opacity="0.7" d="M210 80 L225 58 L245 62 L265 48 L290 58 L310 50 L335 60 L355 54 L380 66 L400 80 Z" />
+          </svg>
+        </div>
+        <div class="tide-water"></div>
+        <div class="tide-moon-path"></div>
+        <div class="tide-sparkle"></div>
+        <div class="tide-waves tide-waves-back">
+          <svg viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden="true">
+            <path fill="currentColor" d="M0 118 Q200 72 400 118 T800 118 T1200 118 T1600 118 V200 H0 Z" />
+          </svg>
+        </div>
+        <div class="tide-waves tide-waves-mid">
+          <svg viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden="true">
+            <path fill="currentColor" d="M0 132 Q100 88 200 132 T400 132 T600 132 T800 132 T1000 132 T1200 132 T1400 132 T1600 132 V200 H0 Z" />
+          </svg>
+        </div>
+        <div class="tide-waves tide-waves-front">
+          <svg viewBox="0 0 1600 200" preserveAspectRatio="none" aria-hidden="true">
+            <path fill="currentColor" opacity="0.92" d="M0 148 Q100 108 200 148 T400 148 T600 148 T800 148 T1000 148 T1200 148 T1400 148 T1600 148 V200 H0 Z" />
+            <path fill="currentColor" opacity="0.38" d="M0 172 Q100 154 200 172 T400 172 T600 172 T800 172 T1000 172 T1200 172 T1400 172 T1600 172 V200 H0 Z" />
+          </svg>
+        </div>
+        <div class="tide-veil"></div>
+      </div>
       <div class="date-label" hidden></div>
       <div class="clock-stage">
         <div class="mode-label" hidden></div>
@@ -85,8 +151,18 @@ export function createClockView(root: HTMLElement) {
         <span class="style-toast-label"></span>
       </div>
       <div class="style-nav">
+        <button type="button" class="style-nav-edge style-nav-edge-prev" aria-label="이전 디자인"></button>
         <button type="button" class="style-nav-arrow style-nav-prev" aria-label="이전 디자인">‹</button>
+        <button type="button" class="style-nav-settings" aria-label="설정">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.07 7.07 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.77 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.89 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.23.4.32.64.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.94l2.39.96c.24.1.51 0 .64-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2Z"
+            />
+          </svg>
+        </button>
         <button type="button" class="style-nav-arrow style-nav-next" aria-label="다음 디자인">›</button>
+        <button type="button" class="style-nav-edge style-nav-edge-next" aria-label="다음 디자인"></button>
       </div>
       <div class="hint">탭 · ← → 디자인</div>
       <div class="settings-host"></div>
@@ -95,6 +171,8 @@ export function createClockView(root: HTMLElement) {
 
   const clockRoot = root.querySelector('.clock-root') as HTMLElement
   const skyWindowEl = root.querySelector('.sky-window') as HTMLElement
+  const groveWindowEl = root.querySelector('.grove-window') as HTMLElement
+  const tideWindowEl = root.querySelector('.tide-window') as HTMLElement
   const digitalEl = root.querySelector('.digital-clock') as HTMLElement
   const dateEl = root.querySelector('.date-label') as HTMLElement
   const dayProgressEl = root.querySelector('.day-progress') as HTMLElement
@@ -115,6 +193,9 @@ export function createClockView(root: HTMLElement) {
   const styleNavEl = root.querySelector('.style-nav') as HTMLElement
   const styleNavPrev = root.querySelector('.style-nav-prev') as HTMLButtonElement
   const styleNavNext = root.querySelector('.style-nav-next') as HTMLButtonElement
+  const styleNavEdgePrev = root.querySelector('.style-nav-edge-prev') as HTMLButtonElement
+  const styleNavEdgeNext = root.querySelector('.style-nav-edge-next') as HTMLButtonElement
+  const styleNavSettings = root.querySelector('.style-nav-settings') as HTMLButtonElement
 
   const analog: AnalogView = createAnalogView(analogHost)
   const digital = createDigitalView(digitalEl)
@@ -197,7 +278,11 @@ export function createClockView(root: HTMLElement) {
     document.documentElement.dataset.digitalStyle = settings.digitalStyle
     document.documentElement.dataset.analogStyle = settings.analogStyle
     const isSkylight = theme.id === 'skylight' && Boolean(theme.sky)
+    const isGrove = theme.id === 'grove' && Boolean(theme.forest)
+    const isTide = theme.id === 'tide' && Boolean(theme.ocean)
     skyWindowEl.hidden = !isSkylight
+    groveWindowEl.hidden = !isGrove
+    tideWindowEl.hidden = !isTide
   }
 
   function placeDigitalInStage() {
@@ -551,15 +636,26 @@ export function createClockView(root: HTMLElement) {
 
   styleNavPrev.addEventListener('pointerdown', (e) => e.stopPropagation())
   styleNavNext.addEventListener('pointerdown', (e) => e.stopPropagation())
-  styleNavPrev.addEventListener('click', (e) => {
+  styleNavEdgePrev.addEventListener('pointerdown', (e) => e.stopPropagation())
+  styleNavEdgeNext.addEventListener('pointerdown', (e) => e.stopPropagation())
+  styleNavSettings.addEventListener('pointerdown', (e) => e.stopPropagation())
+
+  function bindStyleCycle(el: HTMLElement, dir: 1 | -1) {
+    el.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      cycleStyle(dir)
+    })
+  }
+  bindStyleCycle(styleNavPrev, -1)
+  bindStyleCycle(styleNavNext, 1)
+  bindStyleCycle(styleNavEdgePrev, -1)
+  bindStyleCycle(styleNavEdgeNext, 1)
+
+  styleNavSettings.addEventListener('click', (e) => {
     e.preventDefault()
     e.stopPropagation()
-    cycleStyle(-1)
-  })
-  styleNavNext.addEventListener('click', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    cycleStyle(1)
+    handlers?.onOpenSettings()
   })
 
   {
@@ -577,6 +673,8 @@ export function createClockView(root: HTMLElement) {
         t.closest('.pomodoro-timer-wrap') ||
         t.closest('.is-minute-scroll') ||
         t.closest('.style-nav-arrow') ||
+        t.closest('.style-nav-edge') ||
+        t.closest('.style-nav-settings') ||
         t.closest('.calendar-root') ||
         t.closest('.minute-picker')
       ) {

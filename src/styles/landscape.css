@@ -1,0 +1,352 @@
+/**
+ * Compact layout for short viewports (phone landscape, fold covers).
+ * Keeps clock / dial / chrome from clipping or stacking on top of each other.
+ */
+@media (orientation: landscape) and (max-height: 560px) {
+  .clock-root {
+    padding:
+      max(0.3rem, env(safe-area-inset-top))
+      max(0.55rem, env(safe-area-inset-right))
+      max(0.3rem, env(safe-area-inset-bottom))
+      max(0.55rem, env(safe-area-inset-left));
+    min-height: 100dvh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .clock-stage {
+    gap: 0.25rem;
+    width: min(94vw, 980px);
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 4.75rem
+    );
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+    overflow: visible;
+  }
+
+  .date-label {
+    top: max(0.25rem, env(safe-area-inset-top));
+    font-size: clamp(0.68rem, 3svh, 0.88rem);
+    max-width: min(68vw, 480px);
+    line-height: 1.15;
+  }
+
+  .style-toast {
+    top: max(1.65rem, calc(env(safe-area-inset-top) + 1rem));
+    padding: 0.28rem 0.65rem;
+  }
+
+  .style-toast-label {
+    font-size: clamp(0.68rem, 2.8svh, 0.85rem);
+  }
+
+  .hint {
+    bottom: max(0.3rem, env(safe-area-inset-bottom));
+    font-size: 0.62rem;
+  }
+
+  /* Settings sits at the bottom edge (same stack order as portrait). */
+  .style-nav-settings {
+    bottom: max(0.25rem, env(safe-area-inset-bottom));
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .style-nav-settings svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .style-nav-arrow {
+    font-size: clamp(1.35rem, 7.5svh, 2.15rem);
+    padding: 0.3rem 0.4rem;
+  }
+
+  .style-nav-edge {
+    width: max(2.4rem, 9vw);
+  }
+
+  /* Digital scales to short height so it never spills past the stage. */
+  .digital-clock .time {
+    font-size: clamp(1.85rem, 17svh, 4.2rem);
+    line-height: 1;
+  }
+
+  .digital-clock.is-12h .time {
+    font-size: clamp(1.55rem, 14svh, 3.5rem);
+  }
+
+  .digital-clock.is-secondary .time {
+    font-size: clamp(1rem, 7.5svh, 1.7rem);
+  }
+
+  html[data-digital-style='editorial'] .digital-clock .time {
+    font-size: clamp(1.95rem, 18svh, 4.4rem);
+  }
+
+  html[data-digital-style='retro'] .digital-clock .retro-readout,
+  .digital-clock .retro-readout {
+    font-size: clamp(1.35rem, 13svh, 3.1rem);
+  }
+
+  .digital-clock .flip-card {
+    width: clamp(1.35rem, 8.5svh, 2.9rem);
+    height: clamp(1.9rem, 12svh, 4rem);
+    font-size: clamp(1.1rem, 7.5svh, 2.35rem);
+  }
+
+  .analog-wrap {
+    width: min(48vmin, 52svh, 220px);
+  }
+
+  .pomodoro-timer-wrap {
+    width: min(48vmin, 54svh, 230px);
+  }
+
+  .pomodoro-center .digital-clock .time {
+    font-size: clamp(0.88rem, 6.5svh, 1.35rem);
+  }
+
+  .pomodoro-center .session-status {
+    font-size: clamp(0.55rem, 3.2svh, 0.75rem);
+  }
+
+  .clock-root[data-pomodoro-visual='true'] .clock-stage {
+    gap: 0.2rem;
+  }
+
+  .day-progress {
+    width: min(32vw, 160px);
+  }
+
+  .day-progress.no-percent {
+    width: min(26vw, 130px);
+  }
+
+  .clock-root[data-mode='both'] .day-progress {
+    width: min(24vw, 120px);
+  }
+
+  .day-progress-track {
+    height: 2px;
+  }
+
+  .day-progress-value {
+    font-size: clamp(0.58rem, 2.4svh, 0.72rem);
+    min-width: 2.1em;
+  }
+
+  .mode-label,
+  .session-status {
+    font-size: clamp(0.6rem, 3svh, 0.8rem);
+  }
+
+  /* Dual display: sit side-by-side instead of a tall stack. */
+  .clock-root[data-mode='both'] .clock-stage {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem 0.95rem;
+  }
+
+  .clock-root[data-mode='both'] .mode-label {
+    flex: 1 0 100%;
+  }
+
+  .clock-root[data-mode='both'] .analog-host {
+    flex: 0 0 auto;
+  }
+
+  .clock-root[data-mode='both'] .analog-wrap {
+    width: min(42vmin, 46svh, 190px);
+  }
+
+  .clock-root[data-mode='both'] .digital-clock {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .clock-root[data-mode='both'] .digital-clock .time {
+    font-size: clamp(1.55rem, 13svh, 3.1rem);
+  }
+
+  .clock-root[data-mode='both'] .day-progress,
+  .clock-root[data-mode='both'] .session-status-outer {
+    flex: 1 0 100%;
+  }
+
+  /*
+   * Session controls sit above the settings gear (portrait order),
+   * so the gear never covers Start/Pause and the dial stays clear.
+   */
+  .session-controls {
+    bottom: max(2.55rem, calc(env(safe-area-inset-bottom) + 2.15rem));
+    gap: 0.35rem;
+  }
+
+  .session-btn {
+    padding: 0.42rem 0.85rem;
+    min-width: 4.75rem;
+    font-size: 0.78rem;
+  }
+
+  /* Hint stays on the gear row; session buttons sit one row above. */
+  .clock-root[data-app-mode='pomodoro'] .hint,
+  .clock-root[data-app-mode='stopwatch'] .hint {
+    bottom: max(0.3rem, env(safe-area-inset-bottom));
+  }
+
+  /* Scenic accents stay clear of the centered face. */
+  .sky-sun {
+    width: clamp(1.75rem, 8svh, 3rem);
+    height: clamp(1.75rem, 8svh, 3rem);
+    box-shadow:
+      0 0 calc(16px * var(--sun-glow, 1)) color-mix(in srgb, #ffb050 50%, transparent),
+      0 0 calc(40px * var(--sun-glow, 1)) color-mix(in srgb, #ff8a30 28%, transparent);
+  }
+
+  .sky-moon {
+    width: clamp(1.4rem, 6.5svh, 2.35rem);
+    height: clamp(1.4rem, 6.5svh, 2.35rem);
+  }
+
+  /* Calendar: fill short height; year view uses a wider 4×3 grid. */
+  .calendar-root {
+    width: min(96vw, 760px);
+    height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 0.85rem
+    );
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 0.85rem
+    );
+    gap: 0.2rem;
+  }
+
+  .clock-root[data-app-mode='calendar'] .clock-stage {
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 0.5rem
+    );
+    width: min(96vw, 760px);
+  }
+
+  .calendar-year {
+    font-size: clamp(0.58rem, 2.6svh, 0.72rem);
+    letter-spacing: 0.12em;
+  }
+
+  .calendar-title {
+    font-size: clamp(0.95rem, 5.5svh, 1.4rem);
+  }
+
+  .calendar-root[data-scope='year'] .calendar-title {
+    font-size: clamp(1.05rem, 6svh, 1.55rem);
+  }
+
+  .calendar-nav-btn {
+    font-size: clamp(1.25rem, 5svh, 1.75rem);
+    padding: 0.15rem 0.35rem;
+  }
+
+  .calendar-settings-btn {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+
+  .calendar-settings-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .cal-dow {
+    font-size: clamp(0.5rem, 2.2svh, 0.68rem);
+  }
+
+  .cal-day-num {
+    font-size: clamp(0.62rem, 3.4svh, 0.92rem);
+  }
+
+  .cal-year-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 0.22rem;
+  }
+
+  .cal-year-month {
+    font-size: clamp(0.52rem, 2.4svh, 0.72rem);
+  }
+
+  .cal-year-day {
+    font-size: clamp(0.3rem, 1.8svh, 0.45rem);
+  }
+
+  .settings-panel {
+    max-height: min(86dvh, 480px);
+  }
+
+  .minute-picker {
+    top: var(--picker-top, 52%);
+  }
+
+  .minute-picker-card {
+    width: min(28vw, 6.25rem);
+    height: calc(28px * 5);
+    max-height: min(58dvh, 280px);
+  }
+
+  .minute-picker-highlight {
+    height: 28px;
+  }
+
+  .minute-picker-item {
+    height: 28px;
+    font-size: 1rem;
+  }
+}
+
+/* Extra-tight phones (SE / Plus landscape ~320–390px tall). */
+@media (orientation: landscape) and (max-height: 400px) {
+  .clock-stage {
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 4.25rem
+    );
+  }
+
+  .digital-clock .time {
+    font-size: clamp(1.6rem, 16svh, 3.4rem);
+  }
+
+  .analog-wrap,
+  .pomodoro-timer-wrap {
+    width: min(44vmin, 48svh, 180px);
+  }
+
+  .clock-root[data-mode='both'] .analog-wrap {
+    width: min(38vmin, 42svh, 160px);
+  }
+
+  .clock-root[data-mode='both'] .digital-clock .time {
+    font-size: clamp(1.35rem, 12svh, 2.6rem);
+  }
+
+  .session-controls {
+    bottom: max(2.25rem, calc(env(safe-area-inset-bottom) + 1.9rem));
+  }
+
+  .session-btn {
+    padding: 0.35rem 0.7rem;
+    min-width: 4.25rem;
+    font-size: 0.72rem;
+  }
+
+  .calendar-root {
+    height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 0.55rem
+    );
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 0.55rem
+    );
+  }
+}

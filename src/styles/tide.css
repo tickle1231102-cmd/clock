@@ -1,0 +1,249 @@
+.tide-window {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--tide-water-deep, #0e3a58);
+}
+
+.tide-window[hidden] {
+  display: none !important;
+}
+
+.tide-sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 58%;
+  background: linear-gradient(
+    180deg,
+    var(--tide-sky-top, #3a8ec8) 0%,
+    var(--tide-sky-mid, #68b0dc) 55%,
+    var(--tide-sky-bottom, #a8d0e8) 100%
+  );
+  transition: background 2s ease;
+}
+
+.tide-horizon-glow {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 48%;
+  height: 18%;
+  background: radial-gradient(
+    ellipse 80% 70% at 50% 50%,
+    color-mix(in srgb, var(--tide-horizon, #88b8d0) 55%, transparent),
+    transparent 70%
+  );
+  filter: blur(8px);
+  opacity: 0.85;
+}
+
+.tide-water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--tide-horizon, #88b8d0) 28%, transparent) 14%,
+    var(--tide-water-mid, #2a7aaa) 36%,
+    var(--tide-water-deep, #0e3a58) 100%
+  );
+  transition: background 2s ease;
+}
+
+.tide-moon-path {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 3px;
+  height: 38%;
+  transform: translateX(-50%);
+  opacity: var(--tide-moon-path-opacity, 0);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #e8eef8 55%, transparent),
+    transparent 90%
+  );
+  filter: blur(3px);
+  transition: opacity 2s ease;
+}
+
+.tide-sparkle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 52%;
+  height: 28%;
+  opacity: var(--tide-sparkle-opacity, 0.6);
+  background-image:
+    radial-gradient(1.4px 1.4px at 12% 30%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1.1px 1.1px at 28% 55%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.6px 1.6px at 45% 22%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.2px 1.2px at 58% 48%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 72% 28%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.1px 1.1px at 86% 60%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.3px 1.3px at 38% 70%, rgba(255, 255, 255, 0.4), transparent);
+  mix-blend-mode: soft-light;
+  transition: opacity 2s ease;
+  animation: tide-sparkle-shimmer 5.5s ease-in-out infinite alternate;
+}
+
+.tide-waves {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48%;
+  overflow: hidden;
+  opacity: var(--tide-wave-opacity, 0.75);
+  color: var(--tide-water-foam, #b8d8ec);
+}
+
+.tide-waves svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.tide-waves-back {
+  opacity: 0.32;
+  bottom: 16%;
+  height: 34%;
+}
+
+.tide-waves-back svg {
+  animation: tide-wave-drift 22s linear infinite;
+}
+
+.tide-waves-mid {
+  opacity: 0.5;
+  bottom: 5%;
+  height: 40%;
+}
+
+.tide-waves-mid svg {
+  animation: tide-wave-drift-rev 16s linear infinite;
+}
+
+.tide-waves-front {
+  opacity: 0.78;
+  bottom: -2%;
+  height: 44%;
+  filter: drop-shadow(0 -6px 18px rgba(0, 0, 0, 0.16));
+}
+
+.tide-waves-front svg {
+  animation: tide-wave-drift 11s linear infinite;
+}
+
+.tide-islands {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38%;
+  height: 16%;
+  color: color-mix(in srgb, var(--tide-water-deep, #0e3a58) 70%, #0a1218);
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
+
+.tide-islands svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.tide-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 40%,
+      color-mix(in srgb, var(--tide-water-deep) 18%, transparent) 70%,
+      color-mix(in srgb, var(--tide-water-deep) 40%, transparent) 100%
+    ),
+    radial-gradient(ellipse 100% 70% at 50% 30%, transparent 45%, rgba(0, 0, 0, 0.16) 100%);
+}
+
+@keyframes tide-wave-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes tide-wave-drift-rev {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes tide-sparkle-shimmer {
+  from {
+    opacity: calc(var(--tide-sparkle-opacity, 0.6) * 0.75);
+    transform: translateY(0);
+  }
+  to {
+    opacity: var(--tide-sparkle-opacity, 0.6);
+    transform: translateY(-1.2%);
+  }
+}
+
+.clock-root[data-theme='tide'] {
+  background: transparent;
+}
+
+.clock-root[data-theme='tide'] .clock-stage {
+  position: relative;
+  z-index: 1;
+}
+
+.clock-root[data-theme='tide'] .date-label {
+  z-index: 3;
+}
+
+.clock-root[data-theme='tide'] .session-controls,
+.clock-root[data-theme='tide'] .hint,
+.clock-root[data-theme='tide'] .style-toast,
+.clock-root[data-theme='tide'] .style-nav {
+  z-index: 4;
+}
+
+.clock-root[data-theme='tide'] .settings-sheet {
+  z-index: 20;
+}
+
+.clock-root[data-theme='tide'] .digital-clock,
+.clock-root[data-theme='tide'] .digital-clock .time,
+.clock-root[data-theme='tide'] .digital-clock .flip-card,
+.clock-root[data-theme='tide'] .digital-clock .digit-stack,
+.clock-root[data-theme='tide'] .digital-clock .retro-digit {
+  color: var(--fg, #f5fafc);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tide-waves-back svg,
+  .tide-waves-mid svg,
+  .tide-waves-front svg,
+  .tide-sparkle {
+    animation: none;
+  }
+}

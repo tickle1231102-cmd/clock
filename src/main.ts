@@ -1,6 +1,8 @@
 import './styles/base.css'
 import './styles/themes.css'
 import './styles/skylight.css'
+import './styles/grove.css'
+import './styles/tide.css'
 import './styles/digital.css'
 import './styles/analog.css'
 import './styles/settings.css'
@@ -8,6 +10,7 @@ import './styles/session.css'
 import './styles/pomodoroCircle.css'
 import './styles/calendar.css'
 import './styles/minutePicker.css'
+import './styles/landscape.css'
 
 import {
   createSessionState,
@@ -195,7 +198,11 @@ clockView.clockRoot.addEventListener('click', (e) => {
         node.classList.contains('minute-picker')),
   )
   const fromStyleNav = path.some(
-    (node) => node instanceof HTMLElement && node.classList.contains('style-nav-arrow'),
+    (node) =>
+      node instanceof HTMLElement &&
+      (node.classList.contains('style-nav-arrow') ||
+        node.classList.contains('style-nav-edge') ||
+        node.classList.contains('style-nav-settings')),
   )
   const fromCalendar = path.some(
     (node) =>
