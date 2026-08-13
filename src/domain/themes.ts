@@ -438,18 +438,28 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
 
   if (root === document.documentElement) {
     let pageBackground = theme.bg
+    let pageBackgroundColor = theme.bg
+    let themeColor = theme.bg
     if (theme.sky) {
       pageBackground = `linear-gradient(180deg, ${theme.sky.bgTop}, ${theme.sky.bgBottom})`
+      pageBackgroundColor = theme.sky.bgBottom
+      themeColor = theme.sky.bgBottom
     } else if (theme.forest) {
       pageBackground = `linear-gradient(180deg, ${theme.forest.skyTop}, ${theme.forest.ground})`
+      pageBackgroundColor = theme.forest.ground
+      themeColor = theme.forest.ground
     } else if (theme.ocean) {
       pageBackground = `linear-gradient(180deg, ${theme.ocean.skyTop}, ${theme.ocean.waterDeep})`
+      pageBackgroundColor = theme.ocean.waterDeep
+      themeColor = theme.ocean.waterDeep
     }
+    document.documentElement.style.backgroundColor = pageBackgroundColor
     document.documentElement.style.background = pageBackground
+    document.body.style.backgroundColor = pageBackgroundColor
     document.body.style.background = pageBackground
     document.body.style.color = theme.fg
     document.body.style.fontFamily = fontCss(theme.fontFamily)
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', theme.bg)
+    if (meta) meta.setAttribute('content', themeColor)
   }
 }
