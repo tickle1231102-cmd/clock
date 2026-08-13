@@ -126,6 +126,43 @@ export function createClockView(root: HTMLElement) {
         </div>
         <div class="tide-veil"></div>
       </div>
+      <div class="island-window" hidden aria-hidden="true">
+        <div class="island-sky"></div>
+        <div class="island-glow"></div>
+        <div class="island-lagoon"></div>
+        <div class="island-sparkle"></div>
+        <div class="island-ripples island-ripples-back">
+          <svg viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">
+            <path fill="currentColor" d="M0 72 Q200 48 400 72 T800 72 T1200 72 T1600 72 V120 H0 Z" />
+          </svg>
+        </div>
+        <div class="island-ripples island-ripples-front">
+          <svg viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">
+            <path fill="currentColor" opacity="0.85" d="M0 82 Q100 62 200 82 T400 82 T600 82 T800 82 T1000 82 T1200 82 T1400 82 T1600 82 V120 H0 Z" />
+          </svg>
+        </div>
+        <div class="island-sand"></div>
+        <div class="island-rock">
+          <svg viewBox="0 0 200 90" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <ellipse cx="100" cy="78" rx="88" ry="14" fill="currentColor" opacity="0.35" />
+            <path fill="currentColor" d="M28 82 Q48 28 78 18 Q108 8 128 22 Q148 36 158 58 Q168 72 172 82 Z" />
+            <path fill="currentColor" opacity="0.75" d="M92 82 Q98 42 112 34 Q126 26 138 38 Q150 50 152 68 Q154 76 156 82 Z" />
+          </svg>
+        </div>
+        <div class="island-palms island-palms-left">
+          <svg viewBox="0 0 120 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M58 280 L62 148 L58 148 L64 88 L60 88 L68 18 L76 88 L72 88 L78 148 L74 148 L78 280 Z" />
+            <path fill="currentColor" opacity="0.85" d="M68 92 Q20 72 8 48 Q28 58 52 78 Q38 52 18 28 Q44 44 58 68 Q48 38 32 12 Q56 32 68 58 Q62 28 58 0 Q72 28 78 58 Q92 32 108 12 Q88 38 78 68 Q102 44 118 28 Q98 52 84 78 Q108 58 128 48 Q116 72 68 92 Z" />
+          </svg>
+        </div>
+        <div class="island-palms island-palms-right">
+          <svg viewBox="0 0 120 280" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path fill="currentColor" d="M58 280 L62 148 L58 148 L64 88 L60 88 L68 18 L76 88 L72 88 L78 148 L74 148 L78 280 Z" />
+            <path fill="currentColor" opacity="0.85" d="M68 92 Q20 72 8 48 Q28 58 52 78 Q38 52 18 28 Q44 44 58 68 Q48 38 32 12 Q56 32 68 58 Q62 28 58 0 Q72 28 78 58 Q92 32 108 12 Q88 38 78 68 Q102 44 118 28 Q98 52 84 78 Q108 58 128 48 Q116 72 68 92 Z" />
+          </svg>
+        </div>
+        <div class="island-veil"></div>
+      </div>
       <div class="date-label" hidden></div>
       <div class="clock-stage">
         <div class="mode-label" hidden></div>
@@ -173,6 +210,7 @@ export function createClockView(root: HTMLElement) {
   const skyWindowEl = root.querySelector('.sky-window') as HTMLElement
   const groveWindowEl = root.querySelector('.grove-window') as HTMLElement
   const tideWindowEl = root.querySelector('.tide-window') as HTMLElement
+  const islandWindowEl = root.querySelector('.island-window') as HTMLElement
   const digitalEl = root.querySelector('.digital-clock') as HTMLElement
   const dateEl = root.querySelector('.date-label') as HTMLElement
   const dayProgressEl = root.querySelector('.day-progress') as HTMLElement
@@ -280,9 +318,11 @@ export function createClockView(root: HTMLElement) {
     const isSkylight = theme.id === 'skylight' && Boolean(theme.sky)
     const isGrove = theme.id === 'grove' && Boolean(theme.forest)
     const isTide = theme.id === 'tide' && Boolean(theme.ocean)
+    const isIsland = theme.id === 'island' && Boolean(theme.island)
     skyWindowEl.hidden = !isSkylight
     groveWindowEl.hidden = !isGrove
     tideWindowEl.hidden = !isTide
+    islandWindowEl.hidden = !isIsland
   }
 
   function placeDigitalInStage() {

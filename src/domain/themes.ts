@@ -6,6 +6,12 @@ import {
   type ForestSceneState,
 } from './forestScene'
 import {
+  getIslandSceneState,
+  islandFlatBg,
+  ISLAND_THEME_ID,
+  type IslandSceneState,
+} from './islandScene'
+import {
   getOceanSceneState,
   oceanFlatBg,
   TIDE_THEME_ID,
@@ -107,6 +113,17 @@ export const THEME_PRESETS: ThemeTokens[] = [
       'linear-gradient(175deg, #3a8ec8 0%, #2a7aaa 48%, #0e3a58 100%)',
   },
   {
+    id: ISLAND_THEME_ID,
+    name: 'Island',
+    bg: '#188898',
+    fg: '#f8fcfd',
+    accent: '#e8b868',
+    fontFamily: 'serif',
+    dynamic: true,
+    swatch:
+      'linear-gradient(175deg, #58c8e8 0%, #30a8b0 42%, #e8d0a0 88%)',
+  },
+  {
     id: SKYLIGHT_THEME_ID,
     name: 'Skylight',
     bg: '#6eb0e4',
@@ -163,6 +180,7 @@ export type ResolvedTheme = {
   sky?: SolarSkyState
   forest?: ForestSceneState
   ocean?: OceanSceneState
+  island?: IslandSceneState
 }
 
 /** Single source of truth for colors/fonts applied to the DOM. */
@@ -226,6 +244,19 @@ export function resolveTheme(
       accent: settings.custom.accent || ocean.accent,
       fontFamily: settings.custom.fontFamily || preset.fontFamily,
       ocean,
+    }
+  }
+
+  if (themeId === ISLAND_THEME_ID) {
+    const island = getIslandSceneState(scenicAt)
+    const preset = getThemeById(ISLAND_THEME_ID)!
+    return {
+      id: ISLAND_THEME_ID,
+      bg: islandFlatBg(island),
+      fg: settings.custom.fg || island.fg,
+      accent: settings.custom.accent || island.accent,
+      fontFamily: settings.custom.fontFamily || preset.fontFamily,
+      island,
     }
   }
 
@@ -401,6 +432,39 @@ export function applyOceanVars(ocean: OceanSceneState | undefined, root: HTMLEle
   root.style.setProperty('--tide-wave-opacity', String(ocean.waveOpacity))
 }
 
+export function applyIslandVars(island: IslandSceneState | undefined, root: HTMLElement) {
+  if (!island) {
+    root.style.removeProperty('--island-sky-top')
+    root.style.removeProperty('--island-sky-mid')
+    root.style.removeProperty('--island-sky-bottom')
+    root.style.removeProperty('--island-lagoon-deep')
+    root.style.removeProperty('--island-lagoon-mid')
+    root.style.removeProperty('--island-lagoon-shallow')
+    root.style.removeProperty('--island-sand')
+    root.style.removeProperty('--island-horizon')
+    root.style.removeProperty('--island-palm')
+    root.style.removeProperty('--island-rock')
+    root.style.removeProperty('--island-sparkle-opacity')
+    root.style.removeProperty('--island-wave-opacity')
+    root.style.removeProperty('--island-glow-opacity')
+    return
+  }
+
+  root.style.setProperty('--island-sky-top', island.skyTop)
+  root.style.setProperty('--island-sky-mid', island.skyMid)
+  root.style.setProperty('--island-sky-bottom', island.skyBottom)
+  root.style.setProperty('--island-lagoon-deep', island.lagoonDeep)
+  root.style.setProperty('--island-lagoon-mid', island.lagoonMid)
+  root.style.setProperty('--island-lagoon-shallow', island.lagoonShallow)
+  root.style.setProperty('--island-sand', island.sand)
+  root.style.setProperty('--island-horizon', island.horizon)
+  root.style.setProperty('--island-palm', island.palm)
+  root.style.setProperty('--island-rock', island.rock)
+  root.style.setProperty('--island-sparkle-opacity', String(island.sparkleOpacity))
+  root.style.setProperty('--island-wave-opacity', String(island.waveOpacity))
+  root.style.setProperty('--island-glow-opacity', String(island.glowOpacity))
+}
+
 export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = document.documentElement) {
   const dial = dialTokens(theme)
 
@@ -429,6 +493,7 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
   applySkyVars(theme.sky, root)
   applyForestVars(theme.forest, root)
   applyOceanVars(theme.ocean, root)
+  applyIslandVars(theme.island, root)
   root.dataset.theme = theme.id
 
   if (root === document.documentElement) {
@@ -447,6 +512,10 @@ export function applyThemeVars(theme: ResolvedTheme, root: HTMLElement = documen
       pageBackground = `linear-gradient(180deg, ${theme.ocean.skyTop}, ${theme.ocean.waterDeep})`
       pageBackgroundColor = theme.ocean.waterDeep
       themeColor = theme.ocean.waterDeep
+    } else if (theme.island) {
+      pageBackground = `linear-gradient(180deg, ${theme.island.skyTop}, ${theme.island.lagoonDeep})`
+      pageBackgroundColor = theme.island.lagoonDeep
+      themeColor = theme.island.lagoonDeep
     }
     document.documentElement.style.backgroundColor = pageBackgroundColor
     document.documentElement.style.background = pageBackground

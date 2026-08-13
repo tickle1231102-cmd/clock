@@ -274,7 +274,7 @@ export function createSettingsView({
                 ).join('')}
               </div>
             </div>
-            <p class="note">Skylight · Grove · Tide 테마에서 배경 하늘/풍경을 현재 시각에 맞출지, 고정 시간대로 둘지 선택합니다.</p>
+            <p class="note">Skylight · Grove · Tide · Island 테마에서 배경을 현재 시각에 맞출지, 고정 시간대로 둘지 선택합니다.</p>
           </div>
         </section>
 

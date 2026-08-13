@@ -9,7 +9,7 @@ import {
   isPomodoroDialStyle,
   type PomodoroDialStyle,
 } from './pomodoroDial'
-import { isScenicThemeId } from './scenicTime'
+import { isScenicFixedPhase, isScenicThemeId } from './scenicTime'
 
 export type AppMode = 'clock' | 'pomodoro' | 'stopwatch' | 'calendar'
 export type ClockMode = 'digital' | 'analog' | 'both'
@@ -19,7 +19,7 @@ export type HourFormat = '24h' | '12h'
 export type FontFamilyId = 'system' | 'serif'
 
 export type ScenicTimeMode = 'live' | 'fixed'
-export type ScenicFixedPhase = 'dawn' | 'day' | 'sunset' | 'night'
+export type ScenicFixedPhase = 'dawn' | 'day' | 'sunset' | 'bluehour' | 'night'
 
 const FONT_FAMILY_IDS: FontFamilyId[] = ['system', 'serif']
 
@@ -166,13 +166,9 @@ function migrate(raw: unknown): ClockSettings {
       raw.scenicTimeMode === 'live' || raw.scenicTimeMode === 'fixed'
         ? raw.scenicTimeMode
         : DEFAULT_SETTINGS.scenicTimeMode,
-    scenicFixedPhase:
-      raw.scenicFixedPhase === 'dawn' ||
-      raw.scenicFixedPhase === 'day' ||
-      raw.scenicFixedPhase === 'sunset' ||
-      raw.scenicFixedPhase === 'night'
-        ? raw.scenicFixedPhase
-        : DEFAULT_SETTINGS.scenicFixedPhase,
+    scenicFixedPhase: isScenicFixedPhase(raw.scenicFixedPhase)
+      ? raw.scenicFixedPhase
+      : DEFAULT_SETTINGS.scenicFixedPhase,
   }
 }
 

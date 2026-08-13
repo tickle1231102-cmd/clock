@@ -1,0 +1,258 @@
+.island-window {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--island-lagoon-deep, #188898);
+}
+
+.island-window[hidden] {
+  display: none !important;
+}
+
+.island-sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 62%;
+  background: linear-gradient(
+    180deg,
+    var(--island-sky-top, #48b8d8) 0%,
+    var(--island-sky-mid, #78cce8) 52%,
+    var(--island-sky-bottom, #c8e8f0) 100%
+  );
+  transition: background 2.5s ease;
+}
+
+.island-glow {
+  position: absolute;
+  left: -15%;
+  right: -15%;
+  top: 38%;
+  height: 28%;
+  background: radial-gradient(
+    ellipse 70% 80% at 50% 40%,
+    color-mix(in srgb, var(--island-horizon, #b8d8e0) calc(var(--island-glow-opacity, 0.48) * 100%), transparent),
+    transparent 72%
+  );
+  filter: blur(10px);
+}
+
+.island-lagoon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--island-lagoon-shallow, #58c8c8) 35%, transparent) 12%,
+    var(--island-lagoon-mid, #30a8b0) 38%,
+    var(--island-lagoon-deep, #188898) 100%
+  );
+  transition: background 2.5s ease;
+}
+
+.island-sand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--island-sand, #e8d0a0) 55%, transparent) 35%,
+    var(--island-sand, #e8d0a0) 100%
+  );
+}
+
+.island-rock {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  width: min(42vw, 220px);
+  height: min(18vh, 120px);
+  transform: translateX(-50%);
+  color: var(--island-rock, #907860);
+  opacity: 0.92;
+}
+
+.island-rock svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.22));
+}
+
+.island-palms {
+  position: absolute;
+  bottom: 8%;
+  width: min(38vw, 200px);
+  height: min(42vh, 280px);
+  color: var(--island-palm, #186040);
+  opacity: 0.94;
+}
+
+.island-palms svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.2));
+}
+
+.island-palms-left {
+  left: -4%;
+}
+
+.island-palms-right {
+  right: -4%;
+  transform: scaleX(-1);
+}
+
+.island-sparkle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48%;
+  height: 32%;
+  opacity: var(--island-sparkle-opacity, 0.7);
+  background-image:
+    radial-gradient(1.3px 1.3px at 10% 35%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1.1px 1.1px at 24% 58%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 38% 28%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.2px 1.2px at 52% 52%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.4px 1.4px at 66% 32%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.1px 1.1px at 80% 55%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.3px 1.3px at 92% 38%, rgba(255, 255, 255, 0.55), transparent);
+  mix-blend-mode: soft-light;
+  animation: island-sparkle-drift 16s ease-in-out infinite alternate;
+}
+
+.island-ripples {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12%;
+  height: 28%;
+  overflow: hidden;
+  opacity: var(--island-wave-opacity, 0.65);
+  color: color-mix(in srgb, var(--island-lagoon-shallow, #58c8c8) 75%, #fff);
+}
+
+.island-ripples svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 200%;
+  height: 100%;
+  overflow: hidden;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.island-ripples-back {
+  opacity: 0.35;
+  bottom: 18%;
+  height: 22%;
+}
+
+.island-ripples-back svg {
+  animation: island-ripple-drift 52s linear infinite;
+}
+
+.island-ripples-front {
+  opacity: 0.55;
+  bottom: 12%;
+  height: 26%;
+}
+
+.island-ripples-front svg {
+  animation: island-ripple-drift-rev 38s linear infinite;
+}
+
+.island-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 35%,
+      color-mix(in srgb, var(--island-lagoon-deep) 12%, transparent) 68%,
+      color-mix(in srgb, var(--island-lagoon-deep) 28%, transparent) 100%
+    ),
+    radial-gradient(ellipse 90% 65% at 50% 45%, transparent 42%, rgba(0, 0, 0, 0.14) 100%);
+}
+
+@keyframes island-ripple-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes island-ripple-drift-rev {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes island-sparkle-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -0.8%, 0);
+  }
+}
+
+.clock-root[data-theme='island'] {
+  background: transparent;
+}
+
+.clock-root[data-theme='island'] .clock-stage {
+  position: relative;
+  z-index: 1;
+}
+
+.clock-root[data-theme='island'] .date-label {
+  z-index: 3;
+}
+
+.clock-root[data-theme='island'] .session-controls,
+.clock-root[data-theme='island'] .hint,
+.clock-root[data-theme='island'] .style-toast,
+.clock-root[data-theme='island'] .style-nav {
+  z-index: 4;
+}
+
+.clock-root[data-theme='island'] .settings-sheet {
+  z-index: 20;
+}
+
+.clock-root[data-theme='island'] .digital-clock,
+.clock-root[data-theme='island'] .digital-clock .time,
+.clock-root[data-theme='island'] .digital-clock .flip-card,
+.clock-root[data-theme='island'] .digital-clock .digit-stack,
+.clock-root[data-theme='island'] .digital-clock .retro-digit {
+  color: var(--fg, #f5fafc);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .island-ripples-back svg,
+  .island-ripples-front svg,
+  .island-sparkle {
+    animation: none;
+  }
+}
